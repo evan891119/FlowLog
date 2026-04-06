@@ -32,7 +32,7 @@ test("normalizeEmailInput trims and rejects empty values", () => {
 });
 
 test("normalizeOtpToken trims and rejects empty values", () => {
-  assert.equal(normalizeOtpToken(" 123456 "), "123456");
+  assert.equal(normalizeOtpToken(" 12345678 "), "12345678");
   assert.equal(normalizeOtpToken(""), null);
   assert.equal(normalizeOtpToken(null), null);
 });

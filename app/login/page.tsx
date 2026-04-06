@@ -43,6 +43,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
               <label className="block">
                 <span className="mb-2 block text-sm font-medium text-ink">Verification code</span>
+                <p className="mb-2 text-sm text-steel">Enter the code from your email.</p>
                 <input
                   type="text"
                   name="token"
@@ -50,7 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   autoComplete="one-time-code"
                   required
                   className="w-full rounded-2xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70"
-                  placeholder="123456"
+                  placeholder="Enter your code"
                 />
               </label>
 
