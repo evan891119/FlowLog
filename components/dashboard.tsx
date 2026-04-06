@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
-import { FocusPanel } from "@/components/focus-panel";
+import { FloatingFocusTimer } from "@/components/floating-focus-timer";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
+import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
+import { TodayTaskList } from "@/components/today-task-list";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { DashboardState, Task } from "@/types/dashboard";
 
@@ -28,6 +31,8 @@ function sortByOrder(tasks: Task[], taskOrder: string[]) {
 
 export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
+  const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
+  const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
   const {
     state,
     createTask,
@@ -56,31 +61,57 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
   const canMoveUp = (taskId: string) => (orderIndexMap.get(taskId) ?? 0) > 0;
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
+  const selectedTodayTask = todayTasks.find((task) => task.id === selectedTodayTaskId) ?? todayTasks[0] ?? null;
+
+  useEffect(() => {
+    if (!todayTasks.length) {
+      setSelectedTodayTaskId(null);
+      setIsTodayTaskDetailOpen(false);
+      return;
+    }
+
+    if (!selectedTodayTaskId || !todayTasks.some((task) => task.id === selectedTodayTaskId)) {
+      setSelectedTodayTaskId(todayTasks[0].id);
+    }
+  }, [todayTasks, selectedTodayTaskId]);
+
+  const selectedTodayTaskHeaderAction = useMemo(
+    () =>
+      selectedTodayTask ? (
+        <button
+          type="button"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202938] dark:text-white"
+          onClick={() => setSelectedTab("tasks")}
+        >
+          View all tasks
+        </button>
+      ) : null,
+    [selectedTodayTask],
+  );
+
+  const handleSelectTodayTask = (taskId: string) => {
+    setSelectedTodayTaskId(taskId);
+    setIsTodayTaskDetailOpen(true);
+  };
 
   return (
-    <main className="min-h-screen px-4 py-5 md:px-6 md:py-5">
+    <main className="min-h-screen px-4 py-5 pb-40 md:px-6 md:py-5 md:pb-48">
       <div className="mx-auto max-w-7xl">
         <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel">Work-state dashboard</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink md:text-[2.25rem]">FlowLog</h1>
-            <p className="mt-2 max-w-xl text-sm text-steel md:text-base">
+            <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel dark:text-slate-300">Work-state dashboard</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink dark:text-white md:text-[2.25rem]">FlowLog</h1>
+            <p className="mt-2 max-w-xl text-sm text-steel dark:text-slate-300 md:text-base">
               Open the page and recover context fast: what matters today, what is active now, and what the next step is.
             </p>
-            {userEmail ? <p className="mt-2 text-sm text-steel">Signed in as {userEmail}</p> : null}
+            {userEmail ? <p className="mt-2 text-sm text-steel dark:text-slate-300">Signed in as {userEmail}</p> : null}
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="rounded-full bg-clay px-4 py-3 text-sm font-semibold text-white"
-              onClick={createTask}
-            >
-              Add task
-            </button>
+            <ThemeToggle />
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink"
+                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:border-white/10 dark:bg-[#1d2632] dark:text-white"
               >
                 Sign out
               </button>
@@ -95,7 +126,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               type="button"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                 selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
-              }`}
+              } ${selectedTab === tab.id ? "dark:bg-[#2a3442] dark:text-white" : "dark:border-white/10 dark:bg-[#1d2632] dark:text-white"}`}
               onClick={() => setSelectedTab(tab.id)}
               aria-pressed={selectedTab === tab.id}
             >
@@ -106,72 +137,80 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
         {selectedTab === "today" ? (
           <>
-            <section className="grid gap-4 xl:grid-cols-3 xl:items-stretch">
-              <div className="xl:order-2">
-                <CurrentTaskPanel task={currentTask} variant="summary" />
-              </div>
-
-              <div className="xl:order-1">
-                <Section
-                  title="Today Goal"
-                  description="A single sentence that frames the day."
-                  layout="fill"
-                >
+            <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
+              <div className="space-y-4">
+                <Section title="Today Goal" description="A single sentence that frames the day." layout="fill">
                   <textarea
-                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 xl:min-h-[220px] xl:resize-none"
+                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500 xl:min-h-[220px] xl:resize-none"
                     placeholder="Finish the first usable FlowLog dashboard."
                     value={state.todayGoal}
                     onChange={(event) => updateTodayGoal(event.target.value)}
                     aria-label="Today goal"
                   />
                 </Section>
-              </div>
 
-              <div className="xl:order-3">
-                <FocusPanel
-                  focus={state.focus}
-                  onToggleEnabled={setFocusEnabled}
-                  onDurationChange={setFocusDuration}
-                  onStart={startFocusSession}
-                  onStop={stopFocusSession}
-                  variant="summary"
-                />
-              </div>
-            </section>
-
-            <section className="mt-4">
-              <TaskListSection
-                title="Today Tasks"
-                description="Tasks explicitly marked for today."
-                tasks={todayTasks}
-                variant="compact"
-                visibleCount={1}
-                mobileVisibleCount={1}
-                overflowMessage={(hiddenCount) => `+${hiddenCount} more tasks in Tasks.`}
-                action={
-                  todayTasks.length > 0 ? (
+                <TodayTaskList
+                  tasks={todayTasks}
+                  selectedTaskId={selectedTodayTask?.id ?? null}
+                  onSelectTask={handleSelectTodayTask}
+                  action={
                     <button
                       type="button"
-                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
                       onClick={() => setSelectedTab("tasks")}
                     >
                       View all tasks
                     </button>
-                  ) : null
-                }
-                className="overflow-hidden"
-                emptyMessage="No tasks are marked for today. Flag the most important work so the dashboard stays focused."
-                onSetCurrent={setCurrentTask}
-                onStatusChange={updateTaskStatus}
-                onToggleToday={toggleToday}
-                onTitleChange={updateTaskTitle}
-                onNextActionChange={updateTaskNextAction}
-                onDelete={deleteTask}
-                onMoveUp={moveTaskUp}
-                onMoveDown={moveTaskDown}
-                canMoveUp={canMoveUp}
-                canMoveDown={canMoveDown}
-              />
+                  }
+                />
+              </div>
+
+              <div className="space-y-4">
+                <CurrentTaskPanel task={currentTask} variant="summary" />
+
+                <div className="hidden xl:block">
+                  <TodayTaskDetailPanel
+                    task={selectedTodayTask}
+                    onSetCurrent={setCurrentTask}
+                    onStatusChange={updateTaskStatus}
+                    onToggleToday={toggleToday}
+                    onTitleChange={updateTaskTitle}
+                    onNextActionChange={updateTaskNextAction}
+                    headerAction={selectedTodayTaskHeaderAction}
+                  />
+                </div>
+              </div>
+
+              {isTodayTaskDetailOpen ? (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-50 bg-ink/18 dark:bg-black/30 xl:hidden"
+                    aria-label="Close task detail"
+                    onClick={() => setIsTodayTaskDetailOpen(false)}
+                  />
+                  <div className="fixed inset-x-0 bottom-0 z-[60] xl:hidden">
+                    <TodayTaskDetailPanel
+                      task={selectedTodayTask}
+                      onSetCurrent={setCurrentTask}
+                      onStatusChange={updateTaskStatus}
+                      onToggleToday={toggleToday}
+                      onTitleChange={updateTaskTitle}
+                      onNextActionChange={updateTaskNextAction}
+                      headerAction={
+                        <button
+                          type="button"
+                          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+                          onClick={() => setIsTodayTaskDetailOpen(false)}
+                        >
+                          Close
+                        </button>
+                      }
+                      className="rounded-b-none pb-7"
+                    />
+                  </div>
+                </>
+              ) : null}
             </section>
           </>
         ) : null}
@@ -234,6 +273,25 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
             />
           </section>
         ) : null}
+
+        <button
+          type="button"
+          className={`fixed right-4 z-30 flex h-16 min-w-[7.5rem] items-center justify-center rounded-full bg-clay px-5 text-sm font-semibold tracking-tight text-white shadow-panel transition hover:scale-[1.02] md:right-6 md:h-[4.5rem] md:min-w-[8.5rem] md:text-base ${
+            isTodayTaskDetailOpen ? "pointer-events-none opacity-0 xl:pointer-events-auto xl:opacity-100" : "opacity-100"
+          } bottom-[calc(env(safe-area-inset-bottom)+6.75rem)] md:bottom-[8.5rem]`}
+          onClick={createTask}
+          aria-label="Add task"
+        >
+          Add task
+        </button>
+
+        <FloatingFocusTimer
+          focus={state.focus}
+          onToggleEnabled={setFocusEnabled}
+          onDurationChange={setFocusDuration}
+          onStart={startFocusSession}
+          onStop={stopFocusSession}
+        />
       </div>
     </main>
   );

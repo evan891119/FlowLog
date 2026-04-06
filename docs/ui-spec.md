@@ -31,8 +31,9 @@ Main sections:
 
 Recommended structure:
 
-- Top row: today goal, current task summary, focus mode toggle
+- Top row: today goal and current task summary
 - Main content column: today tasks and main task list
+- Floating utility: focus mode orb fixed to the lower-right corner
 - Secondary side or lower panel: later tasks, blocked tasks, completed tasks
 
 The page should visually prioritize current context over list density.
@@ -43,11 +44,12 @@ Use a single-column layout with stacked sections in this order:
 
 1. Current task
 2. Today goal
-3. Focus controls
-4. Today tasks
-5. Main task list
-6. Blocked tasks
-7. Completed tasks
+3. Today tasks
+4. Main task list
+5. Blocked tasks
+6. Completed tasks
+
+Focus mode should remain accessible as a floating control. On mobile, tapping it should open a bottom sheet rather than an inline section.
 
 The current task must remain near the top on mobile.
 
@@ -102,6 +104,8 @@ Behavior:
 
 - Must be collapsible or visually secondary
 - Must not dominate the top of the page
+- Desktop presentation can be a fixed lower-right floating orb that opens a small popover
+- Mobile presentation can use the same orb but open a bottom sheet
 
 ### 4.4 Today Tasks
 
@@ -115,7 +119,9 @@ Displayed content:
 
 Behavior:
 
-- Each item should still show status, next action, and progress
+- Desktop can present this area as a lightweight task list on the left with an expanded detail panel on the right
+- Mobile can keep the list compact and open the selected task in a bottom sheet
+- The list itself can stay minimal, but the expanded panel should show the selected task's next action and progress
 - Tasks may also appear conceptually in the full task set, but the dashboard should treat this area as a focused subset
 
 ### 4.5 Main Task List
