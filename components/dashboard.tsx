@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
-import { FocusPanel } from "@/components/focus-panel";
+import { FloatingFocusTimer } from "@/components/floating-focus-timer";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
 import { useDashboardState } from "@/lib/use-dashboard-state";
@@ -58,7 +58,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
 
   return (
-    <main className="min-h-screen px-4 py-5 md:px-6 md:py-5">
+    <main className="min-h-screen px-4 py-5 pb-28 md:px-6 md:py-5 md:pb-32">
       <div className="mx-auto max-w-7xl">
         <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
@@ -106,7 +106,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
         {selectedTab === "today" ? (
           <>
-            <section className="grid gap-4 xl:grid-cols-3 xl:items-stretch">
+            <section className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
               <div className="xl:order-2">
                 <CurrentTaskPanel task={currentTask} variant="summary" />
               </div>
@@ -125,17 +125,6 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                     aria-label="Today goal"
                   />
                 </Section>
-              </div>
-
-              <div className="xl:order-3">
-                <FocusPanel
-                  focus={state.focus}
-                  onToggleEnabled={setFocusEnabled}
-                  onDurationChange={setFocusDuration}
-                  onStart={startFocusSession}
-                  onStop={stopFocusSession}
-                  variant="summary"
-                />
               </div>
             </section>
 
@@ -234,6 +223,14 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
             />
           </section>
         ) : null}
+
+        <FloatingFocusTimer
+          focus={state.focus}
+          onToggleEnabled={setFocusEnabled}
+          onDurationChange={setFocusDuration}
+          onStart={startFocusSession}
+          onStop={stopFocusSession}
+        />
       </div>
     </main>
   );

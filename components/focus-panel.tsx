@@ -1,19 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Section } from "@/components/section";
 import { FocusSettings } from "@/types/dashboard";
 
 const DURATION_OPTIONS = [15, 25, 50];
-
-function getRemainingSeconds(focus: FocusSettings, now: number) {
-  if (!focus.lastSessionStartedAt) {
-    return focus.duration * 60;
-  }
-
-  const elapsedSeconds = Math.max(0, Math.floor((now - new Date(focus.lastSessionStartedAt).getTime()) / 1000));
-  return Math.max(0, focus.duration * 60 - elapsedSeconds);
-}
 
 function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60)
@@ -28,41 +17,30 @@ function formatTime(totalSeconds: number) {
 
 type FocusPanelProps = {
   focus: FocusSettings;
+  remainingSeconds: number;
+  isRunning: boolean;
+  isComplete: boolean;
   onToggleEnabled: (enabled: boolean) => void;
   onDurationChange: (duration: number) => void;
   onStart: () => void;
   onStop: () => void;
-  variant?: "default" | "summary";
+  onClose: () => void;
+  variant?: "popover" | "sheet";
 };
 
 export function FocusPanel({
   focus,
+  remainingSeconds,
+  isRunning,
+  isComplete,
   onToggleEnabled,
   onDurationChange,
   onStart,
   onStop,
-  variant = "default",
+  onClose,
+  variant = "popover",
 }: FocusPanelProps) {
-  const [now, setNow] = useState(() => Date.now());
-  const isSummary = variant === "summary";
-
-  useEffect(() => {
-    if (!focus.lastSessionStartedAt) {
-      return;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [focus.lastSessionStartedAt]);
-
-  const remainingSeconds = getRemainingSeconds(focus, now);
-  const isRunning = focus.lastSessionStartedAt !== null && remainingSeconds > 0;
-  const isComplete = focus.lastSessionStartedAt !== null && remainingSeconds === 0;
+  const isSheet = variant === "sheet";
   const statusText = !focus.enabled
     ? "Focus mode is off."
     : isRunning
@@ -72,20 +50,30 @@ export function FocusPanel({
         : "Ready to start a focus session.";
 
   return (
-    <Section
-      title="Focus Mode"
-      description="Optional support for sustained work without taking over the dashboard."
-      layout={isSummary ? "fill" : "default"}
+    <div
+      className={`rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-panel backdrop-blur ${
+        isSheet ? "w-full rounded-b-none pb-7" : "w-[min(24rem,calc(100vw-2rem))]"
+      }`}
     >
-      <div
-        className={`rounded-3xl bg-white px-4 text-sm text-steel ${
-          isSummary ? "flex h-full min-h-0 flex-col gap-3 py-4" : "space-y-3 py-4"
-        }`}
-      >
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-ink">Focus Mode</h2>
+          <p className="mt-1 text-sm text-steel">Keep a timer close without taking over the dashboard.</p>
+        </div>
+        <button
+          type="button"
+          className="rounded-full border border-sand bg-white px-3 py-1.5 text-sm font-medium text-ink"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
+
+      <div className="space-y-4 rounded-3xl bg-white px-4 py-4 text-sm text-steel">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Status</p>
-            <p className={`mt-1 font-semibold text-ink ${isSummary ? "text-sm leading-5" : "text-base"}`}>{statusText}</p>
+            <p className="mt-1 font-semibold text-ink">{statusText}</p>
           </div>
           <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
@@ -98,10 +86,10 @@ export function FocusPanel({
           </label>
         </div>
 
-        <div className={`gap-3 ${isSummary ? "grid min-h-0 grid-cols-[1.1fr_0.9fr] items-start" : "space-y-3"}`}>
+        <div className={`gap-3 ${isSheet ? "space-y-3" : "grid grid-cols-[1.05fr_0.95fr] items-start"}`}>
           <div className="rounded-2xl bg-mist/70 px-4 py-3">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Timer</p>
-            <p className={`mt-2 font-semibold tracking-tight text-ink ${isSummary ? "text-2xl" : "text-3xl"}`}>{formatTime(remainingSeconds)}</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{formatTime(remainingSeconds)}</p>
           </div>
 
           <label className="block">
@@ -122,7 +110,7 @@ export function FocusPanel({
           </label>
         </div>
 
-        <div className={`flex flex-wrap gap-2 ${isSummary ? "mt-auto pt-1" : ""}`}>
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className="rounded-full bg-forest px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-steel"
@@ -141,6 +129,6 @@ export function FocusPanel({
           </button>
         </div>
       </div>
-    </Section>
+    </div>
   );
 }
