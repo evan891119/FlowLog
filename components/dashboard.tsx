@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
+import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
+import { TodayTaskList } from "@/components/today-task-list";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { DashboardState, Task } from "@/types/dashboard";
 
@@ -28,6 +30,8 @@ function sortByOrder(tasks: Task[], taskOrder: string[]) {
 
 export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
+  const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
+  const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
   const {
     state,
     createTask,
@@ -56,6 +60,38 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
   const canMoveUp = (taskId: string) => (orderIndexMap.get(taskId) ?? 0) > 0;
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
+  const selectedTodayTask = todayTasks.find((task) => task.id === selectedTodayTaskId) ?? todayTasks[0] ?? null;
+
+  useEffect(() => {
+    if (!todayTasks.length) {
+      setSelectedTodayTaskId(null);
+      setIsTodayTaskDetailOpen(false);
+      return;
+    }
+
+    if (!selectedTodayTaskId || !todayTasks.some((task) => task.id === selectedTodayTaskId)) {
+      setSelectedTodayTaskId(todayTasks[0].id);
+    }
+  }, [todayTasks, selectedTodayTaskId]);
+
+  const selectedTodayTaskHeaderAction = useMemo(
+    () =>
+      selectedTodayTask ? (
+        <button
+          type="button"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+          onClick={() => setSelectedTab("tasks")}
+        >
+          View all tasks
+        </button>
+      ) : null,
+    [selectedTodayTask],
+  );
+
+  const handleSelectTodayTask = (taskId: string) => {
+    setSelectedTodayTaskId(taskId);
+    setIsTodayTaskDetailOpen(true);
+  };
 
   return (
     <main className="min-h-screen px-4 py-5 pb-28 md:px-6 md:py-5 md:pb-32">
@@ -106,17 +142,9 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
         {selectedTab === "today" ? (
           <>
-            <section className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
-              <div className="xl:order-2">
-                <CurrentTaskPanel task={currentTask} variant="summary" />
-              </div>
-
-              <div className="xl:order-1">
-                <Section
-                  title="Today Goal"
-                  description="A single sentence that frames the day."
-                  layout="fill"
-                >
+            <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
+              <div className="space-y-4">
+                <Section title="Today Goal" description="A single sentence that frames the day." layout="fill">
                   <textarea
                     className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 xl:min-h-[220px] xl:resize-none"
                     placeholder="Finish the first usable FlowLog dashboard."
@@ -125,20 +153,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                     aria-label="Today goal"
                   />
                 </Section>
-              </div>
-            </section>
 
-            <section className="mt-4">
-              <TaskListSection
-                title="Today Tasks"
-                description="Tasks explicitly marked for today."
-                tasks={todayTasks}
-                variant="compact"
-                visibleCount={1}
-                mobileVisibleCount={1}
-                overflowMessage={(hiddenCount) => `+${hiddenCount} more tasks in Tasks.`}
-                action={
-                  todayTasks.length > 0 ? (
+                <TodayTaskList
+                  tasks={todayTasks}
+                  selectedTaskId={selectedTodayTask?.id ?? null}
+                  onSelectTask={handleSelectTodayTask}
+                  action={
                     <button
                       type="button"
                       className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
@@ -146,21 +166,56 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                     >
                       View all tasks
                     </button>
-                  ) : null
-                }
-                className="overflow-hidden"
-                emptyMessage="No tasks are marked for today. Flag the most important work so the dashboard stays focused."
-                onSetCurrent={setCurrentTask}
-                onStatusChange={updateTaskStatus}
-                onToggleToday={toggleToday}
-                onTitleChange={updateTaskTitle}
-                onNextActionChange={updateTaskNextAction}
-                onDelete={deleteTask}
-                onMoveUp={moveTaskUp}
-                onMoveDown={moveTaskDown}
-                canMoveUp={canMoveUp}
-                canMoveDown={canMoveDown}
-              />
+                  }
+                />
+              </div>
+
+              <div className="space-y-4">
+                <CurrentTaskPanel task={currentTask} variant="summary" />
+
+                <div className="hidden xl:block">
+                  <TodayTaskDetailPanel
+                    task={selectedTodayTask}
+                    onSetCurrent={setCurrentTask}
+                    onStatusChange={updateTaskStatus}
+                    onToggleToday={toggleToday}
+                    onTitleChange={updateTaskTitle}
+                    onNextActionChange={updateTaskNextAction}
+                    headerAction={selectedTodayTaskHeaderAction}
+                  />
+                </div>
+              </div>
+
+              {isTodayTaskDetailOpen ? (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-50 bg-ink/18 xl:hidden"
+                    aria-label="Close task detail"
+                    onClick={() => setIsTodayTaskDetailOpen(false)}
+                  />
+                  <div className="fixed inset-x-0 bottom-0 z-[60] xl:hidden">
+                    <TodayTaskDetailPanel
+                      task={selectedTodayTask}
+                      onSetCurrent={setCurrentTask}
+                      onStatusChange={updateTaskStatus}
+                      onToggleToday={toggleToday}
+                      onTitleChange={updateTaskTitle}
+                      onNextActionChange={updateTaskNextAction}
+                      headerAction={
+                        <button
+                          type="button"
+                          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+                          onClick={() => setIsTodayTaskDetailOpen(false)}
+                        >
+                          Close
+                        </button>
+                      }
+                      className="rounded-b-none pb-7"
+                    />
+                  </div>
+                </>
+              ) : null}
             </section>
           </>
         ) : null}

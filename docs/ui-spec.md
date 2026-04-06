@@ -119,7 +119,9 @@ Displayed content:
 
 Behavior:
 
-- Each item should still show status, next action, and progress
+- Desktop can present this area as a lightweight task list on the left with an expanded detail panel on the right
+- Mobile can keep the list compact and open the selected task in a bottom sheet
+- The list itself can stay minimal, but the expanded panel should show the selected task's next action and progress
 - Tasks may also appear conceptually in the full task set, but the dashboard should treat this area as a focused subset
 
 ### 4.5 Main Task List
