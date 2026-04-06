@@ -2,13 +2,13 @@
 
 ## Project Structure & Module Organization
 
-This repository is currently documentation-first. The root contains [README.md](/Users/evan/Code/Projects/FlowLog/README.md) and the `docs/` folder:
+This repository is docs-led, but it already includes a working Next.js MVP alongside the product specs. Core documentation lives in the root [README.md](/Users/evan/Code/Projects/FlowLog/README.md) and the `docs/` folder:
 
 - `docs/product-spec.md`: product definition and MVP scope
 - `docs/ui-spec.md`: dashboard layout and interaction rules
 - `docs/implementation-spec.md`: data model and implementation order
 
-When the app is scaffolded, follow the structure defined in the implementation spec:
+The current app structure follows the implementation spec:
 
 - `app/`: Next.js routes and page shell
 - `components/`: dashboard UI components
@@ -17,14 +17,15 @@ When the app is scaffolded, follow the structure defined in the implementation s
 
 ## Build, Test, and Development Commands
 
-There are no build or test commands configured yet. Once the Next.js app is added, standard commands should be introduced and documented in `README.md`, for example:
+Current project commands:
 
 - `npm install`: install dependencies
 - `npm run dev`: run the local development server
 - `npm run build`: create a production build
-- `npm run test`: run automated tests
+- `npm run start`: run the production server
+- `npm run typecheck`: run the TypeScript checker
 
-Do not add undocumented scripts. Update this guide when tooling is introduced.
+There is no automated test command configured yet. Do not add undocumented scripts. Update this guide when tooling changes.
 
 ## Coding Style & Naming Conventions
 
@@ -46,7 +47,7 @@ If formatting or linting is added, document the exact command here.
 
 ## Testing Guidelines
 
-No test framework is configured yet. When tests are added:
+No test framework is configured yet. Until tests are added, use `npm run typecheck` as the minimum verification step after code changes. When tests are added:
 
 - Place unit tests beside source files or under `tests/`
 - Name files `*.test.ts` or `*.test.tsx`
