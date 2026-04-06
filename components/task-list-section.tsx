@@ -77,7 +77,7 @@ export function TaskListSection({
               </div>
             ))}
             {hiddenCount > 0 && overflowMessage ? (
-              <p className="rounded-2xl border border-dashed border-sand bg-white/70 px-4 py-3 text-sm font-medium text-steel">
+              <p className="rounded-2xl border border-dashed border-sand bg-white/70 px-4 py-3 text-sm font-medium text-steel dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                 {overflowMessage(hiddenCount)}
               </p>
             ) : null}

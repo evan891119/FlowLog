@@ -7,6 +7,7 @@ import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { DashboardState, Task } from "@/types/dashboard";
 
@@ -79,7 +80,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
       selectedTodayTask ? (
         <button
           type="button"
-          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202938] dark:text-white"
           onClick={() => setSelectedTab("tasks")}
         >
           View all tasks
@@ -98,14 +99,15 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
       <div className="mx-auto max-w-7xl">
         <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel">Work-state dashboard</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink md:text-[2.25rem]">FlowLog</h1>
-            <p className="mt-2 max-w-xl text-sm text-steel md:text-base">
+            <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel dark:text-slate-300">Work-state dashboard</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink dark:text-white md:text-[2.25rem]">FlowLog</h1>
+            <p className="mt-2 max-w-xl text-sm text-steel dark:text-slate-300 md:text-base">
               Open the page and recover context fast: what matters today, what is active now, and what the next step is.
             </p>
-            {userEmail ? <p className="mt-2 text-sm text-steel">Signed in as {userEmail}</p> : null}
+            {userEmail ? <p className="mt-2 text-sm text-steel dark:text-slate-300">Signed in as {userEmail}</p> : null}
           </div>
           <div className="flex flex-wrap gap-2">
+            <ThemeToggle />
             <button
               type="button"
               className="rounded-full bg-clay px-4 py-3 text-sm font-semibold text-white"
@@ -116,7 +118,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink"
+                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:border-white/10 dark:bg-[#1d2632] dark:text-white"
               >
                 Sign out
               </button>
@@ -131,7 +133,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               type="button"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                 selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
-              }`}
+              } ${selectedTab === tab.id ? "dark:bg-[#2a3442] dark:text-white" : "dark:border-white/10 dark:bg-[#1d2632] dark:text-white"}`}
               onClick={() => setSelectedTab(tab.id)}
               aria-pressed={selectedTab === tab.id}
             >
@@ -146,7 +148,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               <div className="space-y-4">
                 <Section title="Today Goal" description="A single sentence that frames the day." layout="fill">
                   <textarea
-                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 xl:min-h-[220px] xl:resize-none"
+                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500 xl:min-h-[220px] xl:resize-none"
                     placeholder="Finish the first usable FlowLog dashboard."
                     value={state.todayGoal}
                     onChange={(event) => updateTodayGoal(event.target.value)}
@@ -161,7 +163,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                   action={
                     <button
                       type="button"
-                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
                       onClick={() => setSelectedTab("tasks")}
                     >
                       View all tasks
@@ -190,7 +192,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                 <>
                   <button
                     type="button"
-                    className="fixed inset-0 z-50 bg-ink/18 xl:hidden"
+                    className="fixed inset-0 z-50 bg-ink/18 dark:bg-black/30 xl:hidden"
                     aria-label="Close task detail"
                     onClick={() => setIsTodayTaskDetailOpen(false)}
                   />
@@ -205,7 +207,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                       headerAction={
                         <button
                           type="button"
-                          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+                          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
                           onClick={() => setIsTodayTaskDetailOpen(false)}
                         >
                           Close

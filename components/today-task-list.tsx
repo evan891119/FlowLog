@@ -29,16 +29,16 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action }: T
                 type="button"
                 className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition ${
                   isSelected
-                    ? "border-ink bg-ink text-white shadow-panel"
-                    : "border-sand/80 bg-mist/60 text-ink hover:bg-mist"
+                    ? "border-ink bg-ink text-white shadow-panel dark:border-white/15 dark:bg-[#24303d]"
+                    : "border-sand/80 bg-mist/60 text-ink hover:bg-mist dark:border-white/10 dark:bg-[#1b2430] dark:text-white dark:hover:bg-[#232d39]"
                 }`}
                 onClick={() => onSelectTask(task.id)}
                 aria-pressed={isSelected}
               >
                 <div className="min-w-0 flex-1">
-                  <p className={`truncate text-sm font-semibold ${isSelected ? "text-white" : "text-ink"}`}>{task.title || "Untitled task"}</p>
+                  <p className={`truncate text-sm font-semibold ${isSelected ? "text-white" : "text-ink dark:text-white"}`}>{task.title || "Untitled task"}</p>
                   {task.isCurrent ? (
-                    <p className={`mt-1 text-xs font-medium uppercase tracking-[0.14em] ${isSelected ? "text-white/70" : "text-steel"}`}>
+                    <p className={`mt-1 text-xs font-medium uppercase tracking-[0.14em] ${isSelected ? "text-white/70" : "text-steel dark:text-slate-300"}`}>
                       Current task
                     </p>
                   ) : null}

@@ -13,7 +13,7 @@ export function Section({ title, description, headerAction, layout = "default", 
 
   return (
     <section
-      className={`rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur ${
+      className={`rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur dark:border-white/8 dark:bg-[#141b24]/94 ${
         isFill ? "flex h-full flex-col" : ""
       } ${
         className ?? ""
@@ -21,8 +21,8 @@ export function Section({ title, description, headerAction, layout = "default", 
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-ink">{title}</h2>
-          {description ? <p className="mt-1 text-sm text-steel">{description}</p> : null}
+          <h2 className="text-lg font-semibold text-ink dark:text-white">{title}</h2>
+          {description ? <p className="mt-1 text-sm text-steel dark:text-slate-300">{description}</p> : null}
         </div>
         {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
       </div>

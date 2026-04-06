@@ -1,10 +1,10 @@
 import { TaskStatus } from "@/types/dashboard";
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
-  not_started: "bg-sand text-ink",
+  not_started: "bg-sand text-ink dark:border dark:border-white/10 dark:bg-[#273240] dark:text-slate-100",
   in_progress: "bg-forest text-white",
   blocked: "bg-clay text-white",
-  done: "bg-steel text-white",
+  done: "bg-steel text-white dark:border dark:border-white/10 dark:bg-[#334155] dark:text-slate-100",
 };
 
 type StatusBadgeProps = {

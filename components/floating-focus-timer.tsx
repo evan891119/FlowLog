@@ -118,7 +118,7 @@ export function FloatingFocusTimer({
         <>
           <button
             type="button"
-            className="pointer-events-auto fixed inset-0 z-0 bg-ink/18 md:bg-transparent"
+            className="pointer-events-auto fixed inset-0 z-0 bg-ink/18 dark:bg-black/30 md:bg-transparent"
             aria-label="Close focus mode"
             onClick={() => setIsOpen(false)}
           />
@@ -156,22 +156,22 @@ export function FloatingFocusTimer({
 
       <button
         type="button"
-        className="pointer-events-auto relative flex h-20 w-20 items-center justify-center rounded-full border border-white/70 bg-white/92 shadow-panel backdrop-blur transition hover:scale-[1.02] md:h-24 md:w-24"
+        className="pointer-events-auto relative flex h-20 w-20 items-center justify-center rounded-full border border-white/70 bg-white/92 shadow-panel backdrop-blur transition hover:scale-[1.02] dark:border-white/10 dark:bg-[#141d27]/96 md:h-24 md:w-24"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
         aria-label="Open focus mode"
       >
         <span className="absolute inset-0 rounded-full p-[5px] md:p-[6px]" style={progressStyle}>
-          <span className="block h-full w-full rounded-full bg-white/95" />
+          <span className="block h-full w-full rounded-full bg-white/95 dark:bg-[#141d27]" />
         </span>
         <span
           className={`absolute inset-[7px] rounded-full border ${
-            focus.enabled ? "border-clay/20 bg-mist/90" : "border-steel/15 bg-white"
+            focus.enabled ? "border-clay/20 bg-mist/90 dark:border-clay/30 dark:bg-[#202a36]" : "border-steel/15 bg-white dark:border-white/10 dark:bg-[#18212b]"
           } md:inset-[8px]`}
         />
         <span className="relative flex flex-col items-center justify-center leading-none">
-          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-steel md:text-[11px]">Focus</span>
-          <span className="mt-1 text-sm font-semibold tracking-tight text-ink md:text-base">{orbLabel}</span>
+          <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300 md:text-[11px]">Focus</span>
+          <span className="mt-1 text-sm font-semibold tracking-tight text-ink dark:text-white md:text-base">{orbLabel}</span>
         </span>
       </button>
     </div>

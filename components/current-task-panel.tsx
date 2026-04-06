@@ -19,7 +19,7 @@ export function CurrentTaskPanel({ task, variant = "default" }: CurrentTaskPanel
     >
       {task ? (
         <div
-          className={`rounded-3xl bg-ink text-white shadow-panel ${
+          className={`rounded-3xl bg-ink text-white shadow-panel dark:border dark:border-white/10 dark:bg-[#101822] ${
             isSummary ? "flex h-full min-h-0 flex-col px-4 py-4" : "px-5 py-5"
           }`}
         >
@@ -30,7 +30,7 @@ export function CurrentTaskPanel({ task, variant = "default" }: CurrentTaskPanel
             </div>
             <StatusBadge status={task.status} />
           </div>
-          <div className={`rounded-2xl bg-white/8 ${isSummary ? "mt-4 min-h-0 flex-1 px-4 py-3" : "mt-6 px-4 py-4"}`}>
+          <div className={`rounded-2xl bg-white/8 dark:border dark:border-white/8 dark:bg-[#1a2430] ${isSummary ? "mt-4 min-h-0 flex-1 px-4 py-3" : "mt-6 px-4 py-4"}`}>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-white/65">Next action</p>
             <p className={`mt-2 text-base ${isSummary ? "overflow-hidden leading-6" : "leading-7"}`}>
               {task.nextAction || "Define the next concrete step to make this task resumable."}

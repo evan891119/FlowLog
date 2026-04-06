@@ -40,12 +40,14 @@ export function TaskCard({
   const isCompact = variant === "compact";
 
   return (
-    <article className={`rounded-3xl border border-sand/80 bg-mist/60 ${isCompact ? "p-3.5" : "p-4"}`}>
+    <article className={`rounded-3xl border border-sand/80 bg-mist/60 dark:border-white/10 dark:bg-[#1b2430] ${isCompact ? "p-3.5" : "p-4"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <input
             className={`w-full rounded-xl bg-white text-base font-semibold text-ink outline-none ring-0 placeholder:text-steel/70 ${
-              isCompact ? "px-3 py-2" : "px-3 py-2"
+              isCompact
+                ? "px-3 py-2 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
+                : "px-3 py-2 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
             }`}
             value={task.title}
             onChange={(event) => onTitleChange(task.id, event.target.value)}
@@ -56,15 +58,15 @@ export function TaskCard({
         <div className="flex items-center gap-2">
           <StatusBadge status={task.status} />
           {task.isCurrent ? <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-medium text-white">Current</span> : null}
-          {task.isToday ? <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink">Today</span> : null}
+          {task.isToday ? <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink dark:border dark:border-white/10 dark:bg-[#273240] dark:text-slate-100">Today</span> : null}
         </div>
       </div>
 
       <div className={`mt-3 grid gap-3 ${isCompact ? "md:grid-cols-[1.15fr_0.85fr]" : "md:grid-cols-[1fr_150px]"}`}>
         <label className="block">
-          <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Next action</span>
+          <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
           <textarea
-            className={`w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 ${
+            className={`w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500 ${
               isCompact ? "min-h-14" : "min-h-24"
             }`}
             value={task.nextAction}
@@ -76,9 +78,9 @@ export function TaskCard({
 
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Status</span>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</span>
             <select
-              className="w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none"
+              className="w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white"
               value={task.status}
               onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
               aria-label="Task status"
@@ -92,11 +94,11 @@ export function TaskCard({
           </label>
 
           <div>
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Progress</span>
-            <div className="overflow-hidden rounded-full bg-white">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Progress</span>
+            <div className="overflow-hidden rounded-full bg-white dark:bg-[#273240]">
               <div className="h-3 rounded-full bg-forest transition-all" style={{ width: `${task.progress}%` }} />
             </div>
-            <p className="mt-1 text-sm text-steel">{task.progress}%</p>
+            <p className="mt-1 text-sm text-steel dark:text-slate-300">{task.progress}%</p>
           </div>
         </div>
       </div>
@@ -112,7 +114,7 @@ export function TaskCard({
         </button>
         <button
           type="button"
-          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
           onClick={() => onToggleToday(task.id)}
         >
           {task.isToday ? "Remove from today" : "Add to today"}
@@ -121,7 +123,7 @@ export function TaskCard({
           <>
             <button
               type="button"
-              className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel"
+              className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel dark:border-white/10 dark:bg-[#202a36] dark:text-white dark:disabled:text-slate-400"
               onClick={() => onMoveUp(task.id)}
               disabled={!canMoveUp}
             >
@@ -129,7 +131,7 @@ export function TaskCard({
             </button>
             <button
               type="button"
-              className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel"
+              className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel dark:border-white/10 dark:bg-[#202a36] dark:text-white dark:disabled:text-slate-400"
               onClick={() => onMoveDown(task.id)}
               disabled={!canMoveDown}
             >
@@ -137,7 +139,7 @@ export function TaskCard({
             </button>
             <button
               type="button"
-              className="rounded-full border border-clay/40 bg-clay/10 px-3 py-2 text-sm font-medium text-clay"
+              className="rounded-full border border-clay/40 bg-clay/10 px-3 py-2 text-sm font-medium text-clay dark:border-clay/30 dark:bg-clay/15 dark:text-[#f29d84]"
               onClick={() => onDelete(task.id)}
             >
               Delete

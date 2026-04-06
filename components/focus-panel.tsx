@@ -51,31 +51,31 @@ export function FocusPanel({
 
   return (
     <div
-      className={`rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-panel backdrop-blur ${
+      className={`rounded-[28px] border border-white/70 bg-white/95 p-5 shadow-panel backdrop-blur dark:border-white/10 dark:bg-[#161f29]/98 ${
         isSheet ? "w-full rounded-b-none pb-7" : "w-[min(24rem,calc(100vw-2rem))]"
       }`}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-ink">Focus Mode</h2>
-          <p className="mt-1 text-sm text-steel">Keep a timer close without taking over the dashboard.</p>
+          <h2 className="text-lg font-semibold text-ink dark:text-white">Focus Mode</h2>
+          <p className="mt-1 text-sm text-steel dark:text-slate-300">Keep a timer close without taking over the dashboard.</p>
         </div>
         <button
           type="button"
-          className="rounded-full border border-sand bg-white px-3 py-1.5 text-sm font-medium text-ink"
+          className="rounded-full border border-sand bg-white px-3 py-1.5 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
           onClick={onClose}
         >
           Close
         </button>
       </div>
 
-      <div className="space-y-4 rounded-3xl bg-white px-4 py-4 text-sm text-steel">
+      <div className="space-y-4 rounded-3xl bg-white px-4 py-4 text-sm text-steel dark:bg-[#121b25] dark:text-slate-300">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Status</p>
-            <p className="mt-1 font-semibold text-ink">{statusText}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</p>
+            <p className="mt-1 font-semibold text-ink dark:text-white">{statusText}</p>
           </div>
-          <label className="flex items-center gap-2 text-sm font-medium text-ink">
+          <label className="flex items-center gap-2 text-sm font-medium text-ink dark:text-white">
             <input
               type="checkbox"
               checked={focus.enabled}
@@ -87,15 +87,15 @@ export function FocusPanel({
         </div>
 
         <div className={`gap-3 ${isSheet ? "space-y-3" : "grid grid-cols-[1.05fr_0.95fr] items-start"}`}>
-          <div className="rounded-2xl bg-mist/70 px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Timer</p>
-            <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{formatTime(remainingSeconds)}</p>
+          <div className="rounded-2xl bg-mist/70 px-4 py-3 dark:border dark:border-white/8 dark:bg-[#202a36]">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Timer</p>
+            <p className="mt-2 text-3xl font-semibold tracking-tight text-ink dark:text-white">{formatTime(remainingSeconds)}</p>
           </div>
 
           <label className="block">
-            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Duration</span>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Duration</span>
             <select
-              className="w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none"
+              className="w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white"
               value={focus.duration}
               onChange={(event) => onDurationChange(Number(event.target.value))}
               disabled={isRunning}
@@ -121,7 +121,7 @@ export function FocusPanel({
           </button>
           <button
             type="button"
-            className="rounded-full border border-sand bg-white px-4 py-2 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:text-steel"
+            className="rounded-full border border-sand bg-white px-4 py-2 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:text-steel dark:border-white/10 dark:bg-[#202a36] dark:text-white dark:disabled:text-slate-400"
             onClick={onStop}
             disabled={focus.lastSessionStartedAt === null}
           >
