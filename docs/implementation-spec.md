@@ -2,13 +2,15 @@
 
 ## 1. Technical Baseline
 
-FlowLog v1 will be implemented as a frontend-only web app using:
+FlowLog v1 will be implemented as an authenticated web app using:
 
 - `Next.js`
 - `Tailwind CSS`
-- Browser `localStorage`
+- `Vercel`
+- `Supabase Auth`
+- `Supabase Postgres`
 
-No backend, authentication layer, or remote database is required in v1.
+The app is deployed on Vercel and uses Supabase for authentication and remote persistence.
 
 ## 2. Core Data Model
 
@@ -79,15 +81,7 @@ Rules:
 
 ## 3. Persistence Contract
 
-### 3.1 Storage Key
-
-Use a single `localStorage` key for MVP:
-
-```ts
-const STORAGE_KEY = "flowlog.dashboard.v1";
-```
-
-### 3.2 Save Behavior
+### 3.1 Save Behavior
 
 Persist state on:
 
@@ -102,16 +96,15 @@ Persist state on:
 - Today goal change
 - Focus setting change
 
-### 3.3 Load Behavior
+### 3.2 Load Behavior
 
 On app initialization:
 
-- Read from `localStorage`
-- Parse safely
-- Validate shape minimally
-- Fallback to an empty default state if parsing fails or data is absent
+- Read from Supabase for the authenticated user
+- Validate shape minimally at the app boundary
+- Fallback to an empty default state for new accounts
 
-### 3.4 Default State
+### 3.3 Default State
 
 ```ts
 const defaultState: DashboardState = {
@@ -145,7 +138,8 @@ Suggested structure:
 
 - `app/` for the Next.js app shell and page entry
 - `components/` for dashboard and task UI
-- `lib/` for storage helpers, state helpers, and constants
+- `lib/` for Supabase helpers, state helpers, and constants
+- `supabase/` for setup SQL
 - `types/` for shared TypeScript types
 
 Recommended initial modules:
@@ -155,7 +149,8 @@ Recommended initial modules:
 - Task list
 - Task card
 - Focus timer panel
-- `localStorage` adapter
+- Supabase auth helpers
+- Supabase persistence adapter
 - State normalization helpers
 
 ## 6. Implementation Order
@@ -172,8 +167,15 @@ Build the MVP in the following order.
 
 - Define shared types
 - Create default dashboard state
-- Implement `localStorage` read and write helpers
-- Load persisted state on app start
+- Implement Supabase read and write helpers
+- Load persisted state for the authenticated user
+
+### Phase 2.5: Authentication and Hosting
+
+- Add login page
+- Add auth callback handling
+- Add session middleware
+- Configure Vercel deployment and custom domain
 
 ### Phase 3: Task Management
 
@@ -214,7 +216,8 @@ The MVP implementation is complete when:
 - Users can mark one task as current
 - Users can define a next action per task
 - The dashboard clearly separates current, today, blocked, and completed work
-- State survives refresh through `localStorage`
+- State survives refresh and device changes through Supabase
+- Signed-in users only see their own data
 - The focus timer can be enabled without becoming the primary screen element
 
 ## 8. Testing Scenarios
@@ -225,8 +228,9 @@ At minimum, verify these scenarios:
 - Selecting a current task when none exists
 - Replacing the current task with another task
 - Completing the current task and confirming the current slot clears
-- Reloading the page and restoring tasks from `localStorage`
-- Handling malformed or missing stored data safely
+- Reloading the page and restoring tasks from Supabase
+- Logging in from another device and seeing the same tasks
+- Ensuring one user's data is not visible to another user
 - Editing next action and seeing it reflected in the current task panel
 - Toggling a task into today’s list and confirming it appears in the correct section
 - Marking a task as blocked and confirming it is visually separated from active work
@@ -234,11 +238,9 @@ At minimum, verify these scenarios:
 
 ## 9. Future Compatibility Notes
 
-To keep future sync support simple:
+To keep future compatibility simple:
 
 - Preserve stable task IDs
 - Keep status values unchanged
 - Keep task field names consistent unless migration is introduced
-- Treat `DashboardState` as the eventual sync payload baseline
-
-If a backend is added later, Supabase or Firebase can be layered on top without redefining the MVP task model.
+- Keep task field names consistent unless migration is introduced

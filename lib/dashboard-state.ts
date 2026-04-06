@@ -1,7 +1,5 @@
 import { DashboardState, FocusSettings, Task, TaskStatus } from "@/types/dashboard";
 
-export const STORAGE_KEY = "flowlog.dashboard.v1";
-
 export const defaultState: DashboardState = {
   todayGoal: "",
   tasks: [],

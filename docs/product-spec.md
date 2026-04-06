@@ -80,7 +80,7 @@ FlowLog is a web task dashboard that helps users always know what they are doing
 - Help users resume work quickly after distraction
 - Give users a clear picture of current task state
 - Reduce mental overhead when deciding what to do next
-- Support a simple daily workflow without requiring a backend
+- Support a simple daily workflow across devices with account-backed sync
 
 ### 6.2 Non-Goals
 
@@ -105,6 +105,7 @@ Core capabilities:
 - See what is blocked, completed, and queued for later
 - Delete tasks that are no longer relevant
 - Reorder tasks to reflect working priority
+- Sign in and recover personal task state from any device
 
 ### 7.2 Support Layer: Focus Module
 
@@ -182,17 +183,29 @@ For MVP, progress can be represented as:
 - A percentage from 0 to 100
 - Or a simple visual progress indicator derived from a numeric value
 
-### 8.7 Local Persistence
+### 8.7 Account-backed Persistence
 
-All user data is stored in browser `localStorage`.
+All user data is stored in a per-user cloud data store.
 
 Behavior requirements:
 
 - Save on every meaningful change
 - Restore on app load
-- Initialize with a safe empty state if no data exists
+- Initialize with a safe empty state for new accounts
+- Never expose one user's tasks to another user
 
-### 8.8 Optional Focus Timer
+### 8.8 User Authentication
+
+Users can sign in with email magic links.
+
+Behavior requirements:
+
+- Public signup is allowed
+- Successful login returns the user to the dashboard
+- Signed-out users should be redirected to the login experience
+- Each account reads and writes only its own tasks and settings
+
+### 8.9 Optional Focus Timer
 
 Users can enable or disable a focus timer.
 
@@ -207,8 +220,6 @@ MVP expectations:
 
 The following are intentionally excluded from v1:
 
-- User login
-- Remote sync
 - Team members and shared boards
 - Push notifications
 - Rich tags and advanced filters
@@ -228,7 +239,6 @@ FlowLog v1 is successful if a user can:
 
 After MVP, likely additions include:
 
-- Sync with Supabase or Firebase
 - Return-to-work prompts after idle periods
 - PWA support
 - Distraction self-tracking

@@ -6,9 +6,13 @@ import { FocusPanel } from "@/components/focus-panel";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
 import { useDashboardState } from "@/lib/use-dashboard-state";
-import { Task } from "@/types/dashboard";
+import { DashboardState, Task } from "@/types/dashboard";
 
 type DashboardTab = "today" | "tasks" | "archive";
+type DashboardProps = {
+  initialState: DashboardState;
+  userEmail?: string | null;
+};
 
 const DASHBOARD_TABS: { id: DashboardTab; label: string }[] = [
   { id: "today", label: "Today" },
@@ -22,7 +26,7 @@ function sortByOrder(tasks: Task[], taskOrder: string[]) {
   return [...tasks].sort((a, b) => (orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER));
 }
 
-export function Dashboard() {
+export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const {
     state,
@@ -40,7 +44,7 @@ export function Dashboard() {
     setFocusDuration,
     startFocusSession,
     stopFocusSession,
-  } = useDashboardState();
+  } = useDashboardState(initialState);
 
   const orderedTasks = sortByOrder(state.tasks, state.taskOrder);
   const currentTask = orderedTasks.find((task) => task.isCurrent) ?? null;
@@ -63,14 +67,25 @@ export function Dashboard() {
             <p className="mt-2 max-w-xl text-sm text-steel md:text-base">
               Open the page and recover context fast: what matters today, what is active now, and what the next step is.
             </p>
+            {userEmail ? <p className="mt-2 text-sm text-steel">Signed in as {userEmail}</p> : null}
           </div>
-          <button
-            type="button"
-            className="rounded-full bg-clay px-4 py-3 text-sm font-semibold text-white"
-            onClick={createTask}
-          >
-            Add task
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="rounded-full bg-clay px-4 py-3 text-sm font-semibold text-white"
+              onClick={createTask}
+            >
+              Add task
+            </button>
+            <form action="/auth/signout" method="post">
+              <button
+                type="submit"
+                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink"
+              >
+                Sign out
+              </button>
+            </form>
+          </div>
         </header>
 
         <nav className="mb-4 flex flex-wrap gap-2" aria-label="Dashboard sections">

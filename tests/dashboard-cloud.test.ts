@@ -1,0 +1,102 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { defaultState } from "@/lib/dashboard-state";
+import {
+  mapDashboardStateToSettingsRow,
+  mapDashboardStateToTaskRows,
+  mapRowsToDashboardState,
+  type DashboardSettingsRow,
+  type TaskRow,
+} from "@/lib/dashboard-cloud";
+
+test("maps dashboard state to ordered task rows", () => {
+  const state = {
+    ...defaultState,
+    taskOrder: ["b", "a"],
+    tasks: [
+      {
+        id: "a",
+        title: "Task A",
+        status: "not_started" as const,
+        nextAction: "First",
+        progress: 0,
+        isToday: false,
+        isCurrent: false,
+        createdAt: "2025-01-01T00:00:00.000Z",
+        updatedAt: "2025-01-01T00:00:00.000Z",
+      },
+      {
+        id: "b",
+        title: "Task B",
+        status: "in_progress" as const,
+        nextAction: "Second",
+        progress: 25,
+        isToday: true,
+        isCurrent: true,
+        createdAt: "2025-01-02T00:00:00.000Z",
+        updatedAt: "2025-01-02T00:00:00.000Z",
+      },
+    ],
+  };
+
+  const rows = mapDashboardStateToTaskRows("user-1", state);
+
+  assert.equal(rows.find((row) => row.id === "b")?.sort_order, 0);
+  assert.equal(rows.find((row) => row.id === "a")?.sort_order, 1);
+  assert.equal(rows.every((row) => row.user_id === "user-1"), true);
+});
+
+test("maps dashboard settings row with persisted timestamp", () => {
+  const persistedAt = "2026-04-06T12:00:00.000Z";
+  const row = mapDashboardStateToSettingsRow("user-1", defaultState, persistedAt);
+
+  assert.equal(row.user_id, "user-1");
+  assert.equal(row.last_viewed_at, persistedAt);
+  assert.equal(row.focus_duration, defaultState.focus.duration);
+});
+
+test("rebuilds dashboard state from cloud rows", () => {
+  const taskRows: TaskRow[] = [
+    {
+      id: "a",
+      user_id: "user-1",
+      title: "Task A",
+      status: "not_started",
+      next_action: "",
+      progress: 0,
+      is_today: false,
+      is_current: false,
+      sort_order: 1,
+      created_at: "2025-01-01T00:00:00.000Z",
+      updated_at: "2025-01-01T00:00:00.000Z",
+    },
+    {
+      id: "b",
+      user_id: "user-1",
+      title: "Task B",
+      status: "in_progress",
+      next_action: "Resume",
+      progress: 50,
+      is_today: true,
+      is_current: true,
+      sort_order: 0,
+      created_at: "2025-01-02T00:00:00.000Z",
+      updated_at: "2025-01-02T00:00:00.000Z",
+    },
+  ];
+  const settingsRow: DashboardSettingsRow = {
+    user_id: "user-1",
+    today_goal: "Ship cloud sync",
+    focus_enabled: true,
+    focus_duration: 50,
+    focus_last_session_started_at: "2025-01-02T01:00:00.000Z",
+    last_viewed_at: "2025-01-02T02:00:00.000Z",
+  };
+
+  const state = mapRowsToDashboardState(taskRows, settingsRow);
+
+  assert.equal(state.todayGoal, "Ship cloud sync");
+  assert.deepEqual(state.taskOrder, ["b", "a"]);
+  assert.equal(state.tasks.find((task) => task.id === "b")?.isCurrent, true);
+  assert.equal(state.focus.enabled, true);
+});

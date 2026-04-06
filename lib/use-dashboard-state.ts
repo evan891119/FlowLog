@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   createTaskInState,
-  defaultState,
   deleteTaskInState,
   moveTaskInState,
   setCurrentTaskInState,
@@ -15,25 +14,42 @@ import {
   updateTaskInState,
   updateTodayGoalInState,
 } from "@/lib/dashboard-state";
-import { loadDashboardState, saveDashboardState } from "@/lib/storage";
 import { DashboardState, TaskStatus } from "@/types/dashboard";
 
-export function useDashboardState() {
-  const [state, setState] = useState<DashboardState>(defaultState);
-  const [isHydrated, setIsHydrated] = useState(false);
+async function persistDashboardState(state: DashboardState) {
+  const response = await fetch("/api/dashboard", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(state),
+  });
 
-  useLayoutEffect(() => {
-    setState(loadDashboardState());
-    setIsHydrated(true);
-  }, []);
+  if (!response.ok) {
+    throw new Error("Failed to persist dashboard state.");
+  }
+}
+
+export function useDashboardState(initialState: DashboardState) {
+  const [state, setState] = useState<DashboardState>(initialState);
+  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
       return;
     }
 
-    saveDashboardState(state);
-  }, [isHydrated, state]);
+    const timeoutId = window.setTimeout(() => {
+      void persistDashboardState(state).catch((error) => {
+        console.error(error);
+      });
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [state]);
 
   const createTask = () => {
     setState((current) => createTaskInState(current, { title: "New task", isToday: current.tasks.length === 0 }));
@@ -93,7 +109,7 @@ export function useDashboardState() {
 
   return {
     state,
-    isHydrated,
+    isHydrated: true,
     createTask,
     updateTaskTitle,
     updateTaskNextAction,

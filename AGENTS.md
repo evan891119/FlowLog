@@ -2,17 +2,19 @@
 
 ## Project Structure & Module Organization
 
-This repository is docs-led, but it already includes a working Next.js MVP alongside the product specs. Core documentation lives in the root [README.md](/Users/evan/Code/Projects/FlowLog/README.md) and the `docs/` folder:
+This repository is docs-led, but it already includes a working Next.js app with Supabase integration points. Core documentation lives in the root [README.md](/Users/evan/Code/Projects/FlowLog/README.md), the `docs/` folder, and `supabase/`:
 
 - `docs/product-spec.md`: product definition and MVP scope
 - `docs/ui-spec.md`: dashboard layout and interaction rules
 - `docs/implementation-spec.md`: data model and implementation order
+- `docs/deployment-runbook.md`: Vercel and Supabase setup
+- `supabase/schema.sql`: database schema and RLS policies
 
 The current app structure follows the implementation spec:
 
 - `app/`: Next.js routes and page shell
 - `components/`: dashboard UI components
-- `lib/`: state, storage, and utility helpers
+- `lib/`: state, Supabase, and utility helpers
 - `types/`: shared TypeScript types
 
 ## Build, Test, and Development Commands
@@ -52,7 +54,7 @@ The project uses Node's built-in test runner with `tsx` for TypeScript test exec
 
 - Place unit tests beside source files or under `tests/`
 - Name files `*.test.ts` or `*.test.tsx`
-- Cover core rules such as single current task, `localStorage` restore, task status transitions, task deletion, and task ordering
+- Cover core rules such as single current task, task status transitions, cloud-state mapping, task deletion, and task ordering
 
 Every behavior added from the implementation spec should have at least one test or a documented manual check.
 

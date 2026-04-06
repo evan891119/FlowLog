@@ -38,13 +38,12 @@ The first version includes:
 - Simple progress display
 - Task deletion
 - Manual task reordering with move controls
-- Automatic persistence with `localStorage`
+- Email magic-link login
+- Automatic persistence with Supabase
 - Optional focus timer with start and stop controls
 
 The first version does not include:
 
-- User accounts
-- Cloud sync
 - Team collaboration
 - Notifications
 - Analytics dashboards
@@ -56,15 +55,18 @@ The implementation baseline for v1 is:
 
 - `Next.js`
 - `Tailwind CSS`
-- Browser `localStorage`
+- `Vercel`
+- `Supabase Auth`
+- `Supabase Postgres`
 
-No backend is required for the initial release.
+Deploy the app to Vercel and connect your own domain through the Vercel project settings.
 
 ## Documentation
 
 - [Product Spec](/Users/evan/Code/Projects/FlowLog/docs/product-spec.md)
 - [UI Spec](/Users/evan/Code/Projects/FlowLog/docs/ui-spec.md)
 - [Implementation Spec](/Users/evan/Code/Projects/FlowLog/docs/implementation-spec.md)
+- [Deployment Runbook](/Users/evan/Code/Projects/FlowLog/docs/deployment-runbook.md)
 
 ## Core Principle
 
@@ -76,4 +78,4 @@ If a feature does not help the user recover and maintain work context, it should
 - `npm run build`: create a production build
 - `npm run start`: run the production server
 - `npm run typecheck`: run the TypeScript checker
-- `npm run test`: run the automated state and storage tests
+- `npm run test`: run the automated state and cloud-mapping tests
