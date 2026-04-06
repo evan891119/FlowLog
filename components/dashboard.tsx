@@ -1,11 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FocusPanel } from "@/components/focus-panel";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { Task } from "@/types/dashboard";
+
+type DashboardTab = "today" | "tasks" | "archive";
+
+const DASHBOARD_TABS: { id: DashboardTab; label: string }[] = [
+  { id: "today", label: "Today" },
+  { id: "tasks", label: "Tasks" },
+  { id: "archive", label: "Archive" },
+];
 
 function sortByOrder(tasks: Task[], taskOrder: string[]) {
   const orderMap = new Map(taskOrder.map((taskId, index) => [taskId, index]));
@@ -14,6 +23,7 @@ function sortByOrder(tasks: Task[], taskOrder: string[]) {
 }
 
 export function Dashboard() {
+  const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const {
     state,
     createTask,
@@ -44,13 +54,13 @@ export function Dashboard() {
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
 
   return (
-    <main className="min-h-screen px-4 py-8 md:px-8">
+    <main className="min-h-screen px-4 py-5 md:px-6 md:py-5">
       <div className="mx-auto max-w-7xl">
-        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
+        <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-2xl">
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel">Work-state dashboard</p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight text-ink">FlowLog</h1>
-            <p className="mt-3 max-w-2xl text-base text-steel">
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-ink md:text-[2.25rem]">FlowLog</h1>
+            <p className="mt-2 max-w-xl text-sm text-steel md:text-base">
               Open the page and recover context fast: what matters today, what is active now, and what the next step is.
             </p>
           </div>
@@ -63,105 +73,152 @@ export function Dashboard() {
           </button>
         </header>
 
-        <section className="grid gap-4 lg:grid-cols-[1.1fr_1.2fr_0.7fr]">
-          <div className="lg:order-2">
-            <CurrentTaskPanel task={currentTask} />
-          </div>
+        <nav className="mb-4 flex flex-wrap gap-2" aria-label="Dashboard sections">
+          {DASHBOARD_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
+              }`}
+              onClick={() => setSelectedTab(tab.id)}
+              aria-pressed={selectedTab === tab.id}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
 
-          <div className="lg:order-1">
-            <Section title="Today Goal" description="A single sentence that frames the day.">
-              <textarea
-                className="min-h-28 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70"
-                placeholder="Finish the first usable FlowLog dashboard."
-                value={state.todayGoal}
-                onChange={(event) => updateTodayGoal(event.target.value)}
-                aria-label="Today goal"
+        {selectedTab === "today" ? (
+          <>
+            <section className="grid gap-4 xl:grid-cols-3 xl:items-stretch">
+              <div className="xl:order-2">
+                <CurrentTaskPanel task={currentTask} variant="summary" />
+              </div>
+
+              <div className="xl:order-1">
+                <Section
+                  title="Today Goal"
+                  description="A single sentence that frames the day."
+                  layout="fill"
+                >
+                  <textarea
+                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 xl:min-h-[220px] xl:resize-none"
+                    placeholder="Finish the first usable FlowLog dashboard."
+                    value={state.todayGoal}
+                    onChange={(event) => updateTodayGoal(event.target.value)}
+                    aria-label="Today goal"
+                  />
+                </Section>
+              </div>
+
+              <div className="xl:order-3">
+                <FocusPanel
+                  focus={state.focus}
+                  onToggleEnabled={setFocusEnabled}
+                  onDurationChange={setFocusDuration}
+                  onStart={startFocusSession}
+                  onStop={stopFocusSession}
+                  variant="summary"
+                />
+              </div>
+            </section>
+
+            <section className="mt-4">
+              <TaskListSection
+                title="Today Tasks"
+                description="Tasks explicitly marked for today."
+                tasks={todayTasks}
+                variant="compact"
+                visibleCount={1}
+                mobileVisibleCount={1}
+                overflowMessage={(hiddenCount) => `+${hiddenCount} more tasks in Tasks.`}
+                action={
+                  todayTasks.length > 0 ? (
+                    <button
+                      type="button"
+                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink"
+                      onClick={() => setSelectedTab("tasks")}
+                    >
+                      View all tasks
+                    </button>
+                  ) : null
+                }
+                className="overflow-hidden"
+                emptyMessage="No tasks are marked for today. Flag the most important work so the dashboard stays focused."
+                onSetCurrent={setCurrentTask}
+                onStatusChange={updateTaskStatus}
+                onToggleToday={toggleToday}
+                onTitleChange={updateTaskTitle}
+                onNextActionChange={updateTaskNextAction}
+                onDelete={deleteTask}
+                onMoveUp={moveTaskUp}
+                onMoveDown={moveTaskDown}
+                canMoveUp={canMoveUp}
+                canMoveDown={canMoveDown}
               />
-            </Section>
-          </div>
+            </section>
+          </>
+        ) : null}
 
-          <div className="lg:order-3">
-            <FocusPanel
-              focus={state.focus}
-              onToggleEnabled={setFocusEnabled}
-              onDurationChange={setFocusDuration}
-              onStart={startFocusSession}
-              onStop={stopFocusSession}
+        {selectedTab === "tasks" ? (
+          <section className="grid gap-4 xl:grid-cols-[1.45fr_0.95fr]">
+            <TaskListSection
+              title="Active Tasks"
+              description="Your working list, excluding blocked and completed items."
+              tasks={activeTasks}
+              emptyMessage="No active tasks yet. Add one task to start the first FlowLog session."
+              onSetCurrent={setCurrentTask}
+              onStatusChange={updateTaskStatus}
+              onToggleToday={toggleToday}
+              onTitleChange={updateTaskTitle}
+              onNextActionChange={updateTaskNextAction}
+              onDelete={deleteTask}
+              onMoveUp={moveTaskUp}
+              onMoveDown={moveTaskDown}
+              canMoveUp={canMoveUp}
+              canMoveDown={canMoveDown}
             />
-          </div>
-        </section>
 
-        <section className="mt-4 grid gap-4 xl:grid-cols-[1.5fr_0.9fr]">
-          <TaskListSection
-            title="Today Tasks"
-            description="Tasks explicitly marked for today."
-            tasks={todayTasks}
-            emptyMessage="No tasks are marked for today. Flag the most important work so the dashboard stays focused."
-            onSetCurrent={setCurrentTask}
-            onStatusChange={updateTaskStatus}
-            onToggleToday={toggleToday}
-            onTitleChange={updateTaskTitle}
-            onNextActionChange={updateTaskNextAction}
-            onDelete={deleteTask}
-            onMoveUp={moveTaskUp}
-            onMoveDown={moveTaskDown}
-            canMoveUp={canMoveUp}
-            canMoveDown={canMoveDown}
-          />
+            <TaskListSection
+              title="Blocked Tasks"
+              description="Visible, but kept out of the main working lane."
+              tasks={blockedTasks}
+              emptyMessage="Nothing is blocked right now."
+              onSetCurrent={setCurrentTask}
+              onStatusChange={updateTaskStatus}
+              onToggleToday={toggleToday}
+              onTitleChange={updateTaskTitle}
+              onNextActionChange={updateTaskNextAction}
+              onDelete={deleteTask}
+              onMoveUp={moveTaskUp}
+              onMoveDown={moveTaskDown}
+              canMoveUp={canMoveUp}
+              canMoveDown={canMoveDown}
+            />
+          </section>
+        ) : null}
 
-          <TaskListSection
-            title="Active Tasks"
-            description="Your working list, excluding blocked and completed items."
-            tasks={activeTasks}
-            emptyMessage="No active tasks yet. Add one task to start the first FlowLog session."
-            onSetCurrent={setCurrentTask}
-            onStatusChange={updateTaskStatus}
-            onToggleToday={toggleToday}
-            onTitleChange={updateTaskTitle}
-            onNextActionChange={updateTaskNextAction}
-            onDelete={deleteTask}
-            onMoveUp={moveTaskUp}
-            onMoveDown={moveTaskDown}
-            canMoveUp={canMoveUp}
-            canMoveDown={canMoveDown}
-          />
-        </section>
-
-        <section className="mt-4 grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-          <TaskListSection
-            title="Blocked Tasks"
-            description="Visible, but kept out of the main working lane."
-            tasks={blockedTasks}
-            emptyMessage="Nothing is blocked right now."
-            onSetCurrent={setCurrentTask}
-            onStatusChange={updateTaskStatus}
-            onToggleToday={toggleToday}
-            onTitleChange={updateTaskTitle}
-            onNextActionChange={updateTaskNextAction}
-            onDelete={deleteTask}
-            onMoveUp={moveTaskUp}
-            onMoveDown={moveTaskDown}
-            canMoveUp={canMoveUp}
-            canMoveDown={canMoveDown}
-          />
-
-          <TaskListSection
-            title="Completed Tasks"
-            description="Finished work stays visible without dominating the page."
-            tasks={completedTasks}
-            emptyMessage="Nothing has been completed yet."
-            onSetCurrent={setCurrentTask}
-            onStatusChange={updateTaskStatus}
-            onToggleToday={toggleToday}
-            onTitleChange={updateTaskTitle}
-            onNextActionChange={updateTaskNextAction}
-            onDelete={deleteTask}
-            onMoveUp={moveTaskUp}
-            onMoveDown={moveTaskDown}
-            canMoveUp={canMoveUp}
-            canMoveDown={canMoveDown}
-          />
-        </section>
+        {selectedTab === "archive" ? (
+          <section>
+            <TaskListSection
+              title="Completed Tasks"
+              description="Finished work stays visible without dominating the page."
+              tasks={completedTasks}
+              emptyMessage="Nothing has been completed yet."
+              onSetCurrent={setCurrentTask}
+              onStatusChange={updateTaskStatus}
+              onToggleToday={toggleToday}
+              onTitleChange={updateTaskTitle}
+              onNextActionChange={updateTaskNextAction}
+              onDelete={deleteTask}
+              onMoveUp={moveTaskUp}
+              onMoveDown={moveTaskDown}
+              canMoveUp={canMoveUp}
+              canMoveDown={canMoveDown}
+            />
+          </section>
+        ) : null}
       </div>
     </main>
   );

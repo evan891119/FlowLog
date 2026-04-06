@@ -32,10 +32,19 @@ type FocusPanelProps = {
   onDurationChange: (duration: number) => void;
   onStart: () => void;
   onStop: () => void;
+  variant?: "default" | "summary";
 };
 
-export function FocusPanel({ focus, onToggleEnabled, onDurationChange, onStart, onStop }: FocusPanelProps) {
+export function FocusPanel({
+  focus,
+  onToggleEnabled,
+  onDurationChange,
+  onStart,
+  onStop,
+  variant = "default",
+}: FocusPanelProps) {
   const [now, setNow] = useState(() => Date.now());
+  const isSummary = variant === "summary";
 
   useEffect(() => {
     if (!focus.lastSessionStartedAt) {
@@ -63,12 +72,20 @@ export function FocusPanel({ focus, onToggleEnabled, onDurationChange, onStart, 
         : "Ready to start a focus session.";
 
   return (
-    <Section title="Focus Mode" description="Optional support for sustained work without taking over the dashboard.">
-      <div className="space-y-4 rounded-3xl bg-white px-4 py-4 text-sm text-steel">
+    <Section
+      title="Focus Mode"
+      description="Optional support for sustained work without taking over the dashboard."
+      layout={isSummary ? "fill" : "default"}
+    >
+      <div
+        className={`rounded-3xl bg-white px-4 text-sm text-steel ${
+          isSummary ? "flex h-full min-h-0 flex-col gap-3 py-4" : "space-y-3 py-4"
+        }`}
+      >
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Status</p>
-            <p className="mt-1 text-base font-semibold text-ink">{statusText}</p>
+            <p className={`mt-1 font-semibold text-ink ${isSummary ? "text-sm leading-5" : "text-base"}`}>{statusText}</p>
           </div>
           <label className="flex items-center gap-2 text-sm font-medium text-ink">
             <input
@@ -81,29 +98,31 @@ export function FocusPanel({ focus, onToggleEnabled, onDurationChange, onStart, 
           </label>
         </div>
 
-        <div className="rounded-2xl bg-mist/70 px-4 py-4">
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Timer</p>
-          <p className="mt-2 text-3xl font-semibold tracking-tight text-ink">{formatTime(remainingSeconds)}</p>
+        <div className={`gap-3 ${isSummary ? "grid min-h-0 grid-cols-[1.1fr_0.9fr] items-start" : "space-y-3"}`}>
+          <div className="rounded-2xl bg-mist/70 px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel">Timer</p>
+            <p className={`mt-2 font-semibold tracking-tight text-ink ${isSummary ? "text-2xl" : "text-3xl"}`}>{formatTime(remainingSeconds)}</p>
+          </div>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Duration</span>
+            <select
+              className="w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none"
+              value={focus.duration}
+              onChange={(event) => onDurationChange(Number(event.target.value))}
+              disabled={isRunning}
+              aria-label="Focus duration"
+            >
+              {DURATION_OPTIONS.map((duration) => (
+                <option key={duration} value={duration}>
+                  {duration} minutes
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
 
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel">Duration</span>
-          <select
-            className="w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none"
-            value={focus.duration}
-            onChange={(event) => onDurationChange(Number(event.target.value))}
-            disabled={isRunning}
-            aria-label="Focus duration"
-          >
-            {DURATION_OPTIONS.map((duration) => (
-              <option key={duration} value={duration}>
-                {duration} minutes
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <div className="flex flex-wrap gap-2">
+        <div className={`flex flex-wrap gap-2 ${isSummary ? "mt-auto pt-1" : ""}`}>
           <button
             type="button"
             className="rounded-full bg-forest px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-steel"

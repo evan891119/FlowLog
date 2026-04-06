@@ -10,6 +10,7 @@ import {
   setTaskStatusInState,
   startFocusSessionInState,
   stopFocusSessionInState,
+  updateTaskInState,
   updateFocusSettingsInState,
 } from "@/lib/dashboard-state";
 import { DashboardState } from "@/types/dashboard";
@@ -115,4 +116,15 @@ test("updates and controls focus session state", () => {
 
   state = stopFocusSessionInState(state);
   assert.equal(state.focus.lastSessionStartedAt, null);
+});
+
+test("allows task titles to be cleared during editing", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { title: "" });
+  assert.equal(state.tasks.find((task) => task.id === taskId)?.title, "");
+
+  state = updateTaskInState(state, taskId, { title: "   " });
+  assert.equal(state.tasks.find((task) => task.id === taskId)?.title, "   ");
 });

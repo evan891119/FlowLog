@@ -155,7 +155,7 @@ export function updateTaskInState(
     tasks: state.tasks.map((task) => {
       if (task.id !== taskId) return task;
 
-      const nextTitle = updates.title !== undefined ? updates.title.trim() || task.title : task.title;
+      const nextTitle = updates.title !== undefined ? updates.title : task.title;
       const nextAction = updates.nextAction !== undefined ? updates.nextAction : task.nextAction;
       const nextProgress =
         updates.progress !== undefined ? Math.max(0, Math.min(100, Math.round(updates.progress))) : task.progress;
