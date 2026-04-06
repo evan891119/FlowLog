@@ -103,6 +103,8 @@ Core capabilities:
 - Track task state
 - Record the next action for each task
 - See what is blocked, completed, and queued for later
+- Delete tasks that are no longer relevant
+- Reorder tasks to reflect working priority
 
 ### 7.2 Support Layer: Focus Module
 
@@ -199,6 +201,7 @@ MVP expectations:
 - Timer is optional
 - Timer duration is configurable by basic presets later, but MVP can start with one default
 - Timer must not overshadow the task dashboard
+- Start and stop controls are sufficient for MVP
 
 ## 9. Out of Scope for MVP
 

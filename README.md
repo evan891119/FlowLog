@@ -36,8 +36,10 @@ The first version includes:
 - A `next action` field on each task
 - A `today` task area
 - Simple progress display
+- Task deletion
+- Manual task reordering with move controls
 - Automatic persistence with `localStorage`
-- Optional focus timer
+- Optional focus timer with start and stop controls
 
 The first version does not include:
 
@@ -67,3 +69,11 @@ No backend is required for the initial release.
 ## Core Principle
 
 If a feature does not help the user recover and maintain work context, it should not be prioritized in v1.
+
+## Development
+
+- `npm run dev`: run the local development server
+- `npm run build`: create a production build
+- `npm run start`: run the production server
+- `npm run typecheck`: run the TypeScript checker
+- `npm run test`: run the automated state and storage tests

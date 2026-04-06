@@ -13,6 +13,11 @@ type TaskListSectionProps = {
   onToggleToday: (taskId: string) => void;
   onTitleChange: (taskId: string, title: string) => void;
   onNextActionChange: (taskId: string, nextAction: string) => void;
+  onDelete: (taskId: string) => void;
+  onMoveUp: (taskId: string) => void;
+  onMoveDown: (taskId: string) => void;
+  canMoveUp: (taskId: string) => boolean;
+  canMoveDown: (taskId: string) => boolean;
 };
 
 export function TaskListSection({
@@ -25,6 +30,11 @@ export function TaskListSection({
   onToggleToday,
   onTitleChange,
   onNextActionChange,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: TaskListSectionProps) {
   return (
     <Section title={title} description={description}>
@@ -39,6 +49,11 @@ export function TaskListSection({
               onToggleToday={onToggleToday}
               onTitleChange={onTitleChange}
               onNextActionChange={onNextActionChange}
+              onDelete={onDelete}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
+              canMoveUp={canMoveUp(task.id)}
+              canMoveDown={canMoveDown(task.id)}
             />
           ))
         ) : (

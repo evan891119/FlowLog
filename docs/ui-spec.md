@@ -166,6 +166,8 @@ Optional UI controls:
 - Change status
 - Mark as today
 - Set as current
+- Delete task
+- Move task up or down
 
 ## 6. Task States and Display Rules
 

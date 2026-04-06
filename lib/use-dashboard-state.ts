@@ -4,9 +4,14 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import {
   createTaskInState,
   defaultState,
+  deleteTaskInState,
+  moveTaskInState,
   setCurrentTaskInState,
   setTaskStatusInState,
+  startFocusSessionInState,
+  stopFocusSessionInState,
   toggleTodayTaskInState,
+  updateFocusSettingsInState,
   updateTaskInState,
   updateTodayGoalInState,
 } from "@/lib/dashboard-state";
@@ -58,6 +63,34 @@ export function useDashboardState() {
     setState((current) => updateTodayGoalInState(current, todayGoal));
   };
 
+  const deleteTask = (taskId: string) => {
+    setState((current) => deleteTaskInState(current, taskId));
+  };
+
+  const moveTaskUp = (taskId: string) => {
+    setState((current) => moveTaskInState(current, taskId, "up"));
+  };
+
+  const moveTaskDown = (taskId: string) => {
+    setState((current) => moveTaskInState(current, taskId, "down"));
+  };
+
+  const setFocusEnabled = (enabled: boolean) => {
+    setState((current) => updateFocusSettingsInState(current, { enabled }));
+  };
+
+  const setFocusDuration = (duration: number) => {
+    setState((current) => updateFocusSettingsInState(current, { duration }));
+  };
+
+  const startFocusSession = () => {
+    setState((current) => startFocusSessionInState(current));
+  };
+
+  const stopFocusSession = () => {
+    setState((current) => stopFocusSessionInState(current));
+  };
+
   return {
     state,
     isHydrated,
@@ -68,5 +101,12 @@ export function useDashboardState() {
     toggleToday,
     setCurrentTask,
     updateTodayGoal,
+    deleteTask,
+    moveTaskUp,
+    moveTaskDown,
+    setFocusEnabled,
+    setFocusDuration,
+    startFocusSession,
+    stopFocusSession,
   };
 }

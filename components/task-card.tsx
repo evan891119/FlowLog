@@ -15,6 +15,11 @@ type TaskCardProps = {
   onToggleToday: (taskId: string) => void;
   onTitleChange: (taskId: string, title: string) => void;
   onNextActionChange: (taskId: string, nextAction: string) => void;
+  onDelete: (taskId: string) => void;
+  onMoveUp: (taskId: string) => void;
+  onMoveDown: (taskId: string) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
 };
 
 export function TaskCard({
@@ -24,6 +29,11 @@ export function TaskCard({
   onToggleToday,
   onTitleChange,
   onNextActionChange,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  canMoveUp,
+  canMoveDown,
 }: TaskCardProps) {
   return (
     <article className="rounded-3xl border border-sand/80 bg-mist/60 p-4">
@@ -98,6 +108,29 @@ export function TaskCard({
           onClick={() => onToggleToday(task.id)}
         >
           {task.isToday ? "Remove from today" : "Add to today"}
+        </button>
+        <button
+          type="button"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel"
+          onClick={() => onMoveUp(task.id)}
+          disabled={!canMoveUp}
+        >
+          Move up
+        </button>
+        <button
+          type="button"
+          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel"
+          onClick={() => onMoveDown(task.id)}
+          disabled={!canMoveDown}
+        >
+          Move down
+        </button>
+        <button
+          type="button"
+          className="rounded-full border border-clay/40 bg-clay/10 px-3 py-2 text-sm font-medium text-clay"
+          onClick={() => onDelete(task.id)}
+        >
+          Delete
         </button>
       </div>
     </article>

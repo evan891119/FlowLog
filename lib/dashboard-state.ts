@@ -1,4 +1,4 @@
-import { DashboardState, Task, TaskStatus } from "@/types/dashboard";
+import { DashboardState, FocusSettings, Task, TaskStatus } from "@/types/dashboard";
 
 export const STORAGE_KEY = "flowlog.dashboard.v1";
 
@@ -85,6 +85,30 @@ function normalizeDashboardState(state: DashboardState): DashboardState {
     tasks,
     taskOrder: normalizeTaskOrder(state.taskOrder, tasks),
   };
+}
+
+function clampFocusDuration(duration: number) {
+  return Math.max(1, Math.round(duration));
+}
+
+function reorderTaskIds(taskOrder: string[], taskId: string, direction: "up" | "down") {
+  const index = taskOrder.indexOf(taskId);
+
+  if (index === -1) {
+    return taskOrder;
+  }
+
+  const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (targetIndex < 0 || targetIndex >= taskOrder.length) {
+    return taskOrder;
+  }
+
+  const nextTaskOrder = [...taskOrder];
+  const [movedTaskId] = nextTaskOrder.splice(index, 1);
+  nextTaskOrder.splice(targetIndex, 0, movedTaskId);
+
+  return nextTaskOrder;
 }
 
 function createId() {
@@ -203,10 +227,57 @@ export function setCurrentTaskInState(state: DashboardState, taskId: string) {
   });
 }
 
+export function deleteTaskInState(state: DashboardState, taskId: string) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.filter((task) => task.id !== taskId),
+    taskOrder: state.taskOrder.filter((currentTaskId) => currentTaskId !== taskId),
+  });
+}
+
+export function moveTaskInState(state: DashboardState, taskId: string, direction: "up" | "down") {
+  return normalizeDashboardState({
+    ...state,
+    taskOrder: reorderTaskIds(state.taskOrder, taskId, direction),
+  });
+}
+
 export function updateTodayGoalInState(state: DashboardState, todayGoal: string) {
   return {
     ...state,
     todayGoal,
+  };
+}
+
+export function updateFocusSettingsInState(state: DashboardState, updates: Partial<Pick<FocusSettings, "enabled" | "duration">>) {
+  return {
+    ...state,
+    focus: {
+      ...state.focus,
+      enabled: updates.enabled ?? state.focus.enabled,
+      duration: updates.duration !== undefined ? clampFocusDuration(updates.duration) : state.focus.duration,
+    },
+  };
+}
+
+export function startFocusSessionInState(state: DashboardState) {
+  return {
+    ...state,
+    focus: {
+      ...state.focus,
+      enabled: true,
+      lastSessionStartedAt: nowIso(),
+    },
+  };
+}
+
+export function stopFocusSessionInState(state: DashboardState) {
+  return {
+    ...state,
+    focus: {
+      ...state.focus,
+      lastSessionStartedAt: null,
+    },
   };
 }
 

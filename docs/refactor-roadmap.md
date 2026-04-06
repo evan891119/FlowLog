@@ -55,11 +55,11 @@ Success condition: the implemented UI matches the documented information hierarc
 
 These are valid follow-up items, but they are not required to complete the refactor baseline.
 
-- [ ] Focus timer implementation
-- [ ] Task deletion
-- [ ] Manual task reordering
-- [ ] Automated tests for dashboard state rules
-- [ ] Documentation updates if implementation behavior diverges from the current specs
+- [x] Focus timer implementation
+- [x] Task deletion
+- [x] Manual task reordering
+- [x] Automated tests for dashboard state rules
+- [x] Documentation updates if implementation behavior diverges from the current specs
 
 ## Notes and Decisions
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { CurrentTaskPanel } from "@/components/current-task-panel";
+import { FocusPanel } from "@/components/focus-panel";
 import { Section } from "@/components/section";
 import { TaskListSection } from "@/components/task-list-section";
 import { useDashboardState } from "@/lib/use-dashboard-state";
@@ -22,6 +23,13 @@ export function Dashboard() {
     toggleToday,
     setCurrentTask,
     updateTodayGoal,
+    deleteTask,
+    moveTaskUp,
+    moveTaskDown,
+    setFocusEnabled,
+    setFocusDuration,
+    startFocusSession,
+    stopFocusSession,
   } = useDashboardState();
 
   const orderedTasks = sortByOrder(state.tasks, state.taskOrder);
@@ -30,6 +38,10 @@ export function Dashboard() {
   const activeTasks = orderedTasks.filter((task) => task.status === "not_started" || task.status === "in_progress");
   const blockedTasks = orderedTasks.filter((task) => task.status === "blocked");
   const completedTasks = orderedTasks.filter((task) => task.status === "done");
+  const orderIndexMap = new Map(orderedTasks.map((task, index) => [task.id, index]));
+
+  const canMoveUp = (taskId: string) => (orderIndexMap.get(taskId) ?? 0) > 0;
+  const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
 
   return (
     <main className="min-h-screen px-4 py-8 md:px-8">
@@ -69,11 +81,13 @@ export function Dashboard() {
           </div>
 
           <div className="lg:order-3">
-            <Section title="Focus Mode" description="Reserved for the optional timer module in the next milestone.">
-              <div className="rounded-3xl bg-white px-4 py-4 text-sm text-steel">
-                <p>Focus timer is intentionally deferred. This panel stays visible so the dashboard structure is stable from day one.</p>
-              </div>
-            </Section>
+            <FocusPanel
+              focus={state.focus}
+              onToggleEnabled={setFocusEnabled}
+              onDurationChange={setFocusDuration}
+              onStart={startFocusSession}
+              onStop={stopFocusSession}
+            />
           </div>
         </section>
 
@@ -88,6 +102,11 @@ export function Dashboard() {
             onToggleToday={toggleToday}
             onTitleChange={updateTaskTitle}
             onNextActionChange={updateTaskNextAction}
+            onDelete={deleteTask}
+            onMoveUp={moveTaskUp}
+            onMoveDown={moveTaskDown}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
           />
 
           <TaskListSection
@@ -100,6 +119,11 @@ export function Dashboard() {
             onToggleToday={toggleToday}
             onTitleChange={updateTaskTitle}
             onNextActionChange={updateTaskNextAction}
+            onDelete={deleteTask}
+            onMoveUp={moveTaskUp}
+            onMoveDown={moveTaskDown}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
           />
         </section>
 
@@ -114,6 +138,11 @@ export function Dashboard() {
             onToggleToday={toggleToday}
             onTitleChange={updateTaskTitle}
             onNextActionChange={updateTaskNextAction}
+            onDelete={deleteTask}
+            onMoveUp={moveTaskUp}
+            onMoveDown={moveTaskDown}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
           />
 
           <TaskListSection
@@ -126,6 +155,11 @@ export function Dashboard() {
             onToggleToday={toggleToday}
             onTitleChange={updateTaskTitle}
             onNextActionChange={updateTaskNextAction}
+            onDelete={deleteTask}
+            onMoveUp={moveTaskUp}
+            onMoveDown={moveTaskDown}
+            canMoveUp={canMoveUp}
+            canMoveDown={canMoveDown}
           />
         </section>
       </div>

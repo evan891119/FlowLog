@@ -24,8 +24,9 @@ Current project commands:
 - `npm run build`: create a production build
 - `npm run start`: run the production server
 - `npm run typecheck`: run the TypeScript checker
+- `npm run test`: run the automated test suite
 
-There is no automated test command configured yet. Do not add undocumented scripts. Update this guide when tooling changes.
+Do not add undocumented scripts. Update this guide when tooling changes.
 
 ## Coding Style & Naming Conventions
 
@@ -47,11 +48,11 @@ If formatting or linting is added, document the exact command here.
 
 ## Testing Guidelines
 
-No test framework is configured yet. Until tests are added, use `npm run typecheck` as the minimum verification step after code changes. When tests are added:
+The project uses Node's built-in test runner with `tsx` for TypeScript test execution. After code changes, run `npm run typecheck` and `npm run test`.
 
 - Place unit tests beside source files or under `tests/`
 - Name files `*.test.ts` or `*.test.tsx`
-- Cover core rules such as single current task, `localStorage` restore, and task status transitions
+- Cover core rules such as single current task, `localStorage` restore, task status transitions, task deletion, and task ordering
 
 Every behavior added from the implementation spec should have at least one test or a documented manual check.
 

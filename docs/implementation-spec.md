@@ -92,10 +92,12 @@ const STORAGE_KEY = "flowlog.dashboard.v1";
 Persist state on:
 
 - Task create
+- Task delete
 - Task edit
 - Status change
 - Current task change
 - Today flag change
+- Task reorder
 - Progress change
 - Today goal change
 - Focus setting change
@@ -176,10 +178,12 @@ Build the MVP in the following order.
 ### Phase 3: Task Management
 
 - Implement task creation
+- Implement task deletion
 - Implement task editing
 - Implement task status changes
 - Implement progress updates
 - Implement today flag toggling
+- Implement manual task reordering
 
 ### Phase 4: Current Task Logic
 
@@ -206,6 +210,7 @@ Build the MVP in the following order.
 The MVP implementation is complete when:
 
 - Users can create, edit, and view tasks
+- Users can delete tasks and manually reorder them
 - Users can mark one task as current
 - Users can define a next action per task
 - The dashboard clearly separates current, today, blocked, and completed work
