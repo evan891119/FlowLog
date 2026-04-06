@@ -38,7 +38,7 @@ The first version includes:
 - Simple progress display
 - Task deletion
 - Manual task reordering with move controls
-- Email magic-link login
+- Email OTP login
 - Automatic persistence with Supabase
 - Optional focus timer with start and stop controls
 
@@ -56,7 +56,7 @@ The implementation baseline for v1 is:
 - `Next.js`
 - `Tailwind CSS`
 - `Vercel`
-- `Supabase Auth`
+- `Supabase Auth` with email OTP
 - `Supabase Postgres`
 
 Deploy the app to Vercel and connect your own domain through the Vercel project settings.

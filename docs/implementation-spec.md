@@ -173,7 +173,7 @@ Build the MVP in the following order.
 ### Phase 2.5: Authentication and Hosting
 
 - Add login page
-- Add auth callback handling
+- Add email OTP verification flow
 - Add session middleware
 - Configure Vercel deployment and custom domain
 

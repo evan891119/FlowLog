@@ -196,7 +196,7 @@ Behavior requirements:
 
 ### 8.8 User Authentication
 
-Users can sign in with email magic links.
+Users can sign in with email one-time codes.
 
 Behavior requirements:
 
