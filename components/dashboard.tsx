@@ -95,7 +95,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
   };
 
   return (
-    <main className="min-h-screen px-4 py-5 pb-28 md:px-6 md:py-5 md:pb-32">
+    <main className="min-h-screen px-4 py-5 pb-40 md:px-6 md:py-5 md:pb-48">
       <div className="mx-auto max-w-7xl">
         <header className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div className="max-w-2xl">
@@ -108,13 +108,6 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
           </div>
           <div className="flex flex-wrap gap-2">
             <ThemeToggle />
-            <button
-              type="button"
-              className="rounded-full bg-clay px-4 py-3 text-sm font-semibold text-white"
-              onClick={createTask}
-            >
-              Add task
-            </button>
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
@@ -280,6 +273,17 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
             />
           </section>
         ) : null}
+
+        <button
+          type="button"
+          className={`fixed right-4 z-30 flex h-16 min-w-[7.5rem] items-center justify-center rounded-full bg-clay px-5 text-sm font-semibold tracking-tight text-white shadow-panel transition hover:scale-[1.02] md:right-6 md:h-[4.5rem] md:min-w-[8.5rem] md:text-base ${
+            isTodayTaskDetailOpen ? "pointer-events-none opacity-0 xl:pointer-events-auto xl:opacity-100" : "opacity-100"
+          } bottom-[calc(env(safe-area-inset-bottom)+6.75rem)] md:bottom-[8.5rem]`}
+          onClick={createTask}
+          aria-label="Add task"
+        >
+          Add task
+        </button>
 
         <FloatingFocusTimer
           focus={state.focus}
