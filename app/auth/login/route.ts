@@ -1,29 +1,29 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { buildLoginUrl, normalizeEmailInput } from "@/lib/auth-otp";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const email = formData.get("email");
+  const email = normalizeEmailInput(formData.get("email"));
 
-  if (typeof email !== "string" || email.length === 0) {
-    redirect("/login?message=Enter%20an%20email%20address.");
+  if (!email) {
+    redirect(buildLoginUrl({ message: "Enter an email address." }));
   }
 
   const supabase = await createSupabaseServerClient();
-  const headerStore = await headers();
-  const origin = headerStore.get("origin") ?? new URL(request.url).origin;
-
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback?next=/`,
-    },
   });
 
   if (error) {
-    redirect(`/login?message=${encodeURIComponent(error.message)}`);
+    redirect(buildLoginUrl({ message: error.message }));
   }
 
-  redirect("/login?message=Check%20your%20email%20for%20the%20sign-in%20link.");
+  redirect(
+    buildLoginUrl({
+      step: "verify",
+      email,
+      message: "Enter the verification code sent to your email.",
+    }),
+  );
 }
