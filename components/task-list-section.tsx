@@ -21,6 +21,7 @@ type TaskListSectionProps = {
   onNextActionChange: (taskId: string, nextAction: string) => void;
   onTaskModeChange: (taskId: string, taskMode: TaskMode) => void;
   onManualProgressChange: (taskId: string, progress: number) => void;
+  onEstimatedMinutesChange: (taskId: string, estimatedMinutes: number | null) => void;
   onAddTodoItem: (taskId: string) => void;
   onUpdateTodoItem: (taskId: string, todoItemId: string, text: string) => void;
   onToggleTodoItem: (taskId: string, todoItemId: string) => void;
@@ -50,6 +51,7 @@ export function TaskListSection({
   onNextActionChange,
   onTaskModeChange,
   onManualProgressChange,
+  onEstimatedMinutesChange,
   onAddTodoItem,
   onUpdateTodoItem,
   onToggleTodoItem,
@@ -82,6 +84,7 @@ export function TaskListSection({
                   onNextActionChange={onNextActionChange}
                   onTaskModeChange={onTaskModeChange}
                   onManualProgressChange={onManualProgressChange}
+                  onEstimatedMinutesChange={onEstimatedMinutesChange}
                   onAddTodoItem={onAddTodoItem}
                   onUpdateTodoItem={onUpdateTodoItem}
                   onToggleTodoItem={onToggleTodoItem}

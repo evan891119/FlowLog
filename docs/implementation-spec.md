@@ -34,6 +34,9 @@ type Task = {
   taskMode: "next_action" | "todo_list";
   nextAction: string;
   manualProgress: number;
+  estimatedMinutes: number | null;
+  elapsedSeconds: number;
+  currentSessionStartedAt: string | null;
   todoItems: { id: string; text: string; done: boolean }[];
   isToday: boolean;
   isCurrent: boolean;
@@ -45,18 +48,21 @@ type Task = {
 Rules:
 
 - `manualProgress` is an integer from `0` to `100`
-- `isCurrent` must be true for at most one task
+- `estimatedMinutes` is either `null` or an integer >= `1`
+- `elapsedSeconds` stores cumulative time already spent on the task
+- `currentSessionStartedAt` is set only while the task is actively current and timing
+- `isCurrent` must be true for at most one task and may be false for all tasks
 - `title` is required
 - `taskMode` defaults to `next_action`
 - `nextAction` should default to an empty string, but the UI should encourage filling it
 - `todoItems` defaults to an empty array
 - Display progress is derived from `manualProgress` in `next_action` mode and from checklist completion in `todo_list` mode
+- Time countdown is derived from `estimatedMinutes`, `elapsedSeconds`, and `currentSessionStartedAt`
 
 ### 2.3 Focus Settings
 
 ```ts
 type FocusSettings = {
-  enabled: boolean;
   duration: number;
   lastSessionStartedAt: string | null;
 };
@@ -117,7 +123,6 @@ const defaultState: DashboardState = {
   tasks: [],
   taskOrder: [],
   focus: {
-    enabled: false,
     duration: 25,
     lastSessionStartedAt: null,
   },
@@ -127,10 +132,15 @@ const defaultState: DashboardState = {
 
 ## 4. Core Business Rules
 
-- Only one task may have `isCurrent = true`
+- At most one task may have `isCurrent = true`
 - Setting a task as current must clear `isCurrent` on all other tasks
+- Setting a task as current must set `status` to `in_progress`
+- Setting a task as current must start or resume its task timer when `estimatedMinutes` is set
+- Toggling the current task off must clear `isCurrent` and pause its timer
+- Replacing the current task must pause the previous task timer and preserve elapsed time
 - A task with status `blocked` cannot be auto-promoted to current
 - Marking a current task as `done` must clear the current task selection
+- Marking a current task as `blocked` or `done` must pause its task timer
 - A task may be both `isToday = true` and `isCurrent = true`
 - `updatedAt` must change on every user-visible task edit
 - The UI should prefer showing active tasks before done tasks
@@ -197,6 +207,7 @@ Build the MVP in the following order.
 - Add single-current-task selection
 - Ensure rule enforcement when current task changes
 - Reflect current task state in the dedicated top panel
+- Add per-task estimated duration and countdown display
 
 ### Phase 5: Work Context Features
 
@@ -207,7 +218,6 @@ Build the MVP in the following order.
 
 ### Phase 6: Focus Module
 
-- Add focus toggle
 - Add timer display
 - Add start and stop behavior
 - Persist focus settings
@@ -219,11 +229,13 @@ The MVP implementation is complete when:
 - Users can create, edit, and view tasks
 - Users can delete tasks and manually reorder them
 - Users can mark one task as current
+- Users can clear the current task and leave no task selected
+- Users can set an estimated duration and see time remaining on timed tasks
 - Users can define a next action per task
 - The dashboard clearly separates current, today, blocked, and completed work
 - State survives refresh and device changes through Supabase
 - Signed-in users only see their own data
-- The focus timer can be enabled without becoming the primary screen element
+- The focus timer remains available without becoming the primary screen element
 
 ## 8. Testing Scenarios
 
@@ -232,14 +244,17 @@ At minimum, verify these scenarios:
 - Creating the first task in an empty state
 - Selecting a current task when none exists
 - Replacing the current task with another task
+- Clearing the current task manually and confirming the timer pauses
 - Completing the current task and confirming the current slot clears
 - Reloading the page and restoring tasks from Supabase
 - Logging in from another device and seeing the same tasks
 - Ensuring one user's data is not visible to another user
 - Editing next action and seeing it reflected in the current task panel
 - Toggling a task into today’s list and confirming it appears in the correct section
+- Switching current tasks and confirming the old task timer pauses while the new one starts
+- Reloading while a timed current task is active and confirming the countdown resumes
 - Marking a task as blocked and confirming it is visually separated from active work
-- Enabling and using the focus timer without losing task context
+- Starting and using the focus timer without losing task context
 
 ## 9. Future Compatibility Notes
 

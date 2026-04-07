@@ -67,7 +67,7 @@ FlowLog is a web task dashboard that helps users always know what they are doing
 ## 5. Product Principles
 
 - The homepage should restore work context within 5 seconds.
-- Only one task can be marked as the current task at a time.
+- At most one task can be marked as the current task at a time.
 - The `next action` should be concrete and immediately actionable.
 - Focus tools must remain optional and supportive.
 - The dashboard should feel like a control panel, not a long backlog list.
@@ -99,7 +99,7 @@ This is the main product surface and the highest priority area.
 Core capabilities:
 
 - View today’s tasks
-- See the single current task
+- See the current task when one is selected
 - Track task state
 - Record the next action for each task
 - See what is blocked, completed, and queued for later
@@ -113,7 +113,7 @@ This layer helps users stay anchored, but should not define the product.
 
 Support capabilities:
 
-- Optional focus timer
+- Always-available focus timer
 - Reminders that reconnect the user to the active task
 - Restore previous work context when returning
 - Simple self-marking for distraction events in future versions
@@ -132,6 +132,7 @@ Each task must support:
 - Status
 - Next action
 - Progress
+- Optional estimated work time
 - Today flag
 - Current task flag
 
@@ -148,12 +149,14 @@ These states must be visible from the main dashboard.
 
 ### 8.3 Single Current Task
 
-Users can mark exactly one task as the current task.
+Users can mark one task as the current task, or clear it when they want to pause active work.
 
 Rules:
 
-- Only one task may be current at any time
+- At most one task may be current at any time
 - Setting a new current task clears the previous one
+- Setting a task as current moves it into `in_progress`
+- Clearing the current task manually pauses its timer and leaves no task selected
 - Completing the current task clears the current selection
 
 ### 8.4 Next Action / Todo List
@@ -196,7 +199,20 @@ Behavior requirements:
 - Initialize with a safe empty state for new accounts
 - Never expose one user's tasks to another user
 
-### 8.8 User Authentication
+### 8.8 Task Time Countdown
+
+Users can optionally set an estimated duration for a task.
+
+Behavior requirements:
+
+- When a timed task becomes the current task, its countdown starts automatically
+- Switching to another current task pauses the previous countdown and preserves elapsed time
+- Returning to the same task resumes from the remaining time
+- The Today list should visualize remaining time from left to right
+- The Current task panel should visualize remaining time from top to bottom
+- Reaching zero should not auto-complete the task
+
+### 8.9 User Authentication
 
 Users can sign in with email one-time codes.
 
@@ -207,13 +223,13 @@ Behavior requirements:
 - Signed-out users should be redirected to the login experience
 - Each account reads and writes only its own tasks and settings
 
-### 8.9 Optional Focus Timer
+### 8.10 Focus Timer
 
-Users can enable or disable a focus timer.
+Users can use a focus timer whenever they need it.
 
 MVP expectations:
 
-- Timer is optional
+- Timer is always available as a secondary utility
 - Timer duration is configurable by basic presets later, but MVP can start with one default
 - Timer must not overshadow the task dashboard
 - Start and stop controls are sufficient for MVP

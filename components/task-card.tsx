@@ -1,8 +1,10 @@
 import { StatusBadge } from "@/components/status-badge";
 import { TaskModeToggle } from "@/components/task-mode-toggle";
 import { TaskProgressEditor } from "@/components/task-progress-editor";
+import { TaskTimeEstimateEditor } from "@/components/task-time-estimate-editor";
 import { TodoListEditor } from "@/components/todo-list-editor";
 import { getTaskProgress } from "@/lib/dashboard-state";
+import { formatTaskTimeLabel } from "@/lib/task-time";
 import { Task, TaskMode, TaskStatus } from "@/types/dashboard";
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
@@ -22,6 +24,7 @@ type TaskCardProps = {
   onNextActionChange: (taskId: string, nextAction: string) => void;
   onTaskModeChange: (taskId: string, taskMode: TaskMode) => void;
   onManualProgressChange: (taskId: string, progress: number) => void;
+  onEstimatedMinutesChange: (taskId: string, estimatedMinutes: number | null) => void;
   onAddTodoItem: (taskId: string) => void;
   onUpdateTodoItem: (taskId: string, todoItemId: string, text: string) => void;
   onToggleTodoItem: (taskId: string, todoItemId: string) => void;
@@ -43,6 +46,7 @@ export function TaskCard({
   onNextActionChange,
   onTaskModeChange,
   onManualProgressChange,
+  onEstimatedMinutesChange,
   onAddTodoItem,
   onUpdateTodoItem,
   onToggleTodoItem,
@@ -55,6 +59,7 @@ export function TaskCard({
 }: TaskCardProps) {
   const isCompact = variant === "compact";
   const progress = getTaskProgress(task);
+  const timeLabel = formatTaskTimeLabel(task);
 
   return (
     <article className={`dark-surface-muted rounded-3xl border border-sand/80 bg-mist/60 dark:text-white ${isCompact ? "p-3.5" : "p-4"}`}>
@@ -143,6 +148,11 @@ export function TaskCard({
               <TaskProgressEditor value={progress} onChange={(value) => onManualProgressChange(task.id, value)} />
             )}
           </div>
+
+          <div>
+            <TaskTimeEstimateEditor value={task.estimatedMinutes} onChange={(value) => onEstimatedMinutesChange(task.id, value)} />
+            <p className="mt-1 text-sm text-steel dark:text-slate-300">{timeLabel}</p>
+          </div>
         </div>
       </div>
 
@@ -153,7 +163,7 @@ export function TaskCard({
           onClick={() => onSetCurrent(task.id)}
           disabled={task.status === "blocked" || task.status === "done"}
         >
-          {task.isCurrent ? "Current task" : "Set as current"}
+          {task.isCurrent ? "Pause task" : "Set as current"}
         </button>
         <button
           type="button"

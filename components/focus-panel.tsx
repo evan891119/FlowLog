@@ -20,7 +20,6 @@ type FocusPanelProps = {
   remainingSeconds: number;
   isRunning: boolean;
   isComplete: boolean;
-  onToggleEnabled: (enabled: boolean) => void;
   onDurationChange: (duration: number) => void;
   onStart: () => void;
   onStop: () => void;
@@ -33,7 +32,6 @@ export function FocusPanel({
   remainingSeconds,
   isRunning,
   isComplete,
-  onToggleEnabled,
   onDurationChange,
   onStart,
   onStop,
@@ -41,9 +39,8 @@ export function FocusPanel({
   variant = "popover",
 }: FocusPanelProps) {
   const isSheet = variant === "sheet";
-  const statusText = !focus.enabled
-    ? "Focus mode is off."
-    : isRunning
+  const statusText =
+    isRunning
       ? "Focus session in progress."
       : isComplete
         ? "Focus session complete."
@@ -70,20 +67,11 @@ export function FocusPanel({
       </div>
 
       <div className="dark-panel-muted space-y-4 rounded-3xl bg-white px-4 py-4 text-sm text-steel dark:border dark:text-slate-300">
-        <div className="flex items-center justify-between gap-3">
+        <div>
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</p>
             <p className="mt-1 font-semibold text-ink dark:text-white">{statusText}</p>
           </div>
-          <label className="flex items-center gap-2 text-sm font-medium text-ink dark:text-white">
-            <input
-              type="checkbox"
-              checked={focus.enabled}
-              onChange={(event) => onToggleEnabled(event.target.checked)}
-              aria-label="Enable focus mode"
-            />
-            Enabled
-          </label>
         </div>
 
         <div className={`gap-3 ${isSheet ? "space-y-3" : "grid grid-cols-[1.05fr_0.95fr] items-start"}`}>
@@ -115,7 +103,7 @@ export function FocusPanel({
             type="button"
             className="rounded-full bg-forest px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-steel"
             onClick={onStart}
-            disabled={!focus.enabled || isRunning}
+            disabled={isRunning}
           >
             {isComplete ? "Restart session" : "Start focus"}
           </button>

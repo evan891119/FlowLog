@@ -76,6 +76,10 @@ export function useDashboardState(initialState: DashboardState) {
     setState((current) => updateTaskInState(current, taskId, { manualProgress }));
   };
 
+  const updateTaskEstimatedMinutes = (taskId: string, estimatedMinutes: number | null) => {
+    setState((current) => updateTaskInState(current, taskId, { estimatedMinutes }));
+  };
+
   const addTaskTodoItem = (taskId: string) => {
     setState((current) => addTaskTodoItemInState(current, taskId));
   };
@@ -100,7 +104,7 @@ export function useDashboardState(initialState: DashboardState) {
     setState((current) => toggleTodayTaskInState(current, taskId));
   };
 
-  const setCurrentTask = (taskId: string) => {
+  const toggleCurrentTask = (taskId: string) => {
     setState((current) => setCurrentTaskInState(current, taskId));
   };
 
@@ -118,10 +122,6 @@ export function useDashboardState(initialState: DashboardState) {
 
   const moveTaskDown = (taskId: string) => {
     setState((current) => moveTaskInState(current, taskId, "down"));
-  };
-
-  const setFocusEnabled = (enabled: boolean) => {
-    setState((current) => updateFocusSettingsInState(current, { enabled }));
   };
 
   const setFocusDuration = (duration: number) => {
@@ -144,18 +144,18 @@ export function useDashboardState(initialState: DashboardState) {
     updateTaskNextAction,
     updateTaskMode,
     updateTaskManualProgress,
+    updateTaskEstimatedMinutes,
     addTaskTodoItem,
     updateTaskTodoItem,
     toggleTaskTodoItem,
     deleteTaskTodoItem,
     updateTaskStatus,
     toggleToday,
-    setCurrentTask,
+    toggleCurrentTask,
     updateTodayGoal,
     deleteTask,
     moveTaskUp,
     moveTaskDown,
-    setFocusEnabled,
     setFocusDuration,
     startFocusSession,
     stopFocusSession,

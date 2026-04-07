@@ -5,7 +5,6 @@ export const defaultState: DashboardState = {
   tasks: [],
   taskOrder: [],
   focus: {
-    enabled: false,
     duration: 25,
     lastSessionStartedAt: null,
   },
@@ -25,8 +24,49 @@ function clampProgress(progress: number) {
   return Math.max(0, Math.min(100, Math.round(progress)));
 }
 
+function clampEstimatedMinutes(estimatedMinutes: number | null) {
+  if (estimatedMinutes === null || Number.isNaN(estimatedMinutes)) {
+    return null;
+  }
+
+  return Math.max(1, Math.round(estimatedMinutes));
+}
+
+function clampElapsedSeconds(elapsedSeconds: number) {
+  return Math.max(0, Math.round(elapsedSeconds));
+}
+
 function nowIso() {
   return new Date().toISOString();
+}
+
+function getElapsedSecondsSince(startedAt: string, now = Date.now()) {
+  return Math.max(0, Math.floor((now - new Date(startedAt).getTime()) / 1000));
+}
+
+function pauseTaskTimer(task: Task, timestamp = nowIso()) {
+  if (!task.currentSessionStartedAt) {
+    return task;
+  }
+
+  return {
+    ...task,
+    elapsedSeconds: clampElapsedSeconds(task.elapsedSeconds + getElapsedSecondsSince(task.currentSessionStartedAt, new Date(timestamp).getTime())),
+    currentSessionStartedAt: null,
+    updatedAt: timestamp,
+  };
+}
+
+function startTaskTimer(task: Task, timestamp = nowIso()) {
+  if (task.currentSessionStartedAt || task.estimatedMinutes === null) {
+    return task;
+  }
+
+  return {
+    ...task,
+    currentSessionStartedAt: timestamp,
+    updatedAt: timestamp,
+  };
 }
 
 function canBeCurrentTask(task: Task) {
@@ -151,6 +191,31 @@ export function getTaskProgress(task: Task) {
   return clampProgress(task.manualProgress);
 }
 
+export function getTaskElapsedSeconds(task: Task, now = Date.now()) {
+  if (!task.currentSessionStartedAt) {
+    return clampElapsedSeconds(task.elapsedSeconds);
+  }
+
+  return clampElapsedSeconds(task.elapsedSeconds + getElapsedSecondsSince(task.currentSessionStartedAt, now));
+}
+
+export function getTaskRemainingSeconds(task: Task, now = Date.now()) {
+  if (task.estimatedMinutes === null) {
+    return null;
+  }
+
+  return Math.max(0, task.estimatedMinutes * 60 - getTaskElapsedSeconds(task, now));
+}
+
+export function getTaskRemainingRatio(task: Task, now = Date.now()) {
+  if (task.estimatedMinutes === null) {
+    return null;
+  }
+
+  const totalSeconds = Math.max(1, task.estimatedMinutes * 60);
+  return Math.max(0, Math.min(1, (getTaskRemainingSeconds(task, now) ?? 0) / totalSeconds));
+}
+
 export function createTask(input?: Partial<Pick<Task, "title" | "nextAction" | "isToday">>): Task {
   const timestamp = nowIso();
 
@@ -161,6 +226,9 @@ export function createTask(input?: Partial<Pick<Task, "title" | "nextAction" | "
     taskMode: "next_action",
     nextAction: input?.nextAction?.trim() || "",
     manualProgress: 0,
+    estimatedMinutes: null,
+    elapsedSeconds: 0,
+    currentSessionStartedAt: null,
     todoItems: [],
     isToday: Boolean(input?.isToday),
     isCurrent: false,
@@ -182,8 +250,10 @@ export function createTaskInState(state: DashboardState, taskInput?: Partial<Pic
 export function updateTaskInState(
   state: DashboardState,
   taskId: string,
-  updates: Partial<Pick<Task, "title" | "nextAction" | "manualProgress" | "isToday">>,
+  updates: Partial<Pick<Task, "title" | "nextAction" | "manualProgress" | "estimatedMinutes" | "isToday">>,
 ) {
+  const timestamp = nowIso();
+
   return normalizeDashboardState({
     ...state,
     tasks: state.tasks.map((task) => {
@@ -193,33 +263,50 @@ export function updateTaskInState(
       const nextAction = updates.nextAction !== undefined ? updates.nextAction : task.nextAction;
       const nextManualProgress =
         updates.manualProgress !== undefined ? clampProgress(updates.manualProgress) : task.manualProgress;
+      const nextEstimatedMinutes =
+        updates.estimatedMinutes !== undefined ? clampEstimatedMinutes(updates.estimatedMinutes) : task.estimatedMinutes;
       const nextIsToday = updates.isToday !== undefined ? updates.isToday : task.isToday;
+      const shouldPauseTimer = nextEstimatedMinutes === null && task.currentSessionStartedAt !== null;
+      const shouldStartTimer = nextEstimatedMinutes !== null && task.isCurrent && task.currentSessionStartedAt === null;
+      const timerBaseTask = shouldPauseTimer ? pauseTaskTimer(task, timestamp) : task;
 
       return {
-        ...task,
+        ...(shouldStartTimer
+          ? startTaskTimer(
+              {
+                ...timerBaseTask,
+                estimatedMinutes: nextEstimatedMinutes,
+              },
+              timestamp,
+            )
+          : timerBaseTask),
         title: nextTitle,
         nextAction,
         manualProgress: nextManualProgress,
+        estimatedMinutes: nextEstimatedMinutes,
         isToday: nextIsToday,
-        updatedAt: nowIso(),
+        updatedAt: timestamp,
       };
     }),
   });
 }
 
 export function setTaskStatusInState(state: DashboardState, taskId: string, status: TaskStatus) {
+  const timestamp = nowIso();
+
   return normalizeDashboardState({
     ...state,
     tasks: state.tasks.map((task) => {
       if (task.id !== taskId) return task;
 
       const shouldClearCurrent = NON_CURRENT_STATUSES.has(status);
+      const nextTask = shouldClearCurrent ? pauseTaskTimer(task, timestamp) : task;
 
       return {
-        ...task,
+        ...nextTask,
         status,
         isCurrent: shouldClearCurrent ? false : task.isCurrent,
-        updatedAt: nowIso(),
+        updatedAt: timestamp,
       };
     }),
   });
@@ -241,20 +328,46 @@ export function toggleTodayTaskInState(state: DashboardState, taskId: string) {
 }
 
 export function setCurrentTaskInState(state: DashboardState, taskId: string) {
+  const timestamp = nowIso();
+  const isClearingCurrentTask = state.tasks.some((task) => task.id === taskId && task.isCurrent);
+
   return normalizeDashboardState({
     ...state,
     tasks: state.tasks.map((task) => {
       if (!canBeCurrentTask(task)) {
         return {
-          ...task,
+          ...pauseTaskTimer(task, timestamp),
           isCurrent: false,
         };
       }
 
+      if (task.id === taskId) {
+        if (isClearingCurrentTask) {
+          return {
+            ...pauseTaskTimer(task, timestamp),
+            isCurrent: false,
+            updatedAt: timestamp,
+          };
+        }
+
+        return {
+          ...startTaskTimer(
+            {
+              ...task,
+              status: "in_progress",
+              isCurrent: true,
+            },
+            timestamp,
+          ),
+          status: "in_progress",
+          isCurrent: true,
+          updatedAt: timestamp,
+        };
+      }
+
       return {
-        ...task,
-        isCurrent: task.id === taskId,
-        updatedAt: task.id === taskId || task.isCurrent ? nowIso() : task.updatedAt,
+        ...pauseTaskTimer(task, timestamp),
+        isCurrent: false,
       };
     }),
   });
@@ -372,12 +485,11 @@ export function updateTodayGoalInState(state: DashboardState, todayGoal: string)
   };
 }
 
-export function updateFocusSettingsInState(state: DashboardState, updates: Partial<Pick<FocusSettings, "enabled" | "duration">>) {
+export function updateFocusSettingsInState(state: DashboardState, updates: Partial<Pick<FocusSettings, "duration">>) {
   return {
     ...state,
     focus: {
       ...state.focus,
-      enabled: updates.enabled ?? state.focus.enabled,
       duration: updates.duration !== undefined ? clampFocusDuration(updates.duration) : state.focus.duration,
     },
   };
@@ -388,7 +500,6 @@ export function startFocusSessionInState(state: DashboardState) {
     ...state,
     focus: {
       ...state.focus,
-      enabled: true,
       lastSessionStartedAt: nowIso(),
     },
   };
@@ -417,6 +528,9 @@ function isTask(candidate: unknown): candidate is Task {
     typeof task.taskMode === "string" &&
     VALID_TASK_MODES.includes(task.taskMode as TaskMode) &&
     typeof task.manualProgress === "number" &&
+    (typeof task.estimatedMinutes === "number" || task.estimatedMinutes === null) &&
+    typeof task.elapsedSeconds === "number" &&
+    (typeof task.currentSessionStartedAt === "string" || task.currentSessionStartedAt === null) &&
     todoItems.every(
       (item) =>
         item &&
@@ -469,6 +583,24 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
                 : typeof task.progress === "number"
                   ? clampProgress(task.progress)
                   : 0,
+            estimatedMinutes:
+              typeof task.estimatedMinutes === "number"
+                ? clampEstimatedMinutes(task.estimatedMinutes)
+                : typeof task.estimated_minutes === "number"
+                  ? clampEstimatedMinutes(task.estimated_minutes)
+                  : null,
+            elapsedSeconds:
+              typeof task.elapsedSeconds === "number"
+                ? clampElapsedSeconds(task.elapsedSeconds)
+                : typeof task.elapsed_seconds === "number"
+                  ? clampElapsedSeconds(task.elapsed_seconds)
+                  : 0,
+            currentSessionStartedAt:
+              typeof task.currentSessionStartedAt === "string"
+                ? task.currentSessionStartedAt
+                : typeof task.current_session_started_at === "string"
+                  ? task.current_session_started_at
+                  : null,
             todoItems,
             isToday: Boolean(task.isToday),
             isCurrent: Boolean(task.isCurrent),
@@ -489,7 +621,6 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
     focus:
       input.focus && typeof input.focus === "object"
         ? {
-            enabled: Boolean((input.focus as Record<string, unknown>).enabled),
             duration:
               typeof (input.focus as Record<string, unknown>).duration === "number"
                 ? Number((input.focus as Record<string, unknown>).duration)

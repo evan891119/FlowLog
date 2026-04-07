@@ -21,6 +21,9 @@ test("maps dashboard state to ordered task rows", () => {
         taskMode: "next_action" as const,
         nextAction: "First",
         manualProgress: 0,
+        estimatedMinutes: null,
+        elapsedSeconds: 0,
+        currentSessionStartedAt: null,
         todoItems: [],
         isToday: false,
         isCurrent: false,
@@ -34,6 +37,9 @@ test("maps dashboard state to ordered task rows", () => {
         taskMode: "todo_list" as const,
         nextAction: "Second",
         manualProgress: 25,
+        estimatedMinutes: 45,
+        elapsedSeconds: 300,
+        currentSessionStartedAt: "2025-01-02T00:05:00.000Z",
         todoItems: [
           { id: "todo-1", text: "Second", done: true },
           { id: "todo-2", text: "Wrap up", done: false },
@@ -53,6 +59,8 @@ test("maps dashboard state to ordered task rows", () => {
   assert.equal(rows.every((row) => row.user_id === "user-1"), true);
   assert.equal(rows.find((row) => row.id === "b")?.task_mode, "todo_list");
   assert.equal(rows.find((row) => row.id === "b")?.progress, 50);
+  assert.equal(rows.find((row) => row.id === "b")?.estimated_minutes, 45);
+  assert.equal(rows.find((row) => row.id === "b")?.elapsed_seconds, 300);
 });
 
 test("maps dashboard settings row with persisted timestamp", () => {
@@ -74,6 +82,9 @@ test("rebuilds dashboard state from cloud rows", () => {
       task_mode: "next_action",
       next_action: "",
       manual_progress: 0,
+      estimated_minutes: null,
+      elapsed_seconds: 0,
+      current_session_started_at: null,
       todo_items: [],
       progress: 0,
       is_today: false,
@@ -90,6 +101,9 @@ test("rebuilds dashboard state from cloud rows", () => {
       task_mode: "todo_list",
       next_action: "Resume",
       manual_progress: 20,
+      estimated_minutes: 30,
+      elapsed_seconds: 180,
+      current_session_started_at: "2025-01-02T00:10:00.000Z",
       todo_items: [
         { id: "todo-1", text: "Resume", done: true },
         { id: "todo-2", text: "Finish sync", done: false },
@@ -105,7 +119,6 @@ test("rebuilds dashboard state from cloud rows", () => {
   const settingsRow: DashboardSettingsRow = {
     user_id: "user-1",
     today_goal: "Ship cloud sync",
-    focus_enabled: true,
     focus_duration: 50,
     focus_last_session_started_at: "2025-01-02T01:00:00.000Z",
     last_viewed_at: "2025-01-02T02:00:00.000Z",
@@ -118,5 +131,8 @@ test("rebuilds dashboard state from cloud rows", () => {
   assert.equal(state.tasks.find((task) => task.id === "b")?.isCurrent, true);
   assert.equal(state.tasks.find((task) => task.id === "b")?.taskMode, "todo_list");
   assert.equal(state.tasks.find((task) => task.id === "b")?.todoItems.length, 2);
-  assert.equal(state.focus.enabled, true);
+  assert.equal(state.tasks.find((task) => task.id === "b")?.estimatedMinutes, 30);
+  assert.equal(state.tasks.find((task) => task.id === "b")?.elapsedSeconds, 180);
+  assert.equal(state.focus.duration, 50);
+  assert.equal(state.focus.lastSessionStartedAt, "2025-01-02T01:00:00.000Z");
 });
