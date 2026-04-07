@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-[32px] border border-white/70 bg-white/85 p-8 shadow-panel backdrop-blur dark:border-white/10 dark:bg-[#141b24]/94">
+      <div className="dark-panel w-full max-w-md rounded-[32px] border border-white/70 bg-white/85 p-8 shadow-panel backdrop-blur">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-steel dark:text-slate-300">FlowLog Cloud</p>
@@ -40,7 +40,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         {loginStep === "verify" && email ? (
           <div className="mt-8 space-y-6">
-            <div className="rounded-2xl border border-sand bg-mist/60 px-4 py-3 text-sm text-steel dark:border-white/10 dark:bg-[#1b2430] dark:text-slate-300">
+            <div className="dark-surface-muted rounded-2xl border border-sand bg-mist/60 px-4 py-3 text-sm text-steel dark:text-slate-300">
               Code sent to <span className="font-medium text-ink dark:text-white">{email}</span>
             </div>
 
@@ -56,7 +56,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                   inputMode="numeric"
                   autoComplete="one-time-code"
                   required
-                  className="w-full rounded-2xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
+                  className="dark-surface w-full rounded-2xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500"
                   placeholder="Enter your code"
                 />
               </label>
@@ -71,7 +71,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 <input type="hidden" name="email" value={email} />
                 <button
                   type="submit"
-                  className="w-full rounded-full border border-sand bg-white px-4 py-3 text-sm font-semibold text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+                  className="dark-control w-full rounded-full border border-sand bg-white px-4 py-3 text-sm font-semibold text-ink dark:text-white"
                 >
                   Resend code
                 </button>
@@ -79,7 +79,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
               <a
                 href={buildLoginUrl()}
-                className="flex-1 min-w-[10rem] rounded-full border border-sand bg-white px-4 py-3 text-center text-sm font-semibold text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+                className="dark-control flex-1 min-w-[10rem] rounded-full border border-sand bg-white px-4 py-3 text-center text-sm font-semibold text-ink dark:text-white"
               >
                 Use another email
               </a>
@@ -93,7 +93,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 type="email"
                 name="email"
                 required
-                className="w-full rounded-2xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
+                className="dark-surface w-full rounded-2xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500"
                 placeholder="you@example.com"
               />
             </label>
@@ -105,7 +105,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         )}
 
         {resolvedSearchParams.message ? (
-          <p className="mt-4 rounded-2xl border border-sand bg-mist/60 px-4 py-3 text-sm text-steel dark:border-white/10 dark:bg-[#1b2430] dark:text-slate-300">{resolvedSearchParams.message}</p>
+          <p className="dark-surface-muted mt-4 rounded-2xl border border-sand bg-mist/60 px-4 py-3 text-sm text-steel dark:text-slate-300">{resolvedSearchParams.message}</p>
         ) : null}
       </div>
     </main>

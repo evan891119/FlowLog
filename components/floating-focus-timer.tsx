@@ -118,7 +118,7 @@ export function FloatingFocusTimer({
         <>
           <button
             type="button"
-            className="pointer-events-auto fixed inset-0 z-0 bg-ink/18 dark:bg-black/30 md:bg-transparent"
+            className="dark-overlay pointer-events-auto fixed inset-0 z-0 bg-ink/18 md:bg-transparent"
             aria-label="Close focus mode"
             onClick={() => setIsOpen(false)}
           />
@@ -156,17 +156,17 @@ export function FloatingFocusTimer({
 
       <button
         type="button"
-        className="pointer-events-auto relative flex h-20 w-20 items-center justify-center rounded-full border border-white/70 bg-white/92 shadow-panel backdrop-blur transition hover:scale-[1.02] dark:border-white/10 dark:bg-[#141d27]/96 md:h-24 md:w-24"
+        className="dark-panel pointer-events-auto relative flex h-20 w-20 items-center justify-center rounded-full border border-white/70 bg-white/92 shadow-panel backdrop-blur transition hover:scale-[1.02] md:h-24 md:w-24"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
         aria-label="Open focus mode"
       >
         <span className="absolute inset-0 rounded-full p-[5px] md:p-[6px]" style={progressStyle}>
-          <span className="block h-full w-full rounded-full bg-white/95 dark:bg-[#141d27]" />
+          <span className="dark-panel block h-full w-full rounded-full bg-white/95" />
         </span>
         <span
           className={`absolute inset-[7px] rounded-full border ${
-            focus.enabled ? "border-clay/20 bg-mist/90 dark:border-clay/30 dark:bg-[#202a36]" : "border-steel/15 bg-white dark:border-white/10 dark:bg-[#18212b]"
+            focus.enabled ? "dark-surface border-clay/20 bg-mist/90 dark:border-clay/30" : "dark-surface-muted border-steel/15 bg-white dark:border-white/10"
           } md:inset-[8px]`}
         />
         <span className="relative flex flex-col items-center justify-center leading-none">

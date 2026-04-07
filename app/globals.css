@@ -17,6 +17,236 @@ html.dark body {
     linear-gradient(180deg, rgba(14, 19, 27, 1) 0%, rgba(11, 15, 22, 1) 100%);
 }
 
+@layer components {
+  .ui-tag {
+    border: 1px solid rgba(205, 190, 166, 0.56);
+    background-color: rgba(246, 240, 229, 0.9);
+    color: #4d5968;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  .ui-tag-soft {
+    border: 1px solid rgba(205, 190, 166, 0.42);
+    background-color: rgba(251, 247, 239, 0.8);
+    color: #6d7a8b;
+  }
+
+  .ui-button-secondary {
+    border: 1px solid rgba(201, 184, 160, 0.78);
+    background-color: rgba(255, 252, 248, 0.72);
+    color: #1e2430;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.62),
+      0 8px 22px rgba(30, 36, 48, 0.05);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease;
+  }
+
+  .ui-button-secondary:hover {
+    background-color: rgba(255, 252, 248, 0.96);
+    border-color: rgba(194, 103, 78, 0.34);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.72),
+      0 12px 28px rgba(30, 36, 48, 0.08);
+  }
+
+  .ui-button-primary {
+    background: linear-gradient(180deg, rgba(43, 51, 63, 0.98) 0%, rgba(30, 36, 48, 1) 100%);
+    color: #fff;
+    box-shadow: 0 12px 28px rgba(30, 36, 48, 0.18);
+    transition:
+      box-shadow 160ms ease,
+      transform 160ms ease,
+      filter 160ms ease;
+  }
+
+  .ui-button-primary:hover {
+    filter: brightness(1.04);
+    box-shadow: 0 16px 34px rgba(30, 36, 48, 0.22);
+  }
+
+  .ui-button-current {
+    background: linear-gradient(180deg, rgba(53, 89, 74, 0.98) 0%, rgba(39, 71, 58, 1) 100%);
+    color: #fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 14px 34px rgba(53, 89, 74, 0.24);
+    transition:
+      box-shadow 160ms ease,
+      transform 160ms ease,
+      filter 160ms ease;
+  }
+
+  .ui-button-current:hover {
+    filter: brightness(1.04);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      0 18px 38px rgba(53, 89, 74, 0.28);
+  }
+
+  .dark-current-panel {
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      0 0 0 1px rgba(194, 103, 78, 0.05),
+      0 18px 44px rgba(30, 36, 48, 0.08);
+  }
+
+  .dark-current-surface {
+    background:
+      radial-gradient(circle at top left, rgba(194, 103, 78, 0.08), transparent 30%),
+      linear-gradient(180deg, rgba(255, 251, 247, 0.96) 0%, rgba(252, 247, 241, 0.98) 100%);
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      0 18px 42px rgba(30, 36, 48, 0.08);
+  }
+
+  .dark-current-inner {
+    background-color: rgba(248, 241, 234, 0.92);
+    border-color: rgba(194, 103, 78, 0.12);
+  }
+
+  .dark-current-accent {
+    background: linear-gradient(90deg, rgba(194, 103, 78, 0.72) 0%, rgba(222, 139, 96, 0.64) 100%);
+    box-shadow: 0 0 10px rgba(194, 103, 78, 0.08);
+  }
+
+  .dark-current-kicker {
+    color: rgba(172, 98, 74, 0.9);
+  }
+
+  html.dark .dark-panel {
+    background-color: rgba(22, 29, 38, 0.94);
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+  }
+
+  html.dark .dark-current-panel {
+    border-color: rgba(194, 103, 78, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(194, 103, 78, 0.05),
+      0 24px 72px rgba(0, 0, 0, 0.34),
+      0 0 30px rgba(194, 103, 78, 0.09);
+  }
+
+  html.dark .dark-panel-muted {
+    background-color: rgba(19, 26, 34, 0.94);
+    border-color: rgba(148, 163, 184, 0.12);
+  }
+
+  html.dark .dark-surface {
+    background-color: rgba(28, 37, 48, 0.92);
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  html.dark .dark-surface-muted {
+    background-color: rgba(24, 32, 42, 0.92);
+    border-color: rgba(148, 163, 184, 0.12);
+  }
+
+  html.dark .dark-surface-strong {
+    background: linear-gradient(180deg, rgba(18, 26, 35, 0.98) 0%, rgba(14, 21, 29, 0.98) 100%);
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+  }
+
+  html.dark .dark-current-surface {
+    background:
+      radial-gradient(circle at top left, rgba(194, 103, 78, 0.1), transparent 28%),
+      linear-gradient(180deg, rgba(20, 28, 37, 0.99) 0%, rgba(14, 21, 30, 0.99) 100%);
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 24px 70px rgba(0, 0, 0, 0.4);
+  }
+
+  html.dark .dark-current-inner {
+    background-color: rgba(27, 36, 46, 0.94);
+    border-color: rgba(194, 103, 78, 0.12);
+  }
+
+  html.dark .dark-current-accent {
+    background: linear-gradient(90deg, rgba(194, 103, 78, 0.88) 0%, rgba(222, 139, 96, 0.8) 100%);
+    box-shadow: 0 0 16px rgba(194, 103, 78, 0.16);
+  }
+
+  html.dark .dark-current-kicker {
+    color: rgba(246, 194, 162, 0.9);
+  }
+
+  html.dark .dark-control {
+    background-color: rgba(31, 41, 53, 0.96);
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  html.dark .dark-control:hover {
+    background-color: rgba(38, 49, 62, 0.98);
+  }
+
+  html.dark .dark-control-selected {
+    background-color: rgba(42, 55, 69, 0.98);
+    border-color: rgba(148, 163, 184, 0.18);
+  }
+
+  html.dark .dark-control-soft {
+    background-color: rgba(24, 33, 43, 0.92);
+    border-color: rgba(148, 163, 184, 0.1);
+  }
+
+  html.dark .dark-progress-track {
+    background-color: rgba(59, 73, 89, 0.68);
+  }
+
+  html.dark .dark-overlay {
+    background-color: rgba(2, 6, 12, 0.54);
+  }
+
+  html.dark .ui-tag {
+    border-color: rgba(148, 163, 184, 0.16);
+    background-color: rgba(39, 50, 63, 0.84);
+    color: #d7e0eb;
+    box-shadow: none;
+  }
+
+  html.dark .ui-tag-soft {
+    border-color: rgba(148, 163, 184, 0.12);
+    background-color: rgba(28, 38, 49, 0.74);
+    color: #aebccc;
+  }
+
+  html.dark .ui-button-secondary {
+    border-color: rgba(148, 163, 184, 0.16);
+    background-color: rgba(25, 35, 46, 0.9);
+    color: #f8fafc;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.03),
+      0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  html.dark .ui-button-secondary:hover {
+    background-color: rgba(31, 42, 55, 0.96);
+    border-color: rgba(194, 103, 78, 0.24);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 14px 28px rgba(0, 0, 0, 0.24);
+  }
+
+  html.dark .ui-button-primary {
+    background: linear-gradient(180deg, rgba(57, 70, 86, 0.98) 0%, rgba(41, 53, 66, 0.98) 100%);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  }
+
+  html.dark .ui-button-current {
+    background: linear-gradient(180deg, rgba(63, 108, 90, 0.98) 0%, rgba(43, 81, 66, 0.98) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 16px 34px rgba(18, 40, 32, 0.38);
+  }
+}
+
 * {
   box-sizing: border-box;
 }

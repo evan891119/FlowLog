@@ -47,7 +47,7 @@ export function ThemeToggle() {
     <div ref={shellRef} className="relative">
       <button
         type="button"
-        className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink transition hover:bg-white dark:border-white/10 dark:bg-[#1d2632] dark:text-white dark:hover:bg-[#25303d]"
+        className="dark-control rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink transition hover:bg-white dark:text-white"
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
         aria-label="Theme options"
@@ -56,7 +56,7 @@ export function ThemeToggle() {
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 min-w-44 rounded-3xl border border-white/70 bg-white/95 p-2 shadow-panel backdrop-blur dark:border-white/10 dark:bg-[#161e28]/98">
+        <div className="dark-panel absolute right-0 top-[calc(100%+0.5rem)] z-30 min-w-44 rounded-3xl border border-white/70 bg-white/95 p-2 shadow-panel backdrop-blur">
           {THEME_OPTIONS.map((option) => {
             const isSelected = preference === option.value;
 
@@ -66,8 +66,8 @@ export function ThemeToggle() {
                 type="button"
                 className={`flex w-full items-center justify-between rounded-2xl px-3 py-2 text-sm transition ${
                   isSelected
-                    ? "bg-ink text-white dark:bg-[#2a3442] dark:text-white"
-                    : "text-ink hover:bg-mist dark:text-white dark:hover:bg-[#212b37]"
+                    ? "bg-ink text-white dark-control-selected dark:text-white"
+                    : "dark-control-soft text-ink hover:bg-mist dark:text-white"
                 }`}
                 onClick={() => {
                   setPreference(option.value);
