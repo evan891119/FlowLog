@@ -26,7 +26,6 @@ export type TaskRow = {
 export type DashboardSettingsRow = {
   user_id: string;
   today_goal: string;
-  focus_enabled: boolean;
   focus_duration: number;
   focus_last_session_started_at: string | null;
   last_viewed_at: string | null;
@@ -59,7 +58,6 @@ export function mapRowsToDashboardState(taskRows: TaskRow[] = [], settingsRow?: 
     tasks: orderedTaskRows.map(mapTaskRowToTask),
     taskOrder: orderedTaskRows.map((row) => row.id),
     focus: {
-      enabled: settingsRow?.focus_enabled ?? defaultState.focus.enabled,
       duration: settingsRow?.focus_duration ?? defaultState.focus.duration,
       lastSessionStartedAt: settingsRow?.focus_last_session_started_at ?? defaultState.focus.lastSessionStartedAt,
     },
@@ -99,7 +97,6 @@ export function mapDashboardStateToSettingsRow(
   return {
     user_id: userId,
     today_goal: state.todayGoal,
-    focus_enabled: state.focus.enabled,
     focus_duration: state.focus.duration,
     focus_last_session_started_at: state.focus.lastSessionStartedAt,
     last_viewed_at: persistedAt,
@@ -115,7 +112,7 @@ export async function loadDashboardStateForUser(supabase: SupabaseClient, userId
       .order("sort_order", { ascending: true }),
     supabase
       .from("dashboard_settings")
-      .select("user_id, today_goal, focus_enabled, focus_duration, focus_last_session_started_at, last_viewed_at")
+      .select("user_id, today_goal, focus_duration, focus_last_session_started_at, last_viewed_at")
       .eq("user_id", userId)
       .maybeSingle(),
   ]);

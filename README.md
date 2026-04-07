@@ -18,7 +18,7 @@ FlowLog is:
 
 - A personal web dashboard for tracking current work state
 - A lightweight task system centered on status, next action, and focus recovery
-- A product where focus tools are optional support modules, not the main feature
+- A product where focus tools are always available support modules, not the main feature
 
 FlowLog is not:
 
@@ -40,7 +40,7 @@ The first version includes:
 - Manual task reordering with move controls
 - Email OTP login
 - Automatic persistence with Supabase
-- Optional focus timer with start and stop controls
+- Focus timer with start and stop controls
 
 The first version does not include:
 

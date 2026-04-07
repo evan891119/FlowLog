@@ -23,7 +23,7 @@ Main sections:
 - Today task area
 - Main task list
 - Secondary task groups
-- Optional focus module
+- Focus module
 
 ## 3. Dashboard Layout
 
@@ -94,11 +94,10 @@ Behavior:
 
 Purpose:
 
-- Provide optional support for sustained work
+- Provide lightweight support for sustained work
 
 Displayed content:
 
-- Enable or disable toggle
 - Timer state
 - Start and stop controls
 
@@ -223,8 +222,8 @@ Empty states should guide action instead of just showing absence.
 ```text
 +---------------------------------------------------------------+
 | FlowLog                                                       |
-| Today Goal         | Current Task        | Focus Toggle       |
-| Ship dashboard MVP | Write task schema   | Focus: Off         |
+| Today Goal         | Current Task        | Focus Timer        |
+| Ship dashboard MVP | Write task schema   | Focus: 25m         |
 +---------------------------------------------------------------+
 | Today Tasks                                                |
 | [Task] Define task model    Status: In Progress  Next: Add ID|

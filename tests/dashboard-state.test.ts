@@ -197,8 +197,7 @@ test("moves tasks up and down through canonical task order", () => {
 });
 
 test("updates and controls focus session state", () => {
-  let state = updateFocusSettingsInState(defaultState, { enabled: true, duration: 50 });
-  assert.equal(state.focus.enabled, true);
+  let state = updateFocusSettingsInState(defaultState, { duration: 50 });
   assert.equal(state.focus.duration, 50);
 
   state = startFocusSessionInState(state);
@@ -206,6 +205,22 @@ test("updates and controls focus session state", () => {
 
   state = stopFocusSessionInState(state);
   assert.equal(state.focus.lastSessionStartedAt, null);
+});
+
+test("ignores legacy focus enabled state during hydration", () => {
+  const state = getSafeInitialState({
+    ...defaultState,
+    focus: {
+      enabled: true,
+      duration: 15,
+      lastSessionStartedAt: "2025-01-01T00:00:00.000Z",
+    },
+  });
+
+  assert.deepEqual(state.focus, {
+    duration: 15,
+    lastSessionStartedAt: "2025-01-01T00:00:00.000Z",
+  });
 });
 
 test("allows task titles to be cleared during editing", () => {

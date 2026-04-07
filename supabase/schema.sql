@@ -42,11 +42,12 @@ create index if not exists tasks_user_id_sort_order_idx on public.tasks (user_id
 create table if not exists public.dashboard_settings (
   user_id uuid primary key references auth.users (id) on delete cascade,
   today_goal text not null default '',
-  focus_enabled boolean not null default false,
   focus_duration integer not null default 25,
   focus_last_session_started_at timestamptz null,
   last_viewed_at timestamptz null
 );
+
+alter table public.dashboard_settings drop column if exists focus_enabled;
 
 alter table public.tasks enable row level security;
 alter table public.dashboard_settings enable row level security;

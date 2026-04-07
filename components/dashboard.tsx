@@ -53,7 +53,6 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
     deleteTask,
     moveTaskUp,
     moveTaskDown,
-    setFocusEnabled,
     setFocusDuration,
     startFocusSession,
     stopFocusSession,
@@ -351,7 +350,6 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
 
         <FloatingFocusTimer
           focus={state.focus}
-          onToggleEnabled={setFocusEnabled}
           onDurationChange={setFocusDuration}
           onStart={startFocusSession}
           onStop={stopFocusSession}

@@ -39,7 +39,6 @@ function formatOrbLabel(focus: FocusSettings, remainingSeconds: number, isComple
 
 type FloatingFocusTimerProps = {
   focus: FocusSettings;
-  onToggleEnabled: (enabled: boolean) => void;
   onDurationChange: (duration: number) => void;
   onStart: () => void;
   onStop: () => void;
@@ -47,7 +46,6 @@ type FloatingFocusTimerProps = {
 
 export function FloatingFocusTimer({
   focus,
-  onToggleEnabled,
   onDurationChange,
   onStart,
   onStop,
@@ -129,7 +127,6 @@ export function FloatingFocusTimer({
               remainingSeconds={remainingSeconds}
               isRunning={isRunning}
               isComplete={isComplete}
-              onToggleEnabled={onToggleEnabled}
               onDurationChange={onDurationChange}
               onStart={onStart}
               onStop={onStop}
@@ -144,7 +141,6 @@ export function FloatingFocusTimer({
               remainingSeconds={remainingSeconds}
               isRunning={isRunning}
               isComplete={isComplete}
-              onToggleEnabled={onToggleEnabled}
               onDurationChange={onDurationChange}
               onStart={onStart}
               onStop={onStop}
@@ -164,11 +160,7 @@ export function FloatingFocusTimer({
         <span className="absolute inset-0 rounded-full p-[5px] md:p-[6px]" style={progressStyle}>
           <span className="dark-panel block h-full w-full rounded-full bg-white/95" />
         </span>
-        <span
-          className={`absolute inset-[7px] rounded-full border ${
-            focus.enabled ? "dark-surface border-clay/20 bg-mist/90 dark:border-clay/30" : "dark-surface-muted border-steel/15 bg-white dark:border-white/10"
-          } md:inset-[8px]`}
-        />
+        <span className="dark-surface absolute inset-[7px] rounded-full border border-clay/20 bg-mist/90 dark:border-clay/30 md:inset-[8px]" />
         <span className="relative flex flex-col items-center justify-center leading-none">
           <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300 md:text-[11px]">Focus</span>
           <span className="mt-1 text-sm font-semibold tracking-tight text-ink dark:text-white md:text-base">{orbLabel}</span>

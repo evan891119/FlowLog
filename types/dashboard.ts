@@ -25,7 +25,6 @@ export type Task = {
 };
 
 export type FocusSettings = {
-  enabled: boolean;
   duration: number;
   lastSessionStartedAt: string | null;
 };

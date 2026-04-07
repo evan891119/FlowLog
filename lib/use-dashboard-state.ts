@@ -124,10 +124,6 @@ export function useDashboardState(initialState: DashboardState) {
     setState((current) => moveTaskInState(current, taskId, "down"));
   };
 
-  const setFocusEnabled = (enabled: boolean) => {
-    setState((current) => updateFocusSettingsInState(current, { enabled }));
-  };
-
   const setFocusDuration = (duration: number) => {
     setState((current) => updateFocusSettingsInState(current, { duration }));
   };
@@ -160,7 +156,6 @@ export function useDashboardState(initialState: DashboardState) {
     deleteTask,
     moveTaskUp,
     moveTaskDown,
-    setFocusEnabled,
     setFocusDuration,
     startFocusSession,
     stopFocusSession,

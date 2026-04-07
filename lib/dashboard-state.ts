@@ -5,7 +5,6 @@ export const defaultState: DashboardState = {
   tasks: [],
   taskOrder: [],
   focus: {
-    enabled: false,
     duration: 25,
     lastSessionStartedAt: null,
   },
@@ -475,12 +474,11 @@ export function updateTodayGoalInState(state: DashboardState, todayGoal: string)
   };
 }
 
-export function updateFocusSettingsInState(state: DashboardState, updates: Partial<Pick<FocusSettings, "enabled" | "duration">>) {
+export function updateFocusSettingsInState(state: DashboardState, updates: Partial<Pick<FocusSettings, "duration">>) {
   return {
     ...state,
     focus: {
       ...state.focus,
-      enabled: updates.enabled ?? state.focus.enabled,
       duration: updates.duration !== undefined ? clampFocusDuration(updates.duration) : state.focus.duration,
     },
   };
@@ -491,7 +489,6 @@ export function startFocusSessionInState(state: DashboardState) {
     ...state,
     focus: {
       ...state.focus,
-      enabled: true,
       lastSessionStartedAt: nowIso(),
     },
   };
@@ -613,7 +610,6 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
     focus:
       input.focus && typeof input.focus === "object"
         ? {
-            enabled: Boolean((input.focus as Record<string, unknown>).enabled),
             duration:
               typeof (input.focus as Record<string, unknown>).duration === "number"
                 ? Number((input.focus as Record<string, unknown>).duration)

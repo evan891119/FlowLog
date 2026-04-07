@@ -119,7 +119,6 @@ test("rebuilds dashboard state from cloud rows", () => {
   const settingsRow: DashboardSettingsRow = {
     user_id: "user-1",
     today_goal: "Ship cloud sync",
-    focus_enabled: true,
     focus_duration: 50,
     focus_last_session_started_at: "2025-01-02T01:00:00.000Z",
     last_viewed_at: "2025-01-02T02:00:00.000Z",
@@ -134,5 +133,6 @@ test("rebuilds dashboard state from cloud rows", () => {
   assert.equal(state.tasks.find((task) => task.id === "b")?.todoItems.length, 2);
   assert.equal(state.tasks.find((task) => task.id === "b")?.estimatedMinutes, 30);
   assert.equal(state.tasks.find((task) => task.id === "b")?.elapsedSeconds, 180);
-  assert.equal(state.focus.enabled, true);
+  assert.equal(state.focus.duration, 50);
+  assert.equal(state.focus.lastSessionStartedAt, "2025-01-02T01:00:00.000Z");
 });

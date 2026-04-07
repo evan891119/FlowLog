@@ -113,7 +113,7 @@ This layer helps users stay anchored, but should not define the product.
 
 Support capabilities:
 
-- Optional focus timer
+- Always-available focus timer
 - Reminders that reconnect the user to the active task
 - Restore previous work context when returning
 - Simple self-marking for distraction events in future versions
@@ -221,13 +221,13 @@ Behavior requirements:
 - Signed-out users should be redirected to the login experience
 - Each account reads and writes only its own tasks and settings
 
-### 8.10 Optional Focus Timer
+### 8.10 Focus Timer
 
-Users can enable or disable a focus timer.
+Users can use a focus timer whenever they need it.
 
 MVP expectations:
 
-- Timer is optional
+- Timer is always available as a secondary utility
 - Timer duration is configurable by basic presets later, but MVP can start with one default
 - Timer must not overshadow the task dashboard
 - Start and stop controls are sufficient for MVP

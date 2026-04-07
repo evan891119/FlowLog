@@ -63,7 +63,6 @@ Rules:
 
 ```ts
 type FocusSettings = {
-  enabled: boolean;
   duration: number;
   lastSessionStartedAt: string | null;
 };
@@ -124,7 +123,6 @@ const defaultState: DashboardState = {
   tasks: [],
   taskOrder: [],
   focus: {
-    enabled: false,
     duration: 25,
     lastSessionStartedAt: null,
   },
@@ -218,7 +216,6 @@ Build the MVP in the following order.
 
 ### Phase 6: Focus Module
 
-- Add focus toggle
 - Add timer display
 - Add start and stop behavior
 - Persist focus settings
@@ -235,7 +232,7 @@ The MVP implementation is complete when:
 - The dashboard clearly separates current, today, blocked, and completed work
 - State survives refresh and device changes through Supabase
 - Signed-in users only see their own data
-- The focus timer can be enabled without becoming the primary screen element
+- The focus timer remains available without becoming the primary screen element
 
 ## 8. Testing Scenarios
 
@@ -253,7 +250,7 @@ At minimum, verify these scenarios:
 - Switching current tasks and confirming the old task timer pauses while the new one starts
 - Reloading while a timed current task is active and confirming the countdown resumes
 - Marking a task as blocked and confirming it is visually separated from active work
-- Enabling and using the focus timer without losing task context
+- Starting and using the focus timer without losing task context
 
 ## 9. Future Compatibility Notes
 
