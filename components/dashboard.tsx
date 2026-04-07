@@ -175,7 +175,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
         {selectedTab === "today" ? (
           <>
             <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr] xl:items-start">
-              <div>
+              <div className="order-2 xl:order-1">
                 <TodayTaskList
                   tasks={todayTasks}
                   selectedTaskId={selectedTodayTask?.id ?? null}
@@ -192,7 +192,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                 />
               </div>
 
-              <div className="space-y-4">
+              <div className="order-1 space-y-4 xl:order-2">
                 <CurrentTaskPanel task={currentTask} variant="summary" />
               </div>
 
