@@ -329,6 +329,7 @@ export function toggleTodayTaskInState(state: DashboardState, taskId: string) {
 
 export function setCurrentTaskInState(state: DashboardState, taskId: string) {
   const timestamp = nowIso();
+  const isClearingCurrentTask = state.tasks.some((task) => task.id === taskId && task.isCurrent);
 
   return normalizeDashboardState({
     ...state,
@@ -341,14 +342,24 @@ export function setCurrentTaskInState(state: DashboardState, taskId: string) {
       }
 
       if (task.id === taskId) {
+        if (isClearingCurrentTask) {
+          return {
+            ...pauseTaskTimer(task, timestamp),
+            isCurrent: false,
+            updatedAt: timestamp,
+          };
+        }
+
         return {
           ...startTaskTimer(
             {
               ...task,
+              status: "in_progress",
               isCurrent: true,
             },
             timestamp,
           ),
+          status: "in_progress",
           isCurrent: true,
           updatedAt: timestamp,
         };

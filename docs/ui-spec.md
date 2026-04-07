@@ -197,8 +197,10 @@ Display behavior:
 
 ## 7. Interaction Rules
 
-- Only one current task can exist at a time
+- Zero or one current task can exist at a time
 - Selecting a new current task removes the old current assignment
+- Selecting a task as current should move it into `in_progress` when needed
+- Selecting the current task again clears the current assignment and pauses its timer
 - Marking a current task as `done` removes it from the current task panel
 - A task can be both `isToday = true` and current
 - A blocked task should never be auto-selected as current

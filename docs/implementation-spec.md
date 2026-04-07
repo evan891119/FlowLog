@@ -51,7 +51,7 @@ Rules:
 - `estimatedMinutes` is either `null` or an integer >= `1`
 - `elapsedSeconds` stores cumulative time already spent on the task
 - `currentSessionStartedAt` is set only while the task is actively current and timing
-- `isCurrent` must be true for at most one task
+- `isCurrent` must be true for at most one task and may be false for all tasks
 - `title` is required
 - `taskMode` defaults to `next_action`
 - `nextAction` should default to an empty string, but the UI should encourage filling it
@@ -132,9 +132,11 @@ const defaultState: DashboardState = {
 
 ## 4. Core Business Rules
 
-- Only one task may have `isCurrent = true`
+- At most one task may have `isCurrent = true`
 - Setting a task as current must clear `isCurrent` on all other tasks
+- Setting a task as current must set `status` to `in_progress`
 - Setting a task as current must start or resume its task timer when `estimatedMinutes` is set
+- Toggling the current task off must clear `isCurrent` and pause its timer
 - Replacing the current task must pause the previous task timer and preserve elapsed time
 - A task with status `blocked` cannot be auto-promoted to current
 - Marking a current task as `done` must clear the current task selection
@@ -227,6 +229,7 @@ The MVP implementation is complete when:
 - Users can create, edit, and view tasks
 - Users can delete tasks and manually reorder them
 - Users can mark one task as current
+- Users can clear the current task and leave no task selected
 - Users can set an estimated duration and see time remaining on timed tasks
 - Users can define a next action per task
 - The dashboard clearly separates current, today, blocked, and completed work
@@ -241,6 +244,7 @@ At minimum, verify these scenarios:
 - Creating the first task in an empty state
 - Selecting a current task when none exists
 - Replacing the current task with another task
+- Clearing the current task manually and confirming the timer pauses
 - Completing the current task and confirming the current slot clears
 - Reloading the page and restoring tasks from Supabase
 - Logging in from another device and seeing the same tasks

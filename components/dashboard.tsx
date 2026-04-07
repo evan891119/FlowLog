@@ -48,7 +48,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
     deleteTaskTodoItem,
     updateTaskStatus,
     toggleToday,
-    setCurrentTask,
+    toggleCurrentTask,
     updateTodayGoal,
     deleteTask,
     moveTaskUp,
@@ -225,7 +225,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                     <div className="w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
                       <TodayTaskDetailPanel
                         task={selectedTodayTask}
-                        onSetCurrent={setCurrentTask}
+                        onSetCurrent={toggleCurrentTask}
                         onStatusChange={updateTaskStatus}
                         onToggleToday={toggleToday}
                         onTitleChange={updateTaskTitle}
@@ -264,7 +264,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               description="Your working list, excluding blocked and completed items."
               tasks={activeTasks}
               emptyMessage="No active tasks yet. Add one task to start the first FlowLog session."
-              onSetCurrent={setCurrentTask}
+              onSetCurrent={toggleCurrentTask}
               onStatusChange={updateTaskStatus}
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}
@@ -288,7 +288,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               description="Visible, but kept out of the main working lane."
               tasks={blockedTasks}
               emptyMessage="Nothing is blocked right now."
-              onSetCurrent={setCurrentTask}
+              onSetCurrent={toggleCurrentTask}
               onStatusChange={updateTaskStatus}
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}
@@ -316,7 +316,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               description="Finished work stays visible without dominating the page."
               tasks={completedTasks}
               emptyMessage="Nothing has been completed yet."
-              onSetCurrent={setCurrentTask}
+              onSetCurrent={toggleCurrentTask}
               onStatusChange={updateTaskStatus}
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}

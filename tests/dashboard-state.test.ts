@@ -130,7 +130,65 @@ test("starts task timer when a timed task becomes current and pauses the previou
   assert.equal(firstTask.currentSessionStartedAt, null);
   assert.ok(firstTask.elapsedSeconds >= 90);
   assert.equal(secondTask.isCurrent, true);
+  assert.equal(secondTask.status, "in_progress");
   assert.equal(typeof secondTask.currentSessionStartedAt, "string");
+});
+
+test("sets a not started task to in progress when selecting it as current", () => {
+  let state = createSampleState();
+  const taskId = state.tasks.find((task) => task.status === "not_started")!.id;
+
+  state = setCurrentTaskInState(state, taskId);
+
+  const task = state.tasks.find((entry) => entry.id === taskId)!;
+  assert.equal(task.isCurrent, true);
+  assert.equal(task.status, "in_progress");
+});
+
+test("clears the current task and pauses its timer when toggled off", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { estimatedMinutes: 30 });
+  state = setCurrentTaskInState(state, taskId);
+
+  const startedAt = state.tasks.find((task) => task.id === taskId)?.currentSessionStartedAt;
+  assert.equal(typeof startedAt, "string");
+
+  state = {
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId && startedAt
+        ? {
+            ...task,
+            currentSessionStartedAt: new Date(Date.now() - 75_000).toISOString(),
+          }
+        : task,
+    ),
+  };
+
+  state = setCurrentTaskInState(state, taskId);
+
+  const task = state.tasks.find((entry) => entry.id === taskId)!;
+  assert.equal(task.isCurrent, false);
+  assert.equal(task.status, "in_progress");
+  assert.equal(task.currentSessionStartedAt, null);
+  assert.ok(task.elapsedSeconds >= 75);
+});
+
+test("clears a current task without estimate without changing elapsed time", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { estimatedMinutes: null });
+  state = setCurrentTaskInState(state, taskId);
+  state = setCurrentTaskInState(state, taskId);
+
+  const task = state.tasks.find((entry) => entry.id === taskId)!;
+  assert.equal(task.isCurrent, false);
+  assert.equal(task.status, "in_progress");
+  assert.equal(task.currentSessionStartedAt, null);
+  assert.equal(task.elapsedSeconds, 0);
 });
 
 test("derives remaining task time from active and paused sessions", () => {

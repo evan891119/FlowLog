@@ -104,7 +104,7 @@ export function useDashboardState(initialState: DashboardState) {
     setState((current) => toggleTodayTaskInState(current, taskId));
   };
 
-  const setCurrentTask = (taskId: string) => {
+  const toggleCurrentTask = (taskId: string) => {
     setState((current) => setCurrentTaskInState(current, taskId));
   };
 
@@ -151,7 +151,7 @@ export function useDashboardState(initialState: DashboardState) {
     deleteTaskTodoItem,
     updateTaskStatus,
     toggleToday,
-    setCurrentTask,
+    toggleCurrentTask,
     updateTodayGoal,
     deleteTask,
     moveTaskUp,

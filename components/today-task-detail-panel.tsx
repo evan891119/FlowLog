@@ -160,7 +160,7 @@ export function TodayTaskDetailPanel({
               onClick={() => onSetCurrent(task.id)}
               disabled={task.status === "blocked" || task.status === "done"}
             >
-              {task.isCurrent ? "Current task" : "Set as current"}
+              {task.isCurrent ? "Pause task" : "Set as current"}
             </button>
             <button
               type="button"

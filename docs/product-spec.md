@@ -67,7 +67,7 @@ FlowLog is a web task dashboard that helps users always know what they are doing
 ## 5. Product Principles
 
 - The homepage should restore work context within 5 seconds.
-- Only one task can be marked as the current task at a time.
+- At most one task can be marked as the current task at a time.
 - The `next action` should be concrete and immediately actionable.
 - Focus tools must remain optional and supportive.
 - The dashboard should feel like a control panel, not a long backlog list.
@@ -99,7 +99,7 @@ This is the main product surface and the highest priority area.
 Core capabilities:
 
 - View today’s tasks
-- See the single current task
+- See the current task when one is selected
 - Track task state
 - Record the next action for each task
 - See what is blocked, completed, and queued for later
@@ -149,12 +149,14 @@ These states must be visible from the main dashboard.
 
 ### 8.3 Single Current Task
 
-Users can mark exactly one task as the current task.
+Users can mark one task as the current task, or clear it when they want to pause active work.
 
 Rules:
 
-- Only one task may be current at any time
+- At most one task may be current at any time
 - Setting a new current task clears the previous one
+- Setting a task as current moves it into `in_progress`
+- Clearing the current task manually pauses its timer and leaves no task selected
 - Completing the current task clears the current selection
 
 ### 8.4 Next Action / Todo List
