@@ -1,13 +1,17 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { defaultState, getSafeInitialState } from "@/lib/dashboard-state";
-import { DashboardState, Task, TaskStatus } from "@/types/dashboard";
+import { DashboardState, Task, TaskMode, TaskStatus, TodoItem } from "@/types/dashboard";
+import { getTaskProgress } from "@/lib/dashboard-state";
 
 export type TaskRow = {
   id: string;
   user_id: string;
   title: string;
   status: TaskStatus;
+  task_mode?: TaskMode | null;
   next_action: string;
+  manual_progress?: number | null;
+  todo_items?: TodoItem[] | null;
   progress: number;
   is_today: boolean;
   is_current: boolean;
@@ -30,8 +34,10 @@ function mapTaskRowToTask(row: TaskRow): Task {
     id: row.id,
     title: row.title,
     status: row.status,
+    taskMode: row.task_mode ?? "next_action",
     nextAction: row.next_action,
-    progress: row.progress,
+    manualProgress: row.manual_progress ?? row.progress,
+    todoItems: Array.isArray(row.todo_items) ? row.todo_items : [],
     isToday: row.is_today,
     isCurrent: row.is_current,
     createdAt: row.created_at,
@@ -63,8 +69,11 @@ export function mapDashboardStateToTaskRows(userId: string, state: DashboardStat
     user_id: userId,
     title: task.title,
     status: task.status,
+    task_mode: task.taskMode,
     next_action: task.nextAction,
-    progress: task.progress,
+    manual_progress: task.manualProgress,
+    todo_items: task.todoItems,
+    progress: getTaskProgress(task),
     is_today: task.isToday,
     is_current: task.isCurrent,
     sort_order: orderIndex.get(task.id) ?? Number.MAX_SAFE_INTEGER,
@@ -92,7 +101,7 @@ export async function loadDashboardStateForUser(supabase: SupabaseClient, userId
   const [tasksResult, settingsResult] = await Promise.all([
     supabase
       .from("tasks")
-      .select("id, user_id, title, status, next_action, progress, is_today, is_current, sort_order, created_at, updated_at")
+      .select("id, user_id, title, status, task_mode, next_action, manual_progress, todo_items, progress, is_today, is_current, sort_order, created_at, updated_at")
       .eq("user_id", userId)
       .order("sort_order", { ascending: true }),
     supabase

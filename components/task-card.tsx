@@ -1,5 +1,9 @@
 import { StatusBadge } from "@/components/status-badge";
-import { Task, TaskStatus } from "@/types/dashboard";
+import { TaskModeToggle } from "@/components/task-mode-toggle";
+import { TaskProgressEditor } from "@/components/task-progress-editor";
+import { TodoListEditor } from "@/components/todo-list-editor";
+import { getTaskProgress } from "@/lib/dashboard-state";
+import { Task, TaskMode, TaskStatus } from "@/types/dashboard";
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
   { value: "not_started", label: "Not started" },
@@ -16,6 +20,12 @@ type TaskCardProps = {
   onToggleToday: (taskId: string) => void;
   onTitleChange: (taskId: string, title: string) => void;
   onNextActionChange: (taskId: string, nextAction: string) => void;
+  onTaskModeChange: (taskId: string, taskMode: TaskMode) => void;
+  onManualProgressChange: (taskId: string, progress: number) => void;
+  onAddTodoItem: (taskId: string) => void;
+  onUpdateTodoItem: (taskId: string, todoItemId: string, text: string) => void;
+  onToggleTodoItem: (taskId: string, todoItemId: string) => void;
+  onDeleteTodoItem: (taskId: string, todoItemId: string) => void;
   onDelete: (taskId: string) => void;
   onMoveUp: (taskId: string) => void;
   onMoveDown: (taskId: string) => void;
@@ -31,6 +41,12 @@ export function TaskCard({
   onToggleToday,
   onTitleChange,
   onNextActionChange,
+  onTaskModeChange,
+  onManualProgressChange,
+  onAddTodoItem,
+  onUpdateTodoItem,
+  onToggleTodoItem,
+  onDeleteTodoItem,
   onDelete,
   onMoveUp,
   onMoveDown,
@@ -38,6 +54,7 @@ export function TaskCard({
   canMoveDown,
 }: TaskCardProps) {
   const isCompact = variant === "compact";
+  const progress = getTaskProgress(task);
 
   return (
     <article className={`dark-surface-muted rounded-3xl border border-sand/80 bg-mist/60 dark:text-white ${isCompact ? "p-3.5" : "p-4"}`}>
@@ -63,18 +80,38 @@ export function TaskCard({
       </div>
 
       <div className={`mt-3 grid gap-3 ${isCompact ? "md:grid-cols-[1.15fr_0.85fr]" : "md:grid-cols-[1fr_150px]"}`}>
-        <label className="block">
-          <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
-          <textarea
-            className={`dark-surface w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500 ${
-              isCompact ? "min-h-14" : "min-h-24"
-            }`}
-            value={task.nextAction}
-            onChange={(event) => onNextActionChange(task.id, event.target.value)}
-            placeholder="Write the next concrete step"
-            aria-label="Task next action"
-          />
-        </label>
+        <div className="block space-y-3">
+          <div>
+            <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Task mode</span>
+            <TaskModeToggle value={task.taskMode} onChange={(taskMode) => onTaskModeChange(task.id, taskMode)} />
+          </div>
+
+          {task.taskMode === "todo_list" ? (
+            <div>
+              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Todo list</span>
+              <TodoListEditor
+                items={task.todoItems}
+                onAdd={() => onAddTodoItem(task.id)}
+                onToggle={(todoItemId) => onToggleTodoItem(task.id, todoItemId)}
+                onChange={(todoItemId, text) => onUpdateTodoItem(task.id, todoItemId, text)}
+                onDelete={(todoItemId) => onDeleteTodoItem(task.id, todoItemId)}
+              />
+            </div>
+          ) : (
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
+              <textarea
+                className={`dark-surface w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500 ${
+                  isCompact ? "min-h-14" : "min-h-24"
+                }`}
+                value={task.nextAction}
+                onChange={(event) => onNextActionChange(task.id, event.target.value)}
+                placeholder="Write the next concrete step"
+                aria-label="Task next action"
+              />
+            </label>
+          )}
+        </div>
 
         <div className="space-y-3">
           <label className="block">
@@ -95,10 +132,16 @@ export function TaskCard({
 
           <div>
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Progress</span>
-            <div className="dark-progress-track overflow-hidden rounded-full bg-white">
-              <div className="h-3 rounded-full bg-forest transition-all" style={{ width: `${task.progress}%` }} />
-            </div>
-            <p className="mt-1 text-sm text-steel dark:text-slate-300">{task.progress}%</p>
+            {task.taskMode === "todo_list" ? (
+              <>
+                <div className="dark-progress-track overflow-hidden rounded-full bg-white">
+                  <div className="h-3 rounded-full bg-forest transition-all" style={{ width: `${progress}%` }} />
+                </div>
+                <p className="mt-1 text-sm text-steel dark:text-slate-300">{progress}% from completed checklist items</p>
+              </>
+            ) : (
+              <TaskProgressEditor value={progress} onChange={(value) => onManualProgressChange(task.id, value)} />
+            )}
           </div>
         </div>
       </div>

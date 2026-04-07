@@ -38,6 +38,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
     createTask,
     updateTaskTitle,
     updateTaskNextAction,
+    updateTaskMode,
+    updateTaskManualProgress,
+    addTaskTodoItem,
+    updateTaskTodoItem,
+    toggleTaskTodoItem,
+    deleteTaskTodoItem,
     updateTaskStatus,
     toggleToday,
     setCurrentTask,
@@ -176,6 +182,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                     onToggleToday={toggleToday}
                     onTitleChange={updateTaskTitle}
                     onNextActionChange={updateTaskNextAction}
+                    onTaskModeChange={updateTaskMode}
+                    onManualProgressChange={updateTaskManualProgress}
+                    onAddTodoItem={addTaskTodoItem}
+                    onUpdateTodoItem={updateTaskTodoItem}
+                    onToggleTodoItem={toggleTaskTodoItem}
+                    onDeleteTodoItem={deleteTaskTodoItem}
                     headerAction={selectedTodayTaskHeaderAction}
                   />
                 </div>
@@ -197,6 +209,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                       onToggleToday={toggleToday}
                       onTitleChange={updateTaskTitle}
                       onNextActionChange={updateTaskNextAction}
+                      onTaskModeChange={updateTaskMode}
+                      onManualProgressChange={updateTaskManualProgress}
+                      onAddTodoItem={addTaskTodoItem}
+                      onUpdateTodoItem={updateTaskTodoItem}
+                      onToggleTodoItem={toggleTaskTodoItem}
+                      onDeleteTodoItem={deleteTaskTodoItem}
                       headerAction={
                         <button
                           type="button"
@@ -227,6 +245,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}
               onNextActionChange={updateTaskNextAction}
+              onTaskModeChange={updateTaskMode}
+              onManualProgressChange={updateTaskManualProgress}
+              onAddTodoItem={addTaskTodoItem}
+              onUpdateTodoItem={updateTaskTodoItem}
+              onToggleTodoItem={toggleTaskTodoItem}
+              onDeleteTodoItem={deleteTaskTodoItem}
               onDelete={deleteTask}
               onMoveUp={moveTaskUp}
               onMoveDown={moveTaskDown}
@@ -244,6 +268,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}
               onNextActionChange={updateTaskNextAction}
+              onTaskModeChange={updateTaskMode}
+              onManualProgressChange={updateTaskManualProgress}
+              onAddTodoItem={addTaskTodoItem}
+              onUpdateTodoItem={updateTaskTodoItem}
+              onToggleTodoItem={toggleTaskTodoItem}
+              onDeleteTodoItem={deleteTaskTodoItem}
               onDelete={deleteTask}
               onMoveUp={moveTaskUp}
               onMoveDown={moveTaskDown}
@@ -265,6 +295,12 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onToggleToday={toggleToday}
               onTitleChange={updateTaskTitle}
               onNextActionChange={updateTaskNextAction}
+              onTaskModeChange={updateTaskMode}
+              onManualProgressChange={updateTaskManualProgress}
+              onAddTodoItem={addTaskTodoItem}
+              onUpdateTodoItem={updateTaskTodoItem}
+              onToggleTodoItem={toggleTaskTodoItem}
+              onDeleteTodoItem={deleteTaskTodoItem}
               onDelete={deleteTask}
               onMoveUp={moveTaskUp}
               onMoveDown={moveTaskDown}

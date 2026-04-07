@@ -31,8 +31,10 @@ type Task = {
   id: string;
   title: string;
   status: TaskStatus;
+  taskMode: "next_action" | "todo_list";
   nextAction: string;
-  progress: number;
+  manualProgress: number;
+  todoItems: { id: string; text: string; done: boolean }[];
   isToday: boolean;
   isCurrent: boolean;
   createdAt: string;
@@ -42,10 +44,13 @@ type Task = {
 
 Rules:
 
-- `progress` is an integer from `0` to `100`
+- `manualProgress` is an integer from `0` to `100`
 - `isCurrent` must be true for at most one task
 - `title` is required
+- `taskMode` defaults to `next_action`
 - `nextAction` should default to an empty string, but the UI should encourage filling it
+- `todoItems` defaults to an empty array
+- Display progress is derived from `manualProgress` in `next_action` mode and from checklist completion in `todo_list` mode
 
 ### 2.3 Focus Settings
 

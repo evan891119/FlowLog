@@ -1,4 +1,4 @@
-import { DashboardState, FocusSettings, Task, TaskStatus } from "@/types/dashboard";
+import { DashboardState, FocusSettings, Task, TaskMode, TaskStatus, TodoItem } from "@/types/dashboard";
 
 export const defaultState: DashboardState = {
   todayGoal: "",
@@ -19,6 +19,11 @@ const VALID_STATUSES: TaskStatus[] = [
   "done",
 ];
 const NON_CURRENT_STATUSES = new Set<TaskStatus>(["blocked", "done"]);
+const VALID_TASK_MODES: TaskMode[] = ["next_action", "todo_list"];
+
+function clampProgress(progress: number) {
+  return Math.max(0, Math.min(100, Math.round(progress)));
+}
 
 function nowIso() {
   return new Date().toISOString();
@@ -117,6 +122,35 @@ function createId() {
   return `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function createTodoItem(text = ""): TodoItem {
+  return {
+    id: createId(),
+    text,
+    done: false,
+  };
+}
+
+function getFirstIncompleteTodo(todoItems: TodoItem[]) {
+  return todoItems.find((item) => !item.done)?.text.trim() ?? "";
+}
+
+export function getTaskProgress(task: Task) {
+  if (task.status === "done") {
+    return 100;
+  }
+
+  if (task.taskMode === "todo_list") {
+    if (task.todoItems.length === 0) {
+      return 0;
+    }
+
+    const completedCount = task.todoItems.filter((item) => item.done).length;
+    return Math.round((completedCount / task.todoItems.length) * 100);
+  }
+
+  return clampProgress(task.manualProgress);
+}
+
 export function createTask(input?: Partial<Pick<Task, "title" | "nextAction" | "isToday">>): Task {
   const timestamp = nowIso();
 
@@ -124,8 +158,10 @@ export function createTask(input?: Partial<Pick<Task, "title" | "nextAction" | "
     id: createId(),
     title: input?.title?.trim() || "Untitled task",
     status: "not_started",
+    taskMode: "next_action",
     nextAction: input?.nextAction?.trim() || "",
-    progress: 0,
+    manualProgress: 0,
+    todoItems: [],
     isToday: Boolean(input?.isToday),
     isCurrent: false,
     createdAt: timestamp,
@@ -146,7 +182,7 @@ export function createTaskInState(state: DashboardState, taskInput?: Partial<Pic
 export function updateTaskInState(
   state: DashboardState,
   taskId: string,
-  updates: Partial<Pick<Task, "title" | "nextAction" | "progress" | "isToday">>,
+  updates: Partial<Pick<Task, "title" | "nextAction" | "manualProgress" | "isToday">>,
 ) {
   return normalizeDashboardState({
     ...state,
@@ -155,15 +191,15 @@ export function updateTaskInState(
 
       const nextTitle = updates.title !== undefined ? updates.title : task.title;
       const nextAction = updates.nextAction !== undefined ? updates.nextAction : task.nextAction;
-      const nextProgress =
-        updates.progress !== undefined ? Math.max(0, Math.min(100, Math.round(updates.progress))) : task.progress;
+      const nextManualProgress =
+        updates.manualProgress !== undefined ? clampProgress(updates.manualProgress) : task.manualProgress;
       const nextIsToday = updates.isToday !== undefined ? updates.isToday : task.isToday;
 
       return {
         ...task,
         title: nextTitle,
         nextAction,
-        progress: nextProgress,
+        manualProgress: nextManualProgress,
         isToday: nextIsToday,
         updatedAt: nowIso(),
       };
@@ -183,7 +219,6 @@ export function setTaskStatusInState(state: DashboardState, taskId: string, stat
         ...task,
         status,
         isCurrent: shouldClearCurrent ? false : task.isCurrent,
-        progress: status === "done" ? 100 : task.progress,
         updatedAt: nowIso(),
       };
     }),
@@ -240,6 +275,96 @@ export function moveTaskInState(state: DashboardState, taskId: string, direction
   });
 }
 
+export function setTaskModeInState(state: DashboardState, taskId: string, taskMode: TaskMode) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.map((task) => {
+      if (task.id !== taskId || task.taskMode === taskMode) {
+        return task;
+      }
+
+      if (taskMode === "todo_list") {
+        const trimmedAction = task.nextAction.trim();
+        const nextTodoItems = trimmedAction ? [createTodoItem(trimmedAction)] : [];
+
+        return {
+          ...task,
+          taskMode,
+          todoItems: task.todoItems.length > 0 ? task.todoItems : nextTodoItems,
+          updatedAt: nowIso(),
+        };
+      }
+
+      return {
+        ...task,
+        taskMode,
+        nextAction: getFirstIncompleteTodo(task.todoItems) || task.nextAction,
+        updatedAt: nowIso(),
+      };
+    }),
+  });
+}
+
+export function addTaskTodoItemInState(state: DashboardState, taskId: string) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            todoItems: [...task.todoItems, createTodoItem()],
+            updatedAt: nowIso(),
+          }
+        : task,
+    ),
+  });
+}
+
+export function updateTaskTodoItemInState(state: DashboardState, taskId: string, todoItemId: string, text: string) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            todoItems: task.todoItems.map((item) => (item.id === todoItemId ? { ...item, text } : item)),
+            updatedAt: nowIso(),
+          }
+        : task,
+    ),
+  });
+}
+
+export function toggleTaskTodoItemInState(state: DashboardState, taskId: string, todoItemId: string) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            todoItems: task.todoItems.map((item) => (item.id === todoItemId ? { ...item, done: !item.done } : item)),
+            updatedAt: nowIso(),
+          }
+        : task,
+    ),
+  });
+}
+
+export function deleteTaskTodoItemInState(state: DashboardState, taskId: string, todoItemId: string) {
+  return normalizeDashboardState({
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            todoItems: task.todoItems.filter((item) => item.id !== todoItemId),
+            updatedAt: nowIso(),
+          }
+        : task,
+    ),
+  });
+}
+
 export function updateTodayGoalInState(state: DashboardState, todayGoal: string) {
   return {
     ...state,
@@ -283,12 +408,23 @@ function isTask(candidate: unknown): candidate is Task {
   if (!candidate || typeof candidate !== "object") return false;
 
   const task = candidate as Record<string, unknown>;
+  const todoItems = Array.isArray(task.todoItems) ? task.todoItems : [];
 
   return (
     typeof task.id === "string" &&
     typeof task.title === "string" &&
     typeof task.nextAction === "string" &&
-    typeof task.progress === "number" &&
+    typeof task.taskMode === "string" &&
+    VALID_TASK_MODES.includes(task.taskMode as TaskMode) &&
+    typeof task.manualProgress === "number" &&
+    todoItems.every(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        typeof (item as Record<string, unknown>).id === "string" &&
+        typeof (item as Record<string, unknown>).text === "string" &&
+        typeof (item as Record<string, unknown>).done === "boolean",
+    ) &&
     typeof task.isToday === "boolean" &&
     typeof task.isCurrent === "boolean" &&
     typeof task.createdAt === "string" &&
@@ -302,7 +438,48 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
   if (!candidate || typeof candidate !== "object") return defaultState;
 
   const input = candidate as Record<string, unknown>;
-  const tasks = Array.isArray(input.tasks) ? input.tasks.filter(isTask) : [];
+  const tasks = Array.isArray(input.tasks)
+    ? input.tasks
+        .map((entry) => {
+          if (!entry || typeof entry !== "object") {
+            return null;
+          }
+
+          const task = entry as Record<string, unknown>;
+          const taskMode = VALID_TASK_MODES.includes(task.taskMode as TaskMode) ? (task.taskMode as TaskMode) : "next_action";
+          const todoItems = Array.isArray(task.todoItems)
+            ? task.todoItems
+                .filter((item) => item && typeof item === "object")
+                .map((item) => ({
+                  id: typeof (item as Record<string, unknown>).id === "string" ? ((item as Record<string, unknown>).id as string) : createId(),
+                  text: typeof (item as Record<string, unknown>).text === "string" ? ((item as Record<string, unknown>).text as string) : "",
+                  done: Boolean((item as Record<string, unknown>).done),
+                }))
+            : [];
+
+          const safeTask = {
+            id: typeof task.id === "string" ? task.id : createId(),
+            title: typeof task.title === "string" ? task.title : "",
+            status: typeof task.status === "string" ? (task.status as TaskStatus) : "not_started",
+            taskMode,
+            nextAction: typeof task.nextAction === "string" ? task.nextAction : "",
+            manualProgress:
+              typeof task.manualProgress === "number"
+                ? clampProgress(task.manualProgress)
+                : typeof task.progress === "number"
+                  ? clampProgress(task.progress)
+                  : 0,
+            todoItems,
+            isToday: Boolean(task.isToday),
+            isCurrent: Boolean(task.isCurrent),
+            createdAt: typeof task.createdAt === "string" ? task.createdAt : nowIso(),
+            updatedAt: typeof task.updatedAt === "string" ? task.updatedAt : nowIso(),
+          };
+
+          return isTask(safeTask) ? safeTask : null;
+        })
+        .filter((task): task is Task => Boolean(task))
+    : [];
   return normalizeDashboardState({
     todayGoal: typeof input.todayGoal === "string" ? input.todayGoal : "",
     tasks,

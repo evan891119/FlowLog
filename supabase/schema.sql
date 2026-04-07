@@ -3,7 +3,10 @@ create table if not exists public.tasks (
   user_id uuid not null references auth.users (id) on delete cascade,
   title text not null default '',
   status text not null check (status in ('not_started', 'in_progress', 'blocked', 'done')),
+  task_mode text not null default 'next_action' check (task_mode in ('next_action', 'todo_list')),
   next_action text not null default '',
+  manual_progress integer not null default 0 check (manual_progress >= 0 and manual_progress <= 100),
+  todo_items jsonb not null default '[]'::jsonb,
   progress integer not null default 0 check (progress >= 0 and progress <= 100),
   is_today boolean not null default false,
   is_current boolean not null default false,
@@ -11,6 +14,16 @@ create table if not exists public.tasks (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.tasks add column if not exists task_mode text not null default 'next_action';
+alter table public.tasks add column if not exists manual_progress integer not null default 0;
+alter table public.tasks add column if not exists todo_items jsonb not null default '[]'::jsonb;
+
+alter table public.tasks drop constraint if exists tasks_task_mode_check;
+alter table public.tasks add constraint tasks_task_mode_check check (task_mode in ('next_action', 'todo_list'));
+
+alter table public.tasks drop constraint if exists tasks_manual_progress_check;
+alter table public.tasks add constraint tasks_manual_progress_check check (manual_progress >= 0 and manual_progress <= 100);
 
 create index if not exists tasks_user_id_sort_order_idx on public.tasks (user_id, sort_order);
 
