@@ -18,8 +18,10 @@ test("maps dashboard state to ordered task rows", () => {
         id: "a",
         title: "Task A",
         status: "not_started" as const,
+        taskMode: "next_action" as const,
         nextAction: "First",
-        progress: 0,
+        manualProgress: 0,
+        todoItems: [],
         isToday: false,
         isCurrent: false,
         createdAt: "2025-01-01T00:00:00.000Z",
@@ -29,8 +31,13 @@ test("maps dashboard state to ordered task rows", () => {
         id: "b",
         title: "Task B",
         status: "in_progress" as const,
+        taskMode: "todo_list" as const,
         nextAction: "Second",
-        progress: 25,
+        manualProgress: 25,
+        todoItems: [
+          { id: "todo-1", text: "Second", done: true },
+          { id: "todo-2", text: "Wrap up", done: false },
+        ],
         isToday: true,
         isCurrent: true,
         createdAt: "2025-01-02T00:00:00.000Z",
@@ -44,6 +51,8 @@ test("maps dashboard state to ordered task rows", () => {
   assert.equal(rows.find((row) => row.id === "b")?.sort_order, 0);
   assert.equal(rows.find((row) => row.id === "a")?.sort_order, 1);
   assert.equal(rows.every((row) => row.user_id === "user-1"), true);
+  assert.equal(rows.find((row) => row.id === "b")?.task_mode, "todo_list");
+  assert.equal(rows.find((row) => row.id === "b")?.progress, 50);
 });
 
 test("maps dashboard settings row with persisted timestamp", () => {
@@ -62,7 +71,10 @@ test("rebuilds dashboard state from cloud rows", () => {
       user_id: "user-1",
       title: "Task A",
       status: "not_started",
+      task_mode: "next_action",
       next_action: "",
+      manual_progress: 0,
+      todo_items: [],
       progress: 0,
       is_today: false,
       is_current: false,
@@ -75,7 +87,13 @@ test("rebuilds dashboard state from cloud rows", () => {
       user_id: "user-1",
       title: "Task B",
       status: "in_progress",
+      task_mode: "todo_list",
       next_action: "Resume",
+      manual_progress: 20,
+      todo_items: [
+        { id: "todo-1", text: "Resume", done: true },
+        { id: "todo-2", text: "Finish sync", done: false },
+      ],
       progress: 50,
       is_today: true,
       is_current: true,
@@ -98,5 +116,7 @@ test("rebuilds dashboard state from cloud rows", () => {
   assert.equal(state.todayGoal, "Ship cloud sync");
   assert.deepEqual(state.taskOrder, ["b", "a"]);
   assert.equal(state.tasks.find((task) => task.id === "b")?.isCurrent, true);
+  assert.equal(state.tasks.find((task) => task.id === "b")?.taskMode, "todo_list");
+  assert.equal(state.tasks.find((task) => task.id === "b")?.todoItems.length, 2);
   assert.equal(state.focus.enabled, true);
 });

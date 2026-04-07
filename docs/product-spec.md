@@ -156,17 +156,19 @@ Rules:
 - Setting a new current task clears the previous one
 - Completing the current task clears the current selection
 
-### 8.4 Next Action
+### 8.4 Next Action / Todo List
 
-Each task has a `next action` field.
+Each task has a resumable work definition that can be shown as either a `next action` field or a lightweight `todo list`.
 
-This field is intended for concrete work instructions such as:
+The `next action` mode is intended for concrete work instructions such as:
 
 - Draft the chart for section 3
 - Review the API response schema
 - Write tests for the timer reducer
 
-This field should be treated as essential, not optional in the UX.
+The `todo list` mode is intended for tasks that benefit from a short checklist of concrete sub-steps.
+
+This work-definition area should be treated as essential, not optional in the UX.
 
 ### 8.5 Today Area
 
@@ -178,10 +180,10 @@ The dashboard should separate today’s tasks from the broader active list so th
 
 Each task should show lightweight progress.
 
-For MVP, progress can be represented as:
+For MVP, progress is represented as:
 
-- A percentage from 0 to 100
-- Or a simple visual progress indicator derived from a numeric value
+- A manually editable percentage from 0 to 100 when the task is in `next action` mode
+- An automatically derived percentage from completed checklist items when the task is in `todo list` mode
 
 ### 8.7 Account-backed Persistence
 

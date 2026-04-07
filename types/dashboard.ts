@@ -1,11 +1,20 @@
 export type TaskStatus = "not_started" | "in_progress" | "blocked" | "done";
+export type TaskMode = "next_action" | "todo_list";
+
+export type TodoItem = {
+  id: string;
+  text: string;
+  done: boolean;
+};
 
 export type Task = {
   id: string;
   title: string;
   status: TaskStatus;
+  taskMode: TaskMode;
   nextAction: string;
-  progress: number;
+  manualProgress: number;
+  todoItems: TodoItem[];
   isToday: boolean;
   isCurrent: boolean;
   createdAt: string;

@@ -1,7 +1,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { Section } from "@/components/section";
 import { TaskCard } from "@/components/task-card";
-import { Task, TaskStatus } from "@/types/dashboard";
+import { Task, TaskMode, TaskStatus } from "@/types/dashboard";
 
 type TaskListSectionProps = {
   title: string;
@@ -19,6 +19,12 @@ type TaskListSectionProps = {
   onToggleToday: (taskId: string) => void;
   onTitleChange: (taskId: string, title: string) => void;
   onNextActionChange: (taskId: string, nextAction: string) => void;
+  onTaskModeChange: (taskId: string, taskMode: TaskMode) => void;
+  onManualProgressChange: (taskId: string, progress: number) => void;
+  onAddTodoItem: (taskId: string) => void;
+  onUpdateTodoItem: (taskId: string, todoItemId: string, text: string) => void;
+  onToggleTodoItem: (taskId: string, todoItemId: string) => void;
+  onDeleteTodoItem: (taskId: string, todoItemId: string) => void;
   onDelete: (taskId: string) => void;
   onMoveUp: (taskId: string) => void;
   onMoveDown: (taskId: string) => void;
@@ -42,6 +48,12 @@ export function TaskListSection({
   onToggleToday,
   onTitleChange,
   onNextActionChange,
+  onTaskModeChange,
+  onManualProgressChange,
+  onAddTodoItem,
+  onUpdateTodoItem,
+  onToggleTodoItem,
+  onDeleteTodoItem,
   onDelete,
   onMoveUp,
   onMoveDown,
@@ -68,6 +80,12 @@ export function TaskListSection({
                   onToggleToday={onToggleToday}
                   onTitleChange={onTitleChange}
                   onNextActionChange={onNextActionChange}
+                  onTaskModeChange={onTaskModeChange}
+                  onManualProgressChange={onManualProgressChange}
+                  onAddTodoItem={onAddTodoItem}
+                  onUpdateTodoItem={onUpdateTodoItem}
+                  onToggleTodoItem={onToggleTodoItem}
+                  onDeleteTodoItem={onDeleteTodoItem}
                   onDelete={onDelete}
                   onMoveUp={onMoveUp}
                   onMoveDown={onMoveDown}

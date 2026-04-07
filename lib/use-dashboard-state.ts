@@ -2,19 +2,24 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
+  addTaskTodoItemInState,
   createTaskInState,
   deleteTaskInState,
+  deleteTaskTodoItemInState,
   moveTaskInState,
   setCurrentTaskInState,
+  setTaskModeInState,
   setTaskStatusInState,
   startFocusSessionInState,
   stopFocusSessionInState,
+  toggleTaskTodoItemInState,
   toggleTodayTaskInState,
   updateFocusSettingsInState,
   updateTaskInState,
+  updateTaskTodoItemInState,
   updateTodayGoalInState,
 } from "@/lib/dashboard-state";
-import { DashboardState, TaskStatus } from "@/types/dashboard";
+import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
 
 async function persistDashboardState(state: DashboardState) {
   const response = await fetch("/api/dashboard", {
@@ -61,6 +66,30 @@ export function useDashboardState(initialState: DashboardState) {
 
   const updateTaskNextAction = (taskId: string, nextAction: string) => {
     setState((current) => updateTaskInState(current, taskId, { nextAction }));
+  };
+
+  const updateTaskMode = (taskId: string, taskMode: TaskMode) => {
+    setState((current) => setTaskModeInState(current, taskId, taskMode));
+  };
+
+  const updateTaskManualProgress = (taskId: string, manualProgress: number) => {
+    setState((current) => updateTaskInState(current, taskId, { manualProgress }));
+  };
+
+  const addTaskTodoItem = (taskId: string) => {
+    setState((current) => addTaskTodoItemInState(current, taskId));
+  };
+
+  const updateTaskTodoItem = (taskId: string, todoItemId: string, text: string) => {
+    setState((current) => updateTaskTodoItemInState(current, taskId, todoItemId, text));
+  };
+
+  const toggleTaskTodoItem = (taskId: string, todoItemId: string) => {
+    setState((current) => toggleTaskTodoItemInState(current, taskId, todoItemId));
+  };
+
+  const deleteTaskTodoItem = (taskId: string, todoItemId: string) => {
+    setState((current) => deleteTaskTodoItemInState(current, taskId, todoItemId));
   };
 
   const updateTaskStatus = (taskId: string, status: TaskStatus) => {
@@ -113,6 +142,12 @@ export function useDashboardState(initialState: DashboardState) {
     createTask,
     updateTaskTitle,
     updateTaskNextAction,
+    updateTaskMode,
+    updateTaskManualProgress,
+    addTaskTodoItem,
+    updateTaskTodoItem,
+    toggleTaskTodoItem,
+    deleteTaskTodoItem,
     updateTaskStatus,
     toggleToday,
     setCurrentTask,

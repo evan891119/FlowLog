@@ -1,16 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  addTaskTodoItemInState,
   createTaskInState,
   defaultState,
   deleteTaskInState,
+  getTaskProgress,
   getSafeInitialState,
   moveTaskInState,
   setCurrentTaskInState,
+  setTaskModeInState,
   setTaskStatusInState,
   startFocusSessionInState,
   stopFocusSessionInState,
+  toggleTaskTodoItemInState,
   updateTaskInState,
+  updateTaskTodoItemInState,
   updateFocusSettingsInState,
 } from "@/lib/dashboard-state";
 import { DashboardState } from "@/types/dashboard";
@@ -30,8 +35,10 @@ test("keeps only one eligible current task during normalization", () => {
         id: "a",
         title: "A",
         status: "in_progress",
+        taskMode: "next_action",
         nextAction: "",
-        progress: 10,
+        manualProgress: 10,
+        todoItems: [],
         isToday: false,
         isCurrent: true,
         createdAt: "2025-01-01T00:00:00.000Z",
@@ -41,8 +48,10 @@ test("keeps only one eligible current task during normalization", () => {
         id: "b",
         title: "B",
         status: "blocked",
+        taskMode: "next_action",
         nextAction: "",
-        progress: 10,
+        manualProgress: 10,
+        todoItems: [],
         isToday: false,
         isCurrent: true,
         createdAt: "2025-01-01T00:00:00.000Z",
@@ -52,8 +61,10 @@ test("keeps only one eligible current task during normalization", () => {
         id: "c",
         title: "C",
         status: "not_started",
+        taskMode: "next_action",
         nextAction: "",
-        progress: 0,
+        manualProgress: 0,
+        todoItems: [],
         isToday: false,
         isCurrent: true,
         createdAt: "2025-01-01T00:00:00.000Z",
@@ -127,4 +138,44 @@ test("allows task titles to be cleared during editing", () => {
 
   state = updateTaskInState(state, taskId, { title: "   " });
   assert.equal(state.tasks.find((task) => task.id === taskId)?.title, "   ");
+});
+
+test("derives progress from manual progress and todo completion", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { manualProgress: 37 });
+  assert.equal(getTaskProgress(state.tasks.find((task) => task.id === taskId)!), 37);
+
+  state = updateTaskInState(state, taskId, { nextAction: "Write tests" });
+  state = setTaskModeInState(state, taskId, "todo_list");
+
+  const todoModeTask = state.tasks.find((task) => task.id === taskId)!;
+  assert.equal(todoModeTask.todoItems.length, 1);
+  assert.equal(todoModeTask.todoItems[0].text, "Write tests");
+  assert.equal(getTaskProgress(todoModeTask), 0);
+
+  state = addTaskTodoItemInState(state, taskId);
+  const secondTodoId = state.tasks.find((task) => task.id === taskId)!.todoItems[1].id;
+  state = updateTaskTodoItemInState(state, taskId, secondTodoId, "Ship feature");
+  state = toggleTaskTodoItemInState(state, taskId, secondTodoId);
+
+  assert.equal(getTaskProgress(state.tasks.find((task) => task.id === taskId)!), 50);
+});
+
+test("restores next action from first incomplete todo when switching back", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { nextAction: "Draft spec" });
+  state = setTaskModeInState(state, taskId, "todo_list");
+
+  const firstTodoId = state.tasks.find((task) => task.id === taskId)!.todoItems[0].id;
+  state = toggleTaskTodoItemInState(state, taskId, firstTodoId);
+  state = addTaskTodoItemInState(state, taskId);
+  const secondTodoId = state.tasks.find((task) => task.id === taskId)!.todoItems[1].id;
+  state = updateTaskTodoItemInState(state, taskId, secondTodoId, "Implement detail panel");
+  state = setTaskModeInState(state, taskId, "next_action");
+
+  assert.equal(state.tasks.find((task) => task.id === taskId)?.nextAction, "Implement detail panel");
 });
