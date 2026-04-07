@@ -82,11 +82,13 @@ Displayed content:
 - Status
 - Next action or todo list
 - Progress
+- Remaining time when the task has an estimate
 
 Behavior:
 
 - If no current task exists, show an empty state prompting the user to select one
 - This panel should be visually stronger than normal task cards
+- If the current task has an estimate, the panel itself should act as a vertical time bar that shrinks from top to bottom as time is consumed
 
 ### 4.3 Focus Module
 
@@ -122,6 +124,7 @@ Behavior:
 - Desktop can present this area as a lightweight task list on the left with an expanded detail panel on the right
 - Mobile can keep the list compact and open the selected task in a bottom sheet
 - The list itself can stay minimal, but the expanded panel should show the selected task's next action or todo list and progress
+- Timed tasks should show a remaining-time label, and the list row itself should act as a horizontal time bar that shrinks from left to right while the task is current
 - Tasks may also appear conceptually in the full task set, but the dashboard should treat this area as a focused subset
 
 ### 4.5 Main Task List
@@ -164,6 +167,7 @@ Each task card should include:
 - Next action text or todo list
 - Task mode toggle
 - Progress indicator
+- Estimated time editor and remaining-time display
 - Today marker
 - Current task action
 

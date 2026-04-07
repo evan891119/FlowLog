@@ -14,6 +14,9 @@ export type Task = {
   taskMode: TaskMode;
   nextAction: string;
   manualProgress: number;
+  estimatedMinutes: number | null;
+  elapsedSeconds: number;
+  currentSessionStartedAt: string | null;
   todoItems: TodoItem[];
   isToday: boolean;
   isCurrent: boolean;

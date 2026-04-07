@@ -5,7 +5,10 @@ import {
   createTaskInState,
   defaultState,
   deleteTaskInState,
+  getTaskElapsedSeconds,
   getTaskProgress,
+  getTaskRemainingRatio,
+  getTaskRemainingSeconds,
   getSafeInitialState,
   moveTaskInState,
   setCurrentTaskInState,
@@ -91,6 +94,82 @@ test("clears current task when status becomes blocked or done", () => {
   state = setCurrentTaskInState(state, state.tasks[1].id);
   state = setTaskStatusInState(state, state.tasks[1].id, "done");
   assert.equal(state.tasks.find((task) => task.id === state.tasks[1].id)?.isCurrent, false);
+  assert.equal(state.tasks.find((task) => task.id === state.tasks[1].id)?.currentSessionStartedAt, null);
+});
+
+test("starts task timer when a timed task becomes current and pauses the previous task", () => {
+  let state = createSampleState();
+  const firstTaskId = state.tasks[0].id;
+  const secondTaskId = state.tasks[1].id;
+
+  state = updateTaskInState(state, firstTaskId, { estimatedMinutes: 30 });
+  state = updateTaskInState(state, secondTaskId, { estimatedMinutes: 15 });
+  state = setCurrentTaskInState(state, firstTaskId);
+
+  const firstStartedAt = state.tasks.find((task) => task.id === firstTaskId)?.currentSessionStartedAt;
+  assert.equal(typeof firstStartedAt, "string");
+
+  state = {
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === firstTaskId && firstStartedAt
+        ? {
+            ...task,
+            currentSessionStartedAt: new Date(Date.now() - 90_000).toISOString(),
+          }
+        : task,
+    ),
+  };
+
+  state = setCurrentTaskInState(state, secondTaskId);
+
+  const firstTask = state.tasks.find((task) => task.id === firstTaskId)!;
+  const secondTask = state.tasks.find((task) => task.id === secondTaskId)!;
+
+  assert.equal(firstTask.isCurrent, false);
+  assert.equal(firstTask.currentSessionStartedAt, null);
+  assert.ok(firstTask.elapsedSeconds >= 90);
+  assert.equal(secondTask.isCurrent, true);
+  assert.equal(typeof secondTask.currentSessionStartedAt, "string");
+});
+
+test("derives remaining task time from active and paused sessions", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = updateTaskInState(state, taskId, { estimatedMinutes: 10 });
+  state = setCurrentTaskInState(state, taskId);
+  state = {
+    ...state,
+    tasks: state.tasks.map((task) =>
+      task.id === taskId
+        ? {
+            ...task,
+            elapsedSeconds: 120,
+            currentSessionStartedAt: "2025-01-01T00:00:00.000Z",
+          }
+        : task,
+    ),
+  };
+
+  const task = state.tasks.find((entry) => entry.id === taskId)!;
+  const now = new Date("2025-01-01T00:03:30.000Z").getTime();
+
+  assert.equal(getTaskElapsedSeconds(task, now), 330);
+  assert.equal(getTaskRemainingSeconds(task, now), 270);
+  assert.equal(getTaskRemainingRatio(task, now), 0.45);
+});
+
+test("starts or clears the timer when estimate changes on the current task", () => {
+  let state = createSampleState();
+  const taskId = state.tasks[0].id;
+
+  state = setCurrentTaskInState(state, taskId);
+  state = updateTaskInState(state, taskId, { estimatedMinutes: 20 });
+  assert.equal(typeof state.tasks.find((task) => task.id === taskId)?.currentSessionStartedAt, "string");
+
+  state = updateTaskInState(state, taskId, { estimatedMinutes: null });
+  assert.equal(state.tasks.find((task) => task.id === taskId)?.currentSessionStartedAt, null);
 });
 
 test("deletes tasks from both task data and task order", () => {
@@ -178,4 +257,29 @@ test("restores next action from first incomplete todo when switching back", () =
   state = setTaskModeInState(state, taskId, "next_action");
 
   assert.equal(state.tasks.find((task) => task.id === taskId)?.nextAction, "Implement detail panel");
+});
+
+test("restores missing task timer fields safely from older payloads", () => {
+  const normalized = getSafeInitialState({
+    ...defaultState,
+    tasks: [
+      {
+        id: "legacy-task",
+        title: "Legacy",
+        status: "not_started",
+        taskMode: "next_action",
+        nextAction: "",
+        manualProgress: 0,
+        todoItems: [],
+        isToday: true,
+        isCurrent: false,
+        createdAt: "2025-01-01T00:00:00.000Z",
+        updatedAt: "2025-01-01T00:00:00.000Z",
+      },
+    ],
+  });
+
+  assert.deepEqual(normalized.tasks[0]?.estimatedMinutes, null);
+  assert.equal(normalized.tasks[0]?.elapsedSeconds, 0);
+  assert.equal(normalized.tasks[0]?.currentSessionStartedAt, null);
 });

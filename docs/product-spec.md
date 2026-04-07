@@ -132,6 +132,7 @@ Each task must support:
 - Status
 - Next action
 - Progress
+- Optional estimated work time
 - Today flag
 - Current task flag
 
@@ -196,7 +197,20 @@ Behavior requirements:
 - Initialize with a safe empty state for new accounts
 - Never expose one user's tasks to another user
 
-### 8.8 User Authentication
+### 8.8 Task Time Countdown
+
+Users can optionally set an estimated duration for a task.
+
+Behavior requirements:
+
+- When a timed task becomes the current task, its countdown starts automatically
+- Switching to another current task pauses the previous countdown and preserves elapsed time
+- Returning to the same task resumes from the remaining time
+- The Today list should visualize remaining time from left to right
+- The Current task panel should visualize remaining time from top to bottom
+- Reaching zero should not auto-complete the task
+
+### 8.9 User Authentication
 
 Users can sign in with email one-time codes.
 
@@ -207,7 +221,7 @@ Behavior requirements:
 - Signed-out users should be redirected to the login experience
 - Each account reads and writes only its own tasks and settings
 
-### 8.9 Optional Focus Timer
+### 8.10 Optional Focus Timer
 
 Users can enable or disable a focus timer.
 

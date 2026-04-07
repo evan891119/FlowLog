@@ -7,6 +7,7 @@ import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getTaskRemainingSeconds } from "@/lib/dashboard-state";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { DashboardState, Task } from "@/types/dashboard";
 
@@ -32,6 +33,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   const {
     state,
     createTask,
@@ -39,6 +41,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
     updateTaskNextAction,
     updateTaskMode,
     updateTaskManualProgress,
+    updateTaskEstimatedMinutes,
     addTaskTodoItem,
     updateTaskTodoItem,
     toggleTaskTodoItem,
@@ -67,6 +70,23 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
   const canMoveUp = (taskId: string) => (orderIndexMap.get(taskId) ?? 0) > 0;
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
   const selectedTodayTask = todayTasks.find((task) => task.id === selectedTodayTaskId) ?? todayTasks[0] ?? null;
+  const isTaskTimerRunning = currentTask
+    ? currentTask.currentSessionStartedAt !== null && currentTask.estimatedMinutes !== null && (getTaskRemainingSeconds(currentTask, now) ?? 0) > 0
+    : false;
+
+  useEffect(() => {
+    if (!isTaskTimerRunning) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isTaskTimerRunning]);
 
   useEffect(() => {
     if (!todayTasks.length) {
@@ -180,6 +200,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                   tasks={todayTasks}
                   selectedTaskId={selectedTodayTask?.id ?? null}
                   onSelectTask={handleSelectTodayTask}
+                  now={now}
                   action={
                     <button
                       type="button"
@@ -193,7 +214,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               </div>
 
               <div className="order-1 space-y-4 xl:order-2">
-                <CurrentTaskPanel task={currentTask} variant="summary" />
+                <CurrentTaskPanel task={currentTask} variant="summary" now={now} />
               </div>
 
               {isTodayTaskDetailOpen ? (
@@ -212,6 +233,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                         onNextActionChange={updateTaskNextAction}
                         onTaskModeChange={updateTaskMode}
                         onManualProgressChange={updateTaskManualProgress}
+                        onEstimatedMinutesChange={updateTaskEstimatedMinutes}
                         onAddTodoItem={addTaskTodoItem}
                         onUpdateTodoItem={updateTaskTodoItem}
                         onToggleTodoItem={toggleTaskTodoItem}
@@ -250,6 +272,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onNextActionChange={updateTaskNextAction}
               onTaskModeChange={updateTaskMode}
               onManualProgressChange={updateTaskManualProgress}
+              onEstimatedMinutesChange={updateTaskEstimatedMinutes}
               onAddTodoItem={addTaskTodoItem}
               onUpdateTodoItem={updateTaskTodoItem}
               onToggleTodoItem={toggleTaskTodoItem}
@@ -273,6 +296,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onNextActionChange={updateTaskNextAction}
               onTaskModeChange={updateTaskMode}
               onManualProgressChange={updateTaskManualProgress}
+              onEstimatedMinutesChange={updateTaskEstimatedMinutes}
               onAddTodoItem={addTaskTodoItem}
               onUpdateTodoItem={updateTaskTodoItem}
               onToggleTodoItem={toggleTaskTodoItem}
@@ -300,6 +324,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               onNextActionChange={updateTaskNextAction}
               onTaskModeChange={updateTaskMode}
               onManualProgressChange={updateTaskManualProgress}
+              onEstimatedMinutesChange={updateTaskEstimatedMinutes}
               onAddTodoItem={addTaskTodoItem}
               onUpdateTodoItem={updateTaskTodoItem}
               onToggleTodoItem={toggleTaskTodoItem}

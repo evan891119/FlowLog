@@ -3,8 +3,10 @@ import { Section } from "@/components/section";
 import { StatusBadge } from "@/components/status-badge";
 import { TaskModeToggle } from "@/components/task-mode-toggle";
 import { TaskProgressEditor } from "@/components/task-progress-editor";
+import { TaskTimeEstimateEditor } from "@/components/task-time-estimate-editor";
 import { TodoListEditor } from "@/components/todo-list-editor";
 import { getTaskProgress } from "@/lib/dashboard-state";
+import { formatTaskTimeLabel } from "@/lib/task-time";
 import { Task, TaskMode, TaskStatus } from "@/types/dashboard";
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
@@ -23,6 +25,7 @@ type TodayTaskDetailPanelProps = {
   onNextActionChange: (taskId: string, nextAction: string) => void;
   onTaskModeChange: (taskId: string, taskMode: TaskMode) => void;
   onManualProgressChange: (taskId: string, progress: number) => void;
+  onEstimatedMinutesChange: (taskId: string, estimatedMinutes: number | null) => void;
   onAddTodoItem: (taskId: string) => void;
   onUpdateTodoItem: (taskId: string, todoItemId: string, text: string) => void;
   onToggleTodoItem: (taskId: string, todoItemId: string) => void;
@@ -41,6 +44,7 @@ export function TodayTaskDetailPanel({
   onNextActionChange,
   onTaskModeChange,
   onManualProgressChange,
+  onEstimatedMinutesChange,
   onAddTodoItem,
   onUpdateTodoItem,
   onToggleTodoItem,
@@ -50,6 +54,7 @@ export function TodayTaskDetailPanel({
   bodyClassName,
 }: TodayTaskDetailPanelProps) {
   const progress = task ? getTaskProgress(task) : 0;
+  const timeLabel = task ? formatTaskTimeLabel(task) : "No estimate";
 
   return (
     <Section
@@ -139,6 +144,11 @@ export function TodayTaskDetailPanel({
                 ) : (
                   <TaskProgressEditor value={progress} onChange={(value) => onManualProgressChange(task.id, value)} />
                 )}
+              </div>
+
+              <div>
+                <TaskTimeEstimateEditor value={task.estimatedMinutes} onChange={(value) => onEstimatedMinutesChange(task.id, value)} />
+                <p className="mt-1 text-sm text-steel dark:text-slate-300">{timeLabel}</p>
               </div>
             </div>
           </div>

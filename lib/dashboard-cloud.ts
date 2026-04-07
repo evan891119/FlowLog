@@ -11,6 +11,9 @@ export type TaskRow = {
   task_mode?: TaskMode | null;
   next_action: string;
   manual_progress?: number | null;
+  estimated_minutes?: number | null;
+  elapsed_seconds?: number | null;
+  current_session_started_at?: string | null;
   todo_items?: TodoItem[] | null;
   progress: number;
   is_today: boolean;
@@ -37,6 +40,9 @@ function mapTaskRowToTask(row: TaskRow): Task {
     taskMode: row.task_mode ?? "next_action",
     nextAction: row.next_action,
     manualProgress: row.manual_progress ?? row.progress,
+    estimatedMinutes: row.estimated_minutes ?? null,
+    elapsedSeconds: row.elapsed_seconds ?? 0,
+    currentSessionStartedAt: row.current_session_started_at ?? null,
     todoItems: Array.isArray(row.todo_items) ? row.todo_items : [],
     isToday: row.is_today,
     isCurrent: row.is_current,
@@ -72,6 +78,9 @@ export function mapDashboardStateToTaskRows(userId: string, state: DashboardStat
     task_mode: task.taskMode,
     next_action: task.nextAction,
     manual_progress: task.manualProgress,
+    estimated_minutes: task.estimatedMinutes,
+    elapsed_seconds: task.elapsedSeconds,
+    current_session_started_at: task.currentSessionStartedAt,
     todo_items: task.todoItems,
     progress: getTaskProgress(task),
     is_today: task.isToday,
@@ -101,7 +110,7 @@ export async function loadDashboardStateForUser(supabase: SupabaseClient, userId
   const [tasksResult, settingsResult] = await Promise.all([
     supabase
       .from("tasks")
-      .select("id, user_id, title, status, task_mode, next_action, manual_progress, todo_items, progress, is_today, is_current, sort_order, created_at, updated_at")
+      .select("id, user_id, title, status, task_mode, next_action, manual_progress, estimated_minutes, elapsed_seconds, current_session_started_at, todo_items, progress, is_today, is_current, sort_order, created_at, updated_at")
       .eq("user_id", userId)
       .order("sort_order", { ascending: true }),
     supabase
