@@ -17,6 +17,94 @@ html.dark body {
     linear-gradient(180deg, rgba(14, 19, 27, 1) 0%, rgba(11, 15, 22, 1) 100%);
 }
 
+@layer components {
+  html.dark .dark-panel {
+    background-color: rgba(22, 29, 38, 0.94);
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.32);
+  }
+
+  html.dark .dark-current-panel {
+    border-color: rgba(194, 103, 78, 0.22);
+    box-shadow:
+      0 0 0 1px rgba(194, 103, 78, 0.05),
+      0 24px 72px rgba(0, 0, 0, 0.34),
+      0 0 30px rgba(194, 103, 78, 0.09);
+  }
+
+  html.dark .dark-panel-muted {
+    background-color: rgba(19, 26, 34, 0.94);
+    border-color: rgba(148, 163, 184, 0.12);
+  }
+
+  html.dark .dark-surface {
+    background-color: rgba(28, 37, 48, 0.92);
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  html.dark .dark-surface-muted {
+    background-color: rgba(24, 32, 42, 0.92);
+    border-color: rgba(148, 163, 184, 0.12);
+  }
+
+  html.dark .dark-surface-strong {
+    background: linear-gradient(180deg, rgba(18, 26, 35, 0.98) 0%, rgba(14, 21, 29, 0.98) 100%);
+    border-color: rgba(148, 163, 184, 0.14);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
+  }
+
+  html.dark .dark-current-surface {
+    background:
+      radial-gradient(circle at top left, rgba(194, 103, 78, 0.1), transparent 28%),
+      linear-gradient(180deg, rgba(20, 28, 37, 0.99) 0%, rgba(14, 21, 30, 0.99) 100%);
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.04),
+      0 24px 70px rgba(0, 0, 0, 0.4);
+  }
+
+  html.dark .dark-current-inner {
+    background-color: rgba(27, 36, 46, 0.94);
+    border-color: rgba(194, 103, 78, 0.12);
+  }
+
+  html.dark .dark-current-accent {
+    background: linear-gradient(90deg, rgba(194, 103, 78, 0.88) 0%, rgba(222, 139, 96, 0.8) 100%);
+    box-shadow: 0 0 16px rgba(194, 103, 78, 0.16);
+  }
+
+  html.dark .dark-current-kicker {
+    color: rgba(246, 194, 162, 0.9);
+  }
+
+  html.dark .dark-control {
+    background-color: rgba(31, 41, 53, 0.96);
+    border-color: rgba(148, 163, 184, 0.14);
+  }
+
+  html.dark .dark-control:hover {
+    background-color: rgba(38, 49, 62, 0.98);
+  }
+
+  html.dark .dark-control-selected {
+    background-color: rgba(42, 55, 69, 0.98);
+    border-color: rgba(148, 163, 184, 0.18);
+  }
+
+  html.dark .dark-control-soft {
+    background-color: rgba(24, 33, 43, 0.92);
+    border-color: rgba(148, 163, 184, 0.1);
+  }
+
+  html.dark .dark-progress-track {
+    background-color: rgba(59, 73, 89, 0.68);
+  }
+
+  html.dark .dark-overlay {
+    background-color: rgba(2, 6, 12, 0.54);
+  }
+}
+
 * {
   box-sizing: border-box;
 }

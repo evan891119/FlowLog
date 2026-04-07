@@ -43,7 +43,7 @@ export function TodayTaskDetailPanel({
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <input
-                className="w-full rounded-2xl bg-mist px-4 py-3 text-xl font-semibold tracking-tight text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
+                className="dark-surface w-full rounded-2xl bg-mist px-4 py-3 text-xl font-semibold tracking-tight text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500"
                 value={task.title}
                 onChange={(event) => onTitleChange(task.id, event.target.value)}
                 placeholder="Task title"
@@ -53,7 +53,7 @@ export function TodayTaskDetailPanel({
             <div className="flex items-center gap-2">
               <StatusBadge status={task.status} />
               {task.isCurrent ? <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-medium text-white">Current</span> : null}
-              {task.isToday ? <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink dark:border dark:border-white/10 dark:bg-[#273240] dark:text-slate-100">Today</span> : null}
+              {task.isToday ? <span className="dark-control-soft rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink dark:border dark:text-slate-100">Today</span> : null}
             </div>
           </div>
 
@@ -61,7 +61,7 @@ export function TodayTaskDetailPanel({
             <label className="block">
               <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
               <textarea
-                className="min-h-28 w-full rounded-3xl bg-mist px-4 py-3 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500"
+                className="dark-surface min-h-28 w-full rounded-3xl bg-mist px-4 py-3 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500"
                 value={task.nextAction}
                 onChange={(event) => onNextActionChange(task.id, event.target.value)}
                 placeholder="Write the next concrete step"
@@ -73,7 +73,7 @@ export function TodayTaskDetailPanel({
               <label className="block">
                 <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</span>
                 <select
-                  className="w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white"
+                  className="dark-surface w-full rounded-2xl bg-mist px-3 py-2 text-sm text-ink outline-none dark:border dark:text-white"
                   value={task.status}
                   onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
                   aria-label="Task status"
@@ -88,7 +88,7 @@ export function TodayTaskDetailPanel({
 
               <div>
                 <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Progress</span>
-                <div className="overflow-hidden rounded-full bg-mist dark:bg-[#273240]">
+                <div className="dark-progress-track overflow-hidden rounded-full bg-mist">
                   <div className="h-3 rounded-full bg-forest transition-all" style={{ width: `${task.progress}%` }} />
                 </div>
                 <p className="mt-1 text-sm text-steel dark:text-slate-300">{task.progress}%</p>
@@ -107,7 +107,7 @@ export function TodayTaskDetailPanel({
             </button>
             <button
               type="button"
-              className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+              className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
               onClick={() => onToggleToday(task.id)}
             >
               {task.isToday ? "Remove from today" : "Add to today"}

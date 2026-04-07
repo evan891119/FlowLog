@@ -13,7 +13,7 @@ export function Section({ title, description, headerAction, layout = "default", 
 
   return (
     <section
-      className={`rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur dark:border-white/8 dark:bg-[#141b24]/94 ${
+      className={`dark-panel rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur ${
         isFill ? "flex h-full flex-col" : ""
       } ${
         className ?? ""

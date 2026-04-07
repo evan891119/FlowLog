@@ -80,7 +80,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
       selectedTodayTask ? (
         <button
           type="button"
-          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202938] dark:text-white"
+          className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
           onClick={() => setSelectedTab("tasks")}
         >
           View all tasks
@@ -111,7 +111,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
             <form action="/auth/signout" method="post">
               <button
                 type="submit"
-                className="rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:border-white/10 dark:bg-[#1d2632] dark:text-white"
+                className="dark-control rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:text-white"
               >
                 Sign out
               </button>
@@ -126,7 +126,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               type="button"
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                 selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
-              } ${selectedTab === tab.id ? "dark:bg-[#2a3442] dark:text-white" : "dark:border-white/10 dark:bg-[#1d2632] dark:text-white"}`}
+              } ${selectedTab === tab.id ? "dark-control-selected dark:text-white" : "dark-control dark:text-white"}`}
               onClick={() => setSelectedTab(tab.id)}
               aria-pressed={selectedTab === tab.id}
             >
@@ -141,7 +141,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
               <div className="space-y-4">
                 <Section title="Today Goal" description="A single sentence that frames the day." layout="fill">
                   <textarea
-                    className="min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:border-white/8 dark:bg-[#202a36] dark:text-white dark:placeholder:text-slate-500 xl:min-h-[220px] xl:resize-none"
+                    className="dark-surface min-h-20 w-full rounded-3xl bg-mist px-4 py-3 text-base text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500 xl:min-h-[220px] xl:resize-none"
                     placeholder="Finish the first usable FlowLog dashboard."
                     value={state.todayGoal}
                     onChange={(event) => updateTodayGoal(event.target.value)}
@@ -156,7 +156,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                   action={
                     <button
                       type="button"
-                      className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+                      className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
                       onClick={() => setSelectedTab("tasks")}
                     >
                       View all tasks
@@ -185,7 +185,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                 <>
                   <button
                     type="button"
-                    className="fixed inset-0 z-50 bg-ink/18 dark:bg-black/30 xl:hidden"
+                    className="dark-overlay fixed inset-0 z-50 bg-ink/18 xl:hidden"
                     aria-label="Close task detail"
                     onClick={() => setIsTodayTaskDetailOpen(false)}
                   />
@@ -200,7 +200,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                       headerAction={
                         <button
                           type="button"
-                          className="rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:border-white/10 dark:bg-[#202a36] dark:text-white"
+                          className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
                           onClick={() => setIsTodayTaskDetailOpen(false)}
                         >
                           Close

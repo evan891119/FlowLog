@@ -29,8 +29,8 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action }: T
                 type="button"
                 className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition ${
                   isSelected
-                    ? "border-ink bg-ink text-white shadow-panel dark:border-white/15 dark:bg-[#24303d]"
-                    : "border-sand/80 bg-mist/60 text-ink hover:bg-mist dark:border-white/10 dark:bg-[#1b2430] dark:text-white dark:hover:bg-[#232d39]"
+                    ? "border-ink bg-ink text-white shadow-panel dark-control-selected dark:text-white"
+                    : "border-sand/80 bg-mist/60 text-ink hover:bg-mist dark-control dark:text-white"
                 }`}
                 onClick={() => onSelectTask(task.id)}
                 aria-pressed={isSelected}
