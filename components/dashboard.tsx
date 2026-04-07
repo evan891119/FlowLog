@@ -80,7 +80,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
       selectedTodayTask ? (
         <button
           type="button"
-          className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
+          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
           onClick={() => setSelectedTab("tasks")}
         >
           View all tasks
@@ -156,7 +156,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                   action={
                     <button
                       type="button"
-                      className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
+                      className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
                       onClick={() => setSelectedTab("tasks")}
                     >
                       View all tasks
@@ -200,7 +200,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
                       headerAction={
                         <button
                           type="button"
-                          className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
+                          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
                           onClick={() => setIsTodayTaskDetailOpen(false)}
                         >
                           Close

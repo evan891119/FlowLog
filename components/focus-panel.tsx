@@ -62,7 +62,7 @@ export function FocusPanel({
         </div>
         <button
           type="button"
-          className="dark-control rounded-full border border-sand bg-white px-3 py-1.5 text-sm font-medium text-ink dark:text-white"
+          className="ui-button-secondary rounded-full px-3.5 py-1.5 text-sm font-medium"
           onClick={onClose}
         >
           Close
@@ -121,7 +121,7 @@ export function FocusPanel({
           </button>
           <button
             type="button"
-            className="dark-control rounded-full border border-sand bg-white px-4 py-2 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:text-steel dark:text-white dark:disabled:text-slate-400"
+            className="ui-button-secondary rounded-full px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:text-steel disabled:shadow-none dark:disabled:text-slate-400"
             onClick={onStop}
             disabled={focus.lastSessionStartedAt === null}
           >

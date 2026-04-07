@@ -57,8 +57,8 @@ export function TaskCard({
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge status={task.status} />
-          {task.isCurrent ? <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-medium text-white">Current</span> : null}
-          {task.isToday ? <span className="dark-control-soft rounded-full bg-white px-2.5 py-1 text-xs font-medium text-ink dark:border dark:text-slate-100">Today</span> : null}
+          {task.isCurrent ? <span className="ui-tag rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">Current</span> : null}
+          {task.isToday ? <span className="ui-tag-soft rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em]">Today</span> : null}
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export function TaskCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          className="rounded-full bg-ink px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-steel"
+          className="ui-button-current rounded-full px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-steel disabled:shadow-none"
           onClick={() => onSetCurrent(task.id)}
           disabled={task.status === "blocked" || task.status === "done"}
         >
@@ -114,7 +114,7 @@ export function TaskCard({
         </button>
         <button
           type="button"
-          className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink dark:text-white"
+          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
           onClick={() => onToggleToday(task.id)}
         >
           {task.isToday ? "Remove from today" : "Add to today"}
@@ -123,7 +123,7 @@ export function TaskCard({
           <>
             <button
               type="button"
-              className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel dark:text-white dark:disabled:text-slate-400"
+              className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:text-steel disabled:shadow-none dark:disabled:text-slate-400"
               onClick={() => onMoveUp(task.id)}
               disabled={!canMoveUp}
             >
@@ -131,7 +131,7 @@ export function TaskCard({
             </button>
             <button
               type="button"
-              className="dark-control rounded-full border border-sand bg-white px-3 py-2 text-sm font-medium text-ink disabled:cursor-not-allowed disabled:text-steel dark:text-white dark:disabled:text-slate-400"
+              className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:text-steel disabled:shadow-none dark:disabled:text-slate-400"
               onClick={() => onMoveDown(task.id)}
               disabled={!canMoveDown}
             >
