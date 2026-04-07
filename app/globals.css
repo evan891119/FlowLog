@@ -18,6 +18,37 @@ html.dark body {
 }
 
 @layer components {
+  .dark-current-panel {
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      0 0 0 1px rgba(194, 103, 78, 0.05),
+      0 18px 44px rgba(30, 36, 48, 0.08);
+  }
+
+  .dark-current-surface {
+    background:
+      radial-gradient(circle at top left, rgba(194, 103, 78, 0.08), transparent 30%),
+      linear-gradient(180deg, rgba(255, 251, 247, 0.96) 0%, rgba(252, 247, 241, 0.98) 100%);
+    border-color: rgba(194, 103, 78, 0.18);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      0 18px 42px rgba(30, 36, 48, 0.08);
+  }
+
+  .dark-current-inner {
+    background-color: rgba(248, 241, 234, 0.92);
+    border-color: rgba(194, 103, 78, 0.12);
+  }
+
+  .dark-current-accent {
+    background: linear-gradient(90deg, rgba(194, 103, 78, 0.72) 0%, rgba(222, 139, 96, 0.64) 100%);
+    box-shadow: 0 0 10px rgba(194, 103, 78, 0.08);
+  }
+
+  .dark-current-kicker {
+    color: rgba(172, 98, 74, 0.9);
+  }
+
   html.dark .dark-panel {
     background-color: rgba(22, 29, 38, 0.94);
     border-color: rgba(148, 163, 184, 0.14);
