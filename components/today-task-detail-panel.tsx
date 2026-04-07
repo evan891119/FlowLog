@@ -29,6 +29,7 @@ type TodayTaskDetailPanelProps = {
   onDeleteTodoItem: (taskId: string, todoItemId: string) => void;
   headerAction?: React.ReactNode;
   className?: string;
+  bodyClassName?: string;
 };
 
 export function TodayTaskDetailPanel({
@@ -46,6 +47,7 @@ export function TodayTaskDetailPanel({
   onDeleteTodoItem,
   headerAction,
   className,
+  bodyClassName,
 }: TodayTaskDetailPanelProps) {
   const progress = task ? getTaskProgress(task) : 0;
 
@@ -55,6 +57,7 @@ export function TodayTaskDetailPanel({
       description={task ? "Expanded view for the selected today task." : "Select a task from the today list to inspect it here."}
       headerAction={headerAction}
       className={className}
+      bodyClassName={bodyClassName}
     >
       {task ? (
         <div className="space-y-4">
