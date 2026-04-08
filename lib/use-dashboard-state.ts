@@ -20,8 +20,10 @@ import {
   updateTaskTodoItemInState,
   updateTodayGoalInState,
 } from "@/lib/dashboard-state";
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { createOptionalSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
+
+let hasWarnedAboutDisabledLiveSync = false;
 
 async function persistDashboardState(state: DashboardState) {
   const response = await fetch("/api/dashboard", {
@@ -52,7 +54,7 @@ async function loadDashboardState() {
 
 export function useDashboardState(initialState: DashboardState, userId: string) {
   const [state, setState] = useState<DashboardState>(initialState);
-  const [supabase] = useState(() => createSupabaseBrowserClient());
+  const [supabase] = useState(() => createOptionalSupabaseBrowserClient());
   const hasMountedRef = useRef(false);
   const stateRef = useRef(state);
   const isApplyingRemoteStateRef = useRef(false);
@@ -86,6 +88,15 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
   }, [state]);
 
   useEffect(() => {
+    if (!supabase) {
+      if (!hasWarnedAboutDisabledLiveSync) {
+        hasWarnedAboutDisabledLiveSync = true;
+        console.warn("Supabase client env is missing in the browser bundle. Live sync is disabled for this session.");
+      }
+
+      return;
+    }
+
     const reloadDashboardState = async () => {
       const requestVersion = localMutationVersionRef.current;
       const nextState = await loadDashboardState();
