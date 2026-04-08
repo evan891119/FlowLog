@@ -11,7 +11,7 @@
 1. Create a new Supabase project.
 2. In the SQL editor, run [`supabase/schema.sql`](/Users/evan/Code/Projects/FlowLog/supabase/schema.sql).
    - The file is safe to re-run on an existing project. It recreates the app's RLS policies and uses additive schema updates for older databases.
-   - The schema also adds `tasks` and `dashboard_settings` to the `supabase_realtime` publication so open sessions can fall back to database-event sync if direct channel broadcast is unavailable.
+   - The schema also adds `tasks` and `dashboard_settings` to the `supabase_realtime` publication so open sessions receive row-level live updates.
 3. In Authentication settings:
    - enable email auth
    - keep public signup enabled if you want first-time emails to create accounts automatically
@@ -26,6 +26,8 @@ Create `.env.local` with:
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+If you change either `NEXT_PUBLIC_*` value while `npm run dev` is already running, restart the dev server so Next rebuilds the browser bundle with the new env.
 
 ## 3. Deploy to Vercel
 
@@ -60,4 +62,4 @@ If your database was created from an older version of FlowLog:
 3. Confirm the `public.tasks` table includes newer additive columns such as `estimated_minutes`, `elapsed_seconds`, and `current_session_started_at`.
 4. Confirm `public.tasks` and `public.dashboard_settings` are part of the `supabase_realtime` publication.
 5. Confirm authenticated users can still read and write their own dashboard data after the update.
-6. Confirm browser console reports connected live sync channels instead of fallback warnings.
+6. Confirm browser console reports a connected live sync channel instead of timeout or closed warnings.

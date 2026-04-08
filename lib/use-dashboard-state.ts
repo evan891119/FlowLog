@@ -1,10 +1,14 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import type { DashboardSettingsRow, TaskRow } from "@/lib/dashboard-cloud";
 import {
-  createDashboardSyncBroadcastPayload,
-  DASHBOARD_SYNC_BROADCAST_EVENT,
-  parseDashboardSyncBroadcastPayload,
+  applyDashboardSettingsFromRow,
+  applyTaskDeleteFromRow,
+  applyTaskUpsertFromRow,
+  isDashboardSettingsRow,
+  isTaskRow,
   shouldApplyRemoteDashboardState,
 } from "@/lib/dashboard-sync";
 import {
@@ -29,9 +33,7 @@ import { createOptionalSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
 
 let hasWarnedAboutDisabledLiveSync = false;
-const REMOTE_RELOAD_DEBOUNCE_MS = 150;
 const PERSIST_DEBOUNCE_MS = 250;
-const REMOTE_RELOAD_SUPPRESSION_MS = 1500;
 const DASHBOARD_SYNC_SUBSCRIBED = "SUBSCRIBED";
 const DASHBOARD_SYNC_CHANNEL_ERROR = "CHANNEL_ERROR";
 const DASHBOARD_SYNC_TIMED_OUT = "TIMED_OUT";
@@ -51,19 +53,6 @@ async function persistDashboardState(state: DashboardState) {
   }
 }
 
-async function loadDashboardState() {
-  const response = await fetch("/api/dashboard", {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to load dashboard state.");
-  }
-
-  return (await response.json()) as DashboardState;
-}
-
 export function useDashboardState(initialState: DashboardState, userId: string) {
   const [state, setState] = useState<DashboardState>(initialState);
   const [supabase] = useState(() => createOptionalSupabaseBrowserClient());
@@ -72,10 +61,6 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
   const stateRef = useRef(state);
   const isApplyingRemoteStateRef = useRef(false);
   const localMutationVersionRef = useRef(0);
-  const remoteReloadTimeoutRef = useRef<number | null>(null);
-  const suppressRemoteReloadUntilRef = useRef(0);
-  const broadcastChannelRef = useRef<ReturnType<NonNullable<typeof supabase>["channel"]> | null>(null);
-  const isBroadcastChannelSubscribedRef = useRef(false);
 
   useEffect(() => {
     stateRef.current = state;
@@ -106,27 +91,6 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
         if (persistedVersion !== localMutationVersionRef.current) {
           return;
         }
-
-        const broadcastChannel = broadcastChannelRef.current;
-
-        if (!broadcastChannel || !isBroadcastChannelSubscribedRef.current) {
-          console.warn("Dashboard live sync broadcast skipped because the broadcast channel is unavailable. Falling back to database events.");
-          return;
-        }
-
-        const payload = createDashboardSyncBroadcastPayload(persistedState, clientId);
-        const result = await broadcastChannel.send({
-          type: "broadcast",
-          event: DASHBOARD_SYNC_BROADCAST_EVENT,
-          payload,
-        });
-
-        if (result !== "ok") {
-          console.warn(`Dashboard live sync broadcast failed with status: ${result}. Falling back to database events.`);
-          return;
-        }
-
-        suppressRemoteReloadUntilRef.current = Date.now() + REMOTE_RELOAD_SUPPRESSION_MS;
       })();
     }, PERSIST_DEBOUNCE_MS);
 
@@ -145,14 +109,7 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       return;
     }
 
-    const reloadDashboardState = async () => {
-      const requestVersion = localMutationVersionRef.current;
-      const nextState = await loadDashboardState();
-
-      if (requestVersion !== localMutationVersionRef.current) {
-        return;
-      }
-
+    const applyRemoteState = (nextState: DashboardState) => {
       if (!shouldApplyRemoteDashboardState(stateRef.current, nextState)) {
         return;
       }
@@ -163,93 +120,46 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       });
     };
 
-    const scheduleRemoteReload = () => {
-      if (Date.now() < suppressRemoteReloadUntilRef.current) {
-        return;
-      }
-
-      if (remoteReloadTimeoutRef.current !== null) {
-        window.clearTimeout(remoteReloadTimeoutRef.current);
-      }
-
-      remoteReloadTimeoutRef.current = window.setTimeout(() => {
-        void reloadDashboardState().catch((error) => {
-          console.error(error);
-        });
-      }, REMOTE_RELOAD_DEBOUNCE_MS);
-    };
-
-    const handleBroadcastStatus = (status: string) => {
-      isBroadcastChannelSubscribedRef.current = status === DASHBOARD_SYNC_SUBSCRIBED;
-
+    const handleChannelStatus = (status: string) => {
       if (status === DASHBOARD_SYNC_SUBSCRIBED) {
-        console.info(`Dashboard live sync broadcast connected for user ${userId}.`);
+        console.info(`Dashboard live sync connected for user ${userId}.`);
         return;
       }
 
       if (status === DASHBOARD_SYNC_CHANNEL_ERROR || status === DASHBOARD_SYNC_TIMED_OUT || status === DASHBOARD_SYNC_CLOSED) {
-        console.warn(`Dashboard live sync broadcast status changed to ${status}. Falling back to database events when available.`);
+        console.warn(`Dashboard live sync status changed to ${status}. Live sync may require a manual refresh.`);
       }
     };
 
-    const handleFallbackStatus = (status: string) => {
-      if (status === DASHBOARD_SYNC_SUBSCRIBED) {
-        console.info(`Dashboard fallback sync connected for user ${userId}.`);
-        return;
-      }
-
-      if (status === DASHBOARD_SYNC_CHANNEL_ERROR || status === DASHBOARD_SYNC_TIMED_OUT || status === DASHBOARD_SYNC_CLOSED) {
-        console.warn(`Dashboard fallback sync status changed to ${status}. Live sync may require a manual refresh.`);
-      }
-    };
-
-    const broadcastChannel = supabase
-      .channel(`dashboard:broadcast:${userId}`)
-      .on("broadcast", { event: DASHBOARD_SYNC_BROADCAST_EVENT }, ({ payload }) => {
-        const parsedPayload = parseDashboardSyncBroadcastPayload(payload);
-
-        if (!parsedPayload) {
-          console.warn("Ignored invalid dashboard live sync payload.");
+    const channel = supabase
+      .channel(`dashboard:${userId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, (payload: RealtimePostgresChangesPayload<TaskRow>) => {
+        if (payload.eventType === "DELETE") {
+          applyRemoteState(applyTaskDeleteFromRow(stateRef.current, payload.old as Pick<TaskRow, "id">));
           return;
         }
 
-        if (parsedPayload.originClientId === clientId) {
+        if (!isTaskRow(payload.new)) {
           return;
         }
 
-        if (!shouldApplyRemoteDashboardState(stateRef.current, parsedPayload.state)) {
-          return;
-        }
-
-        suppressRemoteReloadUntilRef.current = Date.now() + REMOTE_RELOAD_SUPPRESSION_MS;
-        isApplyingRemoteStateRef.current = true;
-        startTransition(() => {
-          setState(parsedPayload.state);
-        });
+        applyRemoteState(applyTaskUpsertFromRow(stateRef.current, payload.new));
       })
-      .subscribe(handleBroadcastStatus);
-
-    const fallbackChannel = supabase
-      .channel(`dashboard:postgres:${userId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, scheduleRemoteReload)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "dashboard_settings", filter: `user_id=eq.${userId}` },
-        scheduleRemoteReload,
-      )
-      .subscribe(handleFallbackStatus);
+        (payload: RealtimePostgresChangesPayload<DashboardSettingsRow>) => {
+          if (!isDashboardSettingsRow(payload.new)) {
+            return;
+          }
 
-    broadcastChannelRef.current = broadcastChannel;
+          applyRemoteState(applyDashboardSettingsFromRow(stateRef.current, payload.new));
+        },
+      )
+      .subscribe(handleChannelStatus);
 
     return () => {
-      if (remoteReloadTimeoutRef.current !== null) {
-        window.clearTimeout(remoteReloadTimeoutRef.current);
-      }
-
-      isBroadcastChannelSubscribedRef.current = false;
-      broadcastChannelRef.current = null;
-      void supabase.removeChannel(broadcastChannel);
-      void supabase.removeChannel(fallbackChannel);
+      void supabase.removeChannel(channel);
     };
   }, [clientId, supabase, userId]);
 
