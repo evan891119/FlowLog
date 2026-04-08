@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { defaultState } from "@/lib/dashboard-state";
-import { createDashboardStateSignature, shouldApplyRemoteDashboardState } from "@/lib/dashboard-sync";
+import {
+  createDashboardStateSignature,
+  createDashboardSyncBroadcastPayload,
+  parseDashboardSyncBroadcastPayload,
+  shouldApplyRemoteDashboardState,
+} from "@/lib/dashboard-sync";
 
 test("dashboard state signature stays stable for equivalent states", () => {
   const state = {
@@ -53,4 +58,30 @@ test("remote dashboard state is applied when persisted data changes", () => {
   };
 
   assert.equal(shouldApplyRemoteDashboardState(currentState, remoteState), true);
+});
+
+test("broadcast payload round-trips through parser", () => {
+  const payload = createDashboardSyncBroadcastPayload(
+    {
+      ...defaultState,
+      todayGoal: "Keep sessions in sync",
+    },
+    "client-1",
+    "2026-04-08T12:00:00.000Z",
+  );
+
+  assert.deepEqual(parseDashboardSyncBroadcastPayload(payload), payload);
+});
+
+test("broadcast payload parser rejects invalid payloads", () => {
+  assert.equal(parseDashboardSyncBroadcastPayload(null), null);
+  assert.equal(parseDashboardSyncBroadcastPayload({ originClientId: "client-1" }), null);
+  assert.equal(
+    parseDashboardSyncBroadcastPayload({
+      state: defaultState,
+      originClientId: 123,
+      sentAt: "2026-04-08T12:00:00.000Z",
+    }),
+    null,
+  );
 });

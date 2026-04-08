@@ -1,4 +1,13 @@
+import { getSafeInitialState } from "@/lib/dashboard-state";
 import { DashboardState } from "@/types/dashboard";
+
+export const DASHBOARD_SYNC_BROADCAST_EVENT = "dashboard_state";
+
+export type DashboardSyncBroadcastPayload = {
+  state: DashboardState;
+  originClientId: string;
+  sentAt: string;
+};
 
 function getTaskSignature(state: DashboardState) {
   return state.tasks.map((task) => ({
@@ -38,4 +47,34 @@ export function createDashboardStateSignature(state: DashboardState) {
 
 export function shouldApplyRemoteDashboardState(currentState: DashboardState, incomingState: DashboardState) {
   return createDashboardStateSignature(currentState) !== createDashboardStateSignature(incomingState);
+}
+
+export function createDashboardSyncBroadcastPayload(
+  state: DashboardState,
+  originClientId: string,
+  sentAt = new Date().toISOString(),
+): DashboardSyncBroadcastPayload {
+  return {
+    state: getSafeInitialState(state),
+    originClientId,
+    sentAt,
+  };
+}
+
+export function parseDashboardSyncBroadcastPayload(payload: unknown): DashboardSyncBroadcastPayload | null {
+  if (!payload || typeof payload !== "object") {
+    return null;
+  }
+
+  const candidate = payload as Partial<DashboardSyncBroadcastPayload>;
+
+  if (typeof candidate.originClientId !== "string" || typeof candidate.sentAt !== "string" || !candidate.state) {
+    return null;
+  }
+
+  return {
+    state: getSafeInitialState(candidate.state),
+    originClientId: candidate.originClientId,
+    sentAt: candidate.sentAt,
+  };
 }
