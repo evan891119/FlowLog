@@ -1,7 +1,12 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
-import { shouldApplyRemoteDashboardState } from "@/lib/dashboard-sync";
+import {
+  createDashboardSyncBroadcastPayload,
+  DASHBOARD_SYNC_BROADCAST_EVENT,
+  parseDashboardSyncBroadcastPayload,
+  shouldApplyRemoteDashboardState,
+} from "@/lib/dashboard-sync";
 import {
   addTaskTodoItemInState,
   createTaskInState,
@@ -24,6 +29,13 @@ import { createOptionalSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
 
 let hasWarnedAboutDisabledLiveSync = false;
+const REMOTE_RELOAD_DEBOUNCE_MS = 150;
+const PERSIST_DEBOUNCE_MS = 250;
+const REMOTE_RELOAD_SUPPRESSION_MS = 1500;
+const DASHBOARD_SYNC_SUBSCRIBED = "SUBSCRIBED";
+const DASHBOARD_SYNC_CHANNEL_ERROR = "CHANNEL_ERROR";
+const DASHBOARD_SYNC_TIMED_OUT = "TIMED_OUT";
+const DASHBOARD_SYNC_CLOSED = "CLOSED";
 
 async function persistDashboardState(state: DashboardState) {
   const response = await fetch("/api/dashboard", {
@@ -55,11 +67,15 @@ async function loadDashboardState() {
 export function useDashboardState(initialState: DashboardState, userId: string) {
   const [state, setState] = useState<DashboardState>(initialState);
   const [supabase] = useState(() => createOptionalSupabaseBrowserClient());
+  const [clientId] = useState(() => crypto.randomUUID());
   const hasMountedRef = useRef(false);
   const stateRef = useRef(state);
   const isApplyingRemoteStateRef = useRef(false);
   const localMutationVersionRef = useRef(0);
   const remoteReloadTimeoutRef = useRef<number | null>(null);
+  const suppressRemoteReloadUntilRef = useRef(0);
+  const broadcastChannelRef = useRef<ReturnType<NonNullable<typeof supabase>["channel"]> | null>(null);
+  const isBroadcastChannelSubscribedRef = useRef(false);
 
   useEffect(() => {
     stateRef.current = state;
@@ -76,11 +92,43 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       return;
     }
 
+    const persistedState = state;
+    const persistedVersion = localMutationVersionRef.current;
     const timeoutId = window.setTimeout(() => {
-      void persistDashboardState(state).catch((error) => {
-        console.error(error);
-      });
-    }, 250);
+      void (async () => {
+        try {
+          await persistDashboardState(persistedState);
+        } catch (error) {
+          console.error(error);
+          return;
+        }
+
+        if (persistedVersion !== localMutationVersionRef.current) {
+          return;
+        }
+
+        const broadcastChannel = broadcastChannelRef.current;
+
+        if (!broadcastChannel || !isBroadcastChannelSubscribedRef.current) {
+          console.warn("Dashboard live sync broadcast skipped because the broadcast channel is unavailable. Falling back to database events.");
+          return;
+        }
+
+        const payload = createDashboardSyncBroadcastPayload(persistedState, clientId);
+        const result = await broadcastChannel.send({
+          type: "broadcast",
+          event: DASHBOARD_SYNC_BROADCAST_EVENT,
+          payload,
+        });
+
+        if (result !== "ok") {
+          console.warn(`Dashboard live sync broadcast failed with status: ${result}. Falling back to database events.`);
+          return;
+        }
+
+        suppressRemoteReloadUntilRef.current = Date.now() + REMOTE_RELOAD_SUPPRESSION_MS;
+      })();
+    }, PERSIST_DEBOUNCE_MS);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -116,6 +164,10 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
     };
 
     const scheduleRemoteReload = () => {
+      if (Date.now() < suppressRemoteReloadUntilRef.current) {
+        return;
+      }
+
       if (remoteReloadTimeoutRef.current !== null) {
         window.clearTimeout(remoteReloadTimeoutRef.current);
       }
@@ -124,27 +176,82 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
         void reloadDashboardState().catch((error) => {
           console.error(error);
         });
-      }, 150);
+      }, REMOTE_RELOAD_DEBOUNCE_MS);
     };
 
-    const channel = supabase
-      .channel(`dashboard:${userId}`)
+    const handleBroadcastStatus = (status: string) => {
+      isBroadcastChannelSubscribedRef.current = status === DASHBOARD_SYNC_SUBSCRIBED;
+
+      if (status === DASHBOARD_SYNC_SUBSCRIBED) {
+        console.info(`Dashboard live sync broadcast connected for user ${userId}.`);
+        return;
+      }
+
+      if (status === DASHBOARD_SYNC_CHANNEL_ERROR || status === DASHBOARD_SYNC_TIMED_OUT || status === DASHBOARD_SYNC_CLOSED) {
+        console.warn(`Dashboard live sync broadcast status changed to ${status}. Falling back to database events when available.`);
+      }
+    };
+
+    const handleFallbackStatus = (status: string) => {
+      if (status === DASHBOARD_SYNC_SUBSCRIBED) {
+        console.info(`Dashboard fallback sync connected for user ${userId}.`);
+        return;
+      }
+
+      if (status === DASHBOARD_SYNC_CHANNEL_ERROR || status === DASHBOARD_SYNC_TIMED_OUT || status === DASHBOARD_SYNC_CLOSED) {
+        console.warn(`Dashboard fallback sync status changed to ${status}. Live sync may require a manual refresh.`);
+      }
+    };
+
+    const broadcastChannel = supabase
+      .channel(`dashboard:broadcast:${userId}`)
+      .on("broadcast", { event: DASHBOARD_SYNC_BROADCAST_EVENT }, ({ payload }) => {
+        const parsedPayload = parseDashboardSyncBroadcastPayload(payload);
+
+        if (!parsedPayload) {
+          console.warn("Ignored invalid dashboard live sync payload.");
+          return;
+        }
+
+        if (parsedPayload.originClientId === clientId) {
+          return;
+        }
+
+        if (!shouldApplyRemoteDashboardState(stateRef.current, parsedPayload.state)) {
+          return;
+        }
+
+        suppressRemoteReloadUntilRef.current = Date.now() + REMOTE_RELOAD_SUPPRESSION_MS;
+        isApplyingRemoteStateRef.current = true;
+        startTransition(() => {
+          setState(parsedPayload.state);
+        });
+      })
+      .subscribe(handleBroadcastStatus);
+
+    const fallbackChannel = supabase
+      .channel(`dashboard:postgres:${userId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, scheduleRemoteReload)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "dashboard_settings", filter: `user_id=eq.${userId}` },
         scheduleRemoteReload,
       )
-      .subscribe();
+      .subscribe(handleFallbackStatus);
+
+    broadcastChannelRef.current = broadcastChannel;
 
     return () => {
       if (remoteReloadTimeoutRef.current !== null) {
         window.clearTimeout(remoteReloadTimeoutRef.current);
       }
 
-      void supabase.removeChannel(channel);
+      isBroadcastChannelSubscribedRef.current = false;
+      broadcastChannelRef.current = null;
+      void supabase.removeChannel(broadcastChannel);
+      void supabase.removeChannel(fallbackChannel);
     };
-  }, [supabase, userId]);
+  }, [clientId, supabase, userId]);
 
   const applyLocalState = (updater: (current: DashboardState) => DashboardState) => {
     localMutationVersionRef.current += 1;
