@@ -51,6 +51,8 @@ alter table public.dashboard_settings drop column if exists focus_enabled;
 
 alter table public.tasks enable row level security;
 alter table public.dashboard_settings enable row level security;
+alter table public.tasks replica identity full;
+alter table public.dashboard_settings replica identity full;
 
 drop policy if exists "Users can manage their own tasks" on public.tasks;
 create policy "Users can manage their own tasks"
@@ -67,3 +69,19 @@ for all
 to authenticated
 using (auth.uid() = user_id)
 with check (auth.uid() = user_id);
+
+do $$
+begin
+  alter publication supabase_realtime add table public.tasks;
+exception
+  when duplicate_object then null;
+end
+$$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.dashboard_settings;
+exception
+  when duplicate_object then null;
+end
+$$;

@@ -40,6 +40,7 @@ The first version includes:
 - Manual task reordering with move controls
 - Email OTP login
 - Automatic persistence with Supabase
+- Cross-device live sync without reloading
 - Focus timer with start and stop controls
 
 The first version does not include:

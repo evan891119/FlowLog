@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
+import { shouldApplyRemoteDashboardState } from "@/lib/dashboard-sync";
 import {
   addTaskTodoItemInState,
   createTaskInState,
@@ -19,6 +20,7 @@ import {
   updateTaskTodoItemInState,
   updateTodayGoalInState,
 } from "@/lib/dashboard-state";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
 
 async function persistDashboardState(state: DashboardState) {
@@ -35,13 +37,40 @@ async function persistDashboardState(state: DashboardState) {
   }
 }
 
-export function useDashboardState(initialState: DashboardState) {
+async function loadDashboardState() {
+  const response = await fetch("/api/dashboard", {
+    method: "GET",
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to load dashboard state.");
+  }
+
+  return (await response.json()) as DashboardState;
+}
+
+export function useDashboardState(initialState: DashboardState, userId: string) {
   const [state, setState] = useState<DashboardState>(initialState);
+  const [supabase] = useState(() => createSupabaseBrowserClient());
   const hasMountedRef = useRef(false);
+  const stateRef = useRef(state);
+  const isApplyingRemoteStateRef = useRef(false);
+  const localMutationVersionRef = useRef(0);
+  const remoteReloadTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
+      return;
+    }
+
+    if (isApplyingRemoteStateRef.current) {
+      isApplyingRemoteStateRef.current = false;
       return;
     }
 
@@ -56,84 +85,139 @@ export function useDashboardState(initialState: DashboardState) {
     };
   }, [state]);
 
+  useEffect(() => {
+    const reloadDashboardState = async () => {
+      const requestVersion = localMutationVersionRef.current;
+      const nextState = await loadDashboardState();
+
+      if (requestVersion !== localMutationVersionRef.current) {
+        return;
+      }
+
+      if (!shouldApplyRemoteDashboardState(stateRef.current, nextState)) {
+        return;
+      }
+
+      isApplyingRemoteStateRef.current = true;
+      startTransition(() => {
+        setState(nextState);
+      });
+    };
+
+    const scheduleRemoteReload = () => {
+      if (remoteReloadTimeoutRef.current !== null) {
+        window.clearTimeout(remoteReloadTimeoutRef.current);
+      }
+
+      remoteReloadTimeoutRef.current = window.setTimeout(() => {
+        void reloadDashboardState().catch((error) => {
+          console.error(error);
+        });
+      }, 150);
+    };
+
+    const channel = supabase
+      .channel(`dashboard:${userId}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, scheduleRemoteReload)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "dashboard_settings", filter: `user_id=eq.${userId}` },
+        scheduleRemoteReload,
+      )
+      .subscribe();
+
+    return () => {
+      if (remoteReloadTimeoutRef.current !== null) {
+        window.clearTimeout(remoteReloadTimeoutRef.current);
+      }
+
+      void supabase.removeChannel(channel);
+    };
+  }, [supabase, userId]);
+
+  const applyLocalState = (updater: (current: DashboardState) => DashboardState) => {
+    localMutationVersionRef.current += 1;
+    setState(updater);
+  };
+
   const createTask = () => {
-    setState((current) => createTaskInState(current, { title: "New task", isToday: current.tasks.length === 0 }));
+    applyLocalState((current) => createTaskInState(current, { title: "New task", isToday: current.tasks.length === 0 }));
   };
 
   const updateTaskTitle = (taskId: string, title: string) => {
-    setState((current) => updateTaskInState(current, taskId, { title }));
+    applyLocalState((current) => updateTaskInState(current, taskId, { title }));
   };
 
   const updateTaskNextAction = (taskId: string, nextAction: string) => {
-    setState((current) => updateTaskInState(current, taskId, { nextAction }));
+    applyLocalState((current) => updateTaskInState(current, taskId, { nextAction }));
   };
 
   const updateTaskMode = (taskId: string, taskMode: TaskMode) => {
-    setState((current) => setTaskModeInState(current, taskId, taskMode));
+    applyLocalState((current) => setTaskModeInState(current, taskId, taskMode));
   };
 
   const updateTaskManualProgress = (taskId: string, manualProgress: number) => {
-    setState((current) => updateTaskInState(current, taskId, { manualProgress }));
+    applyLocalState((current) => updateTaskInState(current, taskId, { manualProgress }));
   };
 
   const updateTaskEstimatedMinutes = (taskId: string, estimatedMinutes: number | null) => {
-    setState((current) => updateTaskInState(current, taskId, { estimatedMinutes }));
+    applyLocalState((current) => updateTaskInState(current, taskId, { estimatedMinutes }));
   };
 
   const addTaskTodoItem = (taskId: string) => {
-    setState((current) => addTaskTodoItemInState(current, taskId));
+    applyLocalState((current) => addTaskTodoItemInState(current, taskId));
   };
 
   const updateTaskTodoItem = (taskId: string, todoItemId: string, text: string) => {
-    setState((current) => updateTaskTodoItemInState(current, taskId, todoItemId, text));
+    applyLocalState((current) => updateTaskTodoItemInState(current, taskId, todoItemId, text));
   };
 
   const toggleTaskTodoItem = (taskId: string, todoItemId: string) => {
-    setState((current) => toggleTaskTodoItemInState(current, taskId, todoItemId));
+    applyLocalState((current) => toggleTaskTodoItemInState(current, taskId, todoItemId));
   };
 
   const deleteTaskTodoItem = (taskId: string, todoItemId: string) => {
-    setState((current) => deleteTaskTodoItemInState(current, taskId, todoItemId));
+    applyLocalState((current) => deleteTaskTodoItemInState(current, taskId, todoItemId));
   };
 
   const updateTaskStatus = (taskId: string, status: TaskStatus) => {
-    setState((current) => setTaskStatusInState(current, taskId, status));
+    applyLocalState((current) => setTaskStatusInState(current, taskId, status));
   };
 
   const toggleToday = (taskId: string) => {
-    setState((current) => toggleTodayTaskInState(current, taskId));
+    applyLocalState((current) => toggleTodayTaskInState(current, taskId));
   };
 
   const toggleCurrentTask = (taskId: string) => {
-    setState((current) => setCurrentTaskInState(current, taskId));
+    applyLocalState((current) => setCurrentTaskInState(current, taskId));
   };
 
   const updateTodayGoal = (todayGoal: string) => {
-    setState((current) => updateTodayGoalInState(current, todayGoal));
+    applyLocalState((current) => updateTodayGoalInState(current, todayGoal));
   };
 
   const deleteTask = (taskId: string) => {
-    setState((current) => deleteTaskInState(current, taskId));
+    applyLocalState((current) => deleteTaskInState(current, taskId));
   };
 
   const moveTaskUp = (taskId: string) => {
-    setState((current) => moveTaskInState(current, taskId, "up"));
+    applyLocalState((current) => moveTaskInState(current, taskId, "up"));
   };
 
   const moveTaskDown = (taskId: string) => {
-    setState((current) => moveTaskInState(current, taskId, "down"));
+    applyLocalState((current) => moveTaskInState(current, taskId, "down"));
   };
 
   const setFocusDuration = (duration: number) => {
-    setState((current) => updateFocusSettingsInState(current, { duration }));
+    applyLocalState((current) => updateFocusSettingsInState(current, { duration }));
   };
 
   const startFocusSession = () => {
-    setState((current) => startFocusSessionInState(current));
+    applyLocalState((current) => startFocusSessionInState(current));
   };
 
   const stopFocusSession = () => {
-    setState((current) => stopFocusSessionInState(current));
+    applyLocalState((current) => stopFocusSessionInState(current));
   };
 
   return {
