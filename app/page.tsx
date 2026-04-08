@@ -15,5 +15,5 @@ export default async function HomePage() {
 
   const initialState = await loadDashboardStateForUser(supabase, user.id);
 
-  return <Dashboard initialState={initialState} userEmail={user.email ?? null} />;
+  return <Dashboard initialState={initialState} userId={user.id} userEmail={user.email ?? null} />;
 }

@@ -196,6 +196,7 @@ Behavior requirements:
 
 - Save on every meaningful change
 - Restore on app load
+- Push account-backed updates to other open sessions without requiring a reload
 - Initialize with a safe empty state for new accounts
 - Never expose one user's tasks to another user
 

@@ -14,6 +14,7 @@ import { DashboardState, Task } from "@/types/dashboard";
 type DashboardTab = "today" | "tasks" | "archive";
 type DashboardProps = {
   initialState: DashboardState;
+  userId: string;
   userEmail?: string | null;
 };
 
@@ -29,7 +30,7 @@ function sortByOrder(tasks: Task[], taskOrder: string[]) {
   return [...tasks].sort((a, b) => (orderMap.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (orderMap.get(b.id) ?? Number.MAX_SAFE_INTEGER));
 }
 
-export function Dashboard({ initialState, userEmail }: DashboardProps) {
+export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
@@ -56,7 +57,7 @@ export function Dashboard({ initialState, userEmail }: DashboardProps) {
     setFocusDuration,
     startFocusSession,
     stopFocusSession,
-  } = useDashboardState(initialState);
+  } = useDashboardState(initialState, userId);
 
   const orderedTasks = sortByOrder(state.tasks, state.taskOrder);
   const currentTask = orderedTasks.find((task) => task.isCurrent) ?? null;

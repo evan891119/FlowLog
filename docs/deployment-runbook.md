@@ -11,6 +11,7 @@
 1. Create a new Supabase project.
 2. In the SQL editor, run [`supabase/schema.sql`](/Users/evan/Code/Projects/FlowLog/supabase/schema.sql).
    - The file is safe to re-run on an existing project. It recreates the app's RLS policies and uses additive schema updates for older databases.
+   - The schema also adds `tasks` and `dashboard_settings` to the `supabase_realtime` publication so open sessions receive live updates.
 3. In Authentication settings:
    - enable email auth
    - keep public signup enabled if you want first-time emails to create accounts automatically
@@ -46,6 +47,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 - Create tasks and refresh.
 - Sign out and sign back in.
 - Verify the same account sees the same tasks across devices.
+- Keep the app open on two devices, edit one, and confirm the other updates without a manual reload.
 
 ## 6. Updating an Existing Supabase Project
 
@@ -54,4 +56,5 @@ If your database was created from an older version of FlowLog:
 1. Open the Supabase SQL editor.
 2. Re-run [`supabase/schema.sql`](/Users/evan/Code/Projects/FlowLog/supabase/schema.sql).
 3. Confirm the `public.tasks` table includes newer additive columns such as `estimated_minutes`, `elapsed_seconds`, and `current_session_started_at`.
-4. Confirm authenticated users can still read and write their own dashboard data after the update.
+4. Confirm `public.tasks` and `public.dashboard_settings` are part of the `supabase_realtime` publication.
+5. Confirm authenticated users can still read and write their own dashboard data after the update.
