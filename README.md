@@ -40,7 +40,7 @@ The first version includes:
 - Manual task reordering with move controls
 - Email OTP login
 - Automatic persistence with Supabase
-- Cross-device live sync without reloading
+- Cross-device live sync through Supabase Realtime row updates
 - Focus timer with start and stop controls
 
 The first version does not include:
@@ -61,6 +61,8 @@ The implementation baseline for v1 is:
 - `Supabase Postgres`
 
 Deploy the app to Vercel and connect your own domain through the Vercel project settings.
+
+Live sync requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to be present in the deployed client bundle. If those public environment variables are missing for a deployment environment, the app disables live sync in the browser while normal persistence continues to work. After changing these values in local development, restart `npm run dev` so Next rebuilds the client bundle with the updated `NEXT_PUBLIC_*` env.
 
 ## Documentation
 

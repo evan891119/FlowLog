@@ -1,7 +1,16 @@
 "use client";
 
 import { startTransition, useEffect, useRef, useState } from "react";
-import { shouldApplyRemoteDashboardState } from "@/lib/dashboard-sync";
+import type { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import type { DashboardSettingsRow, TaskRow } from "@/lib/dashboard-cloud";
+import {
+  applyDashboardSettingsFromRow,
+  applyTaskDeleteFromRow,
+  applyTaskUpsertFromRow,
+  isDashboardSettingsRow,
+  isTaskRow,
+  shouldApplyRemoteDashboardState,
+} from "@/lib/dashboard-sync";
 import {
   addTaskTodoItemInState,
   createTaskInState,
@@ -24,6 +33,11 @@ import { createOptionalSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { DashboardState, TaskMode, TaskStatus } from "@/types/dashboard";
 
 let hasWarnedAboutDisabledLiveSync = false;
+const PERSIST_DEBOUNCE_MS = 250;
+const DASHBOARD_SYNC_SUBSCRIBED = "SUBSCRIBED";
+const DASHBOARD_SYNC_CHANNEL_ERROR = "CHANNEL_ERROR";
+const DASHBOARD_SYNC_TIMED_OUT = "TIMED_OUT";
+const DASHBOARD_SYNC_CLOSED = "CLOSED";
 
 async function persistDashboardState(state: DashboardState) {
   const response = await fetch("/api/dashboard", {
@@ -39,19 +53,6 @@ async function persistDashboardState(state: DashboardState) {
   }
 }
 
-async function loadDashboardState() {
-  const response = await fetch("/api/dashboard", {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to load dashboard state.");
-  }
-
-  return (await response.json()) as DashboardState;
-}
-
 export function useDashboardState(initialState: DashboardState, userId: string) {
   const [state, setState] = useState<DashboardState>(initialState);
   const [supabase] = useState(() => createOptionalSupabaseBrowserClient());
@@ -59,7 +60,6 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
   const stateRef = useRef(state);
   const isApplyingRemoteStateRef = useRef(false);
   const localMutationVersionRef = useRef(0);
-  const remoteReloadTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     stateRef.current = state;
@@ -76,11 +76,22 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       return;
     }
 
+    const persistedState = state;
+    const persistedVersion = localMutationVersionRef.current;
     const timeoutId = window.setTimeout(() => {
-      void persistDashboardState(state).catch((error) => {
-        console.error(error);
-      });
-    }, 250);
+      void (async () => {
+        try {
+          await persistDashboardState(persistedState);
+        } catch (error) {
+          console.error(error);
+          return;
+        }
+
+        if (persistedVersion !== localMutationVersionRef.current) {
+          return;
+        }
+      })();
+    }, PERSIST_DEBOUNCE_MS);
 
     return () => {
       window.clearTimeout(timeoutId);
@@ -97,14 +108,7 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       return;
     }
 
-    const reloadDashboardState = async () => {
-      const requestVersion = localMutationVersionRef.current;
-      const nextState = await loadDashboardState();
-
-      if (requestVersion !== localMutationVersionRef.current) {
-        return;
-      }
-
+    const applyRemoteState = (nextState: DashboardState) => {
       if (!shouldApplyRemoteDashboardState(stateRef.current, nextState)) {
         return;
       }
@@ -115,33 +119,45 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
       });
     };
 
-    const scheduleRemoteReload = () => {
-      if (remoteReloadTimeoutRef.current !== null) {
-        window.clearTimeout(remoteReloadTimeoutRef.current);
+    const handleChannelStatus = (status: string) => {
+      if (status === DASHBOARD_SYNC_SUBSCRIBED) {
+        console.info(`Dashboard live sync connected for user ${userId}.`);
+        return;
       }
 
-      remoteReloadTimeoutRef.current = window.setTimeout(() => {
-        void reloadDashboardState().catch((error) => {
-          console.error(error);
-        });
-      }, 150);
+      if (status === DASHBOARD_SYNC_CHANNEL_ERROR || status === DASHBOARD_SYNC_TIMED_OUT || status === DASHBOARD_SYNC_CLOSED) {
+        console.warn(`Dashboard live sync status changed to ${status}. Live sync may require a manual refresh.`);
+      }
     };
 
     const channel = supabase
       .channel(`dashboard:${userId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, scheduleRemoteReload)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tasks", filter: `user_id=eq.${userId}` }, (payload: RealtimePostgresChangesPayload<TaskRow>) => {
+        if (payload.eventType === "DELETE") {
+          applyRemoteState(applyTaskDeleteFromRow(stateRef.current, payload.old as Pick<TaskRow, "id">));
+          return;
+        }
+
+        if (!isTaskRow(payload.new)) {
+          return;
+        }
+
+        applyRemoteState(applyTaskUpsertFromRow(stateRef.current, payload.new));
+      })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "dashboard_settings", filter: `user_id=eq.${userId}` },
-        scheduleRemoteReload,
+        (payload: RealtimePostgresChangesPayload<DashboardSettingsRow>) => {
+          if (!isDashboardSettingsRow(payload.new)) {
+            return;
+          }
+
+          applyRemoteState(applyDashboardSettingsFromRow(stateRef.current, payload.new));
+        },
       )
-      .subscribe();
+      .subscribe(handleChannelStatus);
 
     return () => {
-      if (remoteReloadTimeoutRef.current !== null) {
-        window.clearTimeout(remoteReloadTimeoutRef.current);
-      }
-
       void supabase.removeChannel(channel);
     };
   }, [supabase, userId]);

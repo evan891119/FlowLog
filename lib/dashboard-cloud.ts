@@ -31,7 +31,7 @@ export type DashboardSettingsRow = {
   last_viewed_at: string | null;
 };
 
-function mapTaskRowToTask(row: TaskRow): Task {
+export function mapTaskRowToTask(row: TaskRow): Task {
   return {
     id: row.id,
     title: row.title,

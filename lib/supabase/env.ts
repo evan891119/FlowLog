@@ -1,30 +1,29 @@
-function readRequiredEnv(name: string) {
-  const value = process.env[name];
+export function getSupabaseUrl() {
+  const value = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
   if (!value) {
-    throw new Error(`Missing required environment variable: ${name}`);
+    throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_URL");
   }
 
   return value;
 }
 
-function readOptionalEnv(name: string) {
-  const value = process.env[name];
-  return value ? value : null;
-}
-
-export function getSupabaseUrl() {
-  return readRequiredEnv("NEXT_PUBLIC_SUPABASE_URL");
-}
-
 export function getSupabaseAnonKey() {
-  return readRequiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  const value = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!value) {
+    throw new Error("Missing required environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
+
+  return value;
 }
 
 export function getOptionalSupabaseUrl() {
-  return readOptionalEnv("NEXT_PUBLIC_SUPABASE_URL");
+  const value = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return value ? value : null;
 }
 
 export function getOptionalSupabaseAnonKey() {
-  return readOptionalEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  const value = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  return value ? value : null;
 }
