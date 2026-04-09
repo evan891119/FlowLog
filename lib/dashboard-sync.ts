@@ -2,14 +2,6 @@ import { getSafeInitialState } from "@/lib/dashboard-state";
 import { DashboardSettingsRow, mapTaskRowToTask, TaskRow } from "@/lib/dashboard-cloud";
 import { DashboardState } from "@/types/dashboard";
 
-export const DASHBOARD_SYNC_BROADCAST_EVENT = "dashboard_state";
-
-export type DashboardSyncBroadcastPayload = {
-  state: DashboardState;
-  originClientId: string;
-  sentAt: string;
-};
-
 function getTaskSignature(state: DashboardState) {
   return state.tasks.map((task) => ({
     id: task.id,

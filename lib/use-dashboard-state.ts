@@ -191,7 +191,7 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [clientId, supabase, userId]);
+  }, [supabase, userId]);
 
   const applyLocalTaskMutation = (updater: (current: DashboardState) => DashboardState) => {
     const currentState = stateRef.current;
