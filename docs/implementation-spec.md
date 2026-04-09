@@ -94,7 +94,7 @@ Rules:
 
 ### 3.1 Save Behavior
 
-Persist state on:
+Persist changes on:
 
 - Task create
 - Task delete
@@ -107,6 +107,12 @@ Persist state on:
 - Today goal change
 - Focus setting change
 
+Implementation note:
+
+- Task changes should be persisted as row-level task mutations keyed by task id
+- Focus and today-goal changes should be persisted as dashboard settings row updates
+- The app should avoid rewriting the entire dashboard snapshot for every edit, so slower devices cannot overwrite newer edits with stale full-state payloads
+
 ### 3.2 Load Behavior
 
 On app initialization:
@@ -114,6 +120,7 @@ On app initialization:
 - Read from Supabase for the authenticated user
 - Validate shape minimally at the app boundary
 - Fallback to an empty default state for new accounts
+- Subscribe to Supabase Realtime row updates for `tasks` and `dashboard_settings` after hydration
 
 ### 3.3 Default State
 
