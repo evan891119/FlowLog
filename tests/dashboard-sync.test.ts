@@ -6,6 +6,7 @@ import {
   applyTaskDeleteFromRow,
   applyTaskUpsertFromRow,
   createDashboardStateSignature,
+  isIncomingTimestampCurrent,
   shouldApplyRemoteDashboardState,
 } from "@/lib/dashboard-sync";
 import type { DashboardSettingsRow, TaskRow } from "@/lib/dashboard-cloud";
@@ -273,4 +274,10 @@ test("settings upsert merges focus and goal fields", () => {
   assert.equal(nextState.focus.duration, 50);
   assert.equal(nextState.focus.lastSessionStartedAt, "2026-04-08T12:00:00.000Z");
   assert.equal(nextState.lastViewedAt, "2026-04-08T12:05:00.000Z");
+});
+
+test("incoming timestamp guard rejects older rows and accepts newer rows", () => {
+  assert.equal(isIncomingTimestampCurrent("2026-04-08T12:00:00.000Z", "2026-04-08T12:00:01.000Z"), false);
+  assert.equal(isIncomingTimestampCurrent("2026-04-08T12:00:01.000Z", "2026-04-08T12:00:01.000Z"), true);
+  assert.equal(isIncomingTimestampCurrent("2026-04-08T12:00:02.000Z", "2026-04-08T12:00:01.000Z"), true);
 });

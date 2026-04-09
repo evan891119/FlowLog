@@ -50,6 +50,25 @@ export function shouldApplyRemoteDashboardState(currentState: DashboardState, in
   return createDashboardStateSignature(currentState) !== createDashboardStateSignature(incomingState);
 }
 
+export function isIncomingTimestampCurrent(incomingTimestamp: string | null | undefined, latestKnownTimestamp: string | null | undefined) {
+  if (!latestKnownTimestamp) {
+    return true;
+  }
+
+  if (!incomingTimestamp) {
+    return false;
+  }
+
+  const incoming = Date.parse(incomingTimestamp);
+  const latestKnown = Date.parse(latestKnownTimestamp);
+
+  if (Number.isNaN(incoming) || Number.isNaN(latestKnown)) {
+    return incomingTimestamp >= latestKnownTimestamp;
+  }
+
+  return incoming >= latestKnown;
+}
+
 export function isTaskRow(candidate: unknown): candidate is TaskRow {
   if (!candidate || typeof candidate !== "object") {
     return false;

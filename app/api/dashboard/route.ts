@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
-import { getSafeInitialState } from "@/lib/dashboard-state";
-import { loadDashboardStateForUser, saveDashboardStateForUser } from "@/lib/dashboard-cloud";
+import {
+  deleteTaskForUser,
+  loadDashboardStateForUser,
+  type DashboardMutationRequest,
+  upsertDashboardSettingsForUser,
+  upsertTaskRowsForUser,
+} from "@/lib/dashboard-cloud";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
@@ -27,10 +32,22 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const payload = await request.json();
-  const state = getSafeInitialState(payload);
+  const payload = (await request.json()) as DashboardMutationRequest;
 
-  await saveDashboardStateForUser(supabase, user.id, state);
+  if (payload.type === "upsert_tasks") {
+    await upsertTaskRowsForUser(supabase, user.id, payload.taskRows);
+    return NextResponse.json({ ok: true });
+  }
 
-  return NextResponse.json({ ok: true });
+  if (payload.type === "delete_task") {
+    await deleteTaskForUser(supabase, user.id, payload.taskId, payload.deletedAt);
+    return NextResponse.json({ ok: true });
+  }
+
+  if (payload.type === "upsert_settings") {
+    await upsertDashboardSettingsForUser(supabase, user.id, payload.settingsRow);
+    return NextResponse.json({ ok: true });
+  }
+
+  return NextResponse.json({ error: "Invalid dashboard mutation." }, { status: 400 });
 }
