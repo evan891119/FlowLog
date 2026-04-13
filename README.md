@@ -69,6 +69,7 @@ Live sync requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY
 - [Product Spec](/Users/evan/Code/Projects/FlowLog/docs/product-spec.md)
 - [UI Spec](/Users/evan/Code/Projects/FlowLog/docs/ui-spec.md)
 - [Implementation Spec](/Users/evan/Code/Projects/FlowLog/docs/implementation-spec.md)
+- [Feature Todo](/Users/evan/Code/Projects/FlowLog/docs/feature-todo.md)
 - [Deployment Runbook](/Users/evan/Code/Projects/FlowLog/docs/deployment-runbook.md)
 
 ## Core Principle
