@@ -42,6 +42,7 @@ The first version includes:
 - Automatic persistence with Supabase
 - Cross-device live sync through Supabase Realtime row updates
 - Focus timer with start and stop controls
+- Manual keep-screen-awake toggle on the dashboard homepage for supported browsers
 
 The first version does not include:
 

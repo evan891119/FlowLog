@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
+import { ScreenAwakeToggle } from "@/components/screen-awake-toggle";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getTaskRemainingSeconds } from "@/lib/dashboard-state";
+import { useScreenWakeLock } from "@/lib/use-screen-wake-lock";
 import { useDashboardState } from "@/lib/use-dashboard-state";
 import { DashboardState, Task } from "@/types/dashboard";
 
@@ -35,6 +37,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const wakeLock = useScreenWakeLock();
   const {
     state,
     createTask,
@@ -151,6 +154,14 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
           <div className="flex w-full flex-col gap-3 xl:w-auto xl:max-w-[34rem] xl:items-end">
             <div className="flex flex-wrap gap-2 xl:justify-end">
+              <ScreenAwakeToggle
+                enabled={wakeLock.isEnabled}
+                supported={wakeLock.isSupported}
+                ready={wakeLock.isReady}
+                active={wakeLock.isActive}
+                statusMessage={wakeLock.statusMessage}
+                onEnabledChange={wakeLock.setEnabled}
+              />
               <ThemeToggle />
               <form action="/auth/signout" method="post">
                 <button

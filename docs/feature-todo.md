@@ -7,11 +7,11 @@ This document tracks requested product features that are not yet implemented in 
 - `- [ ]` Planned or not started
 - `- [x]` Implemented and documented
 
-## Planned
+## Implemented
 
-- [ ] Keep screen awake toggle
+- [x] Keep screen awake toggle
 
-  Add a manual user-controlled toggle in the focus UI that asks the browser to keep the device screen awake while the setting is enabled.
+  Add a manual user-controlled toggle on the dashboard homepage that asks the browser to keep the device screen awake while the setting is enabled.
 
   Intended behavior:
 
@@ -21,9 +21,9 @@ This document tracks requested product features that are not yet implemented in 
   - If the browser or device does not support wake lock, or the request is rejected, the UI must show that the feature is unavailable or inactive.
   - If the user keeps the setting enabled, the app should attempt to re-acquire the wake lock after visibility changes when the browser allows it.
 
-  Acceptance criteria:
+  Shipped behavior:
 
-  - The user can enable and disable the setting from the focus UI.
+  - The user can enable and disable the setting from the homepage dashboard header.
   - Reloading the app on the same device preserves the preference.
   - Opening the app on another device does not inherit the preference.
   - On supported browsers, enabling the setting keeps the screen awake while the wake lock remains active.

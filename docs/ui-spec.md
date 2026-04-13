@@ -38,6 +38,8 @@ Recommended structure:
 
 The page should visually prioritize current context over list density.
 
+The top summary area should also expose lightweight device-level controls that matter during work, including the keep-screen-awake toggle.
+
 ### 3.2 Mobile Layout
 
 Use a single-column layout with stacked sections in this order:
@@ -108,7 +110,23 @@ Behavior:
 - Desktop presentation can be a fixed lower-right floating orb that opens a small popover
 - Mobile presentation can use the same orb but open a bottom sheet
 
-### 4.4 Today Tasks
+### 4.4 Homepage Device Controls
+
+Purpose:
+
+- Expose device-level controls without hiding them behind the focus timer
+
+Displayed content:
+
+- Keep-screen-awake toggle when the browser supports it
+
+Behavior:
+
+- The toggle lives in the dashboard header on the homepage
+- The preference is manual, per-device, and stored locally in the browser
+- If wake lock is unsupported or rejected, the homepage control should show the true inactive state instead of implying success
+
+### 4.5 Today Tasks
 
 Purpose:
 
@@ -126,7 +144,7 @@ Behavior:
 - Timed tasks should show a remaining-time label, and the list row itself should act as a horizontal time bar that shrinks from left to right while the task is current
 - Tasks may also appear conceptually in the full task set, but the dashboard should treat this area as a focused subset
 
-### 4.5 Main Task List
+### 4.6 Main Task List
 
 Purpose:
 
@@ -141,7 +159,7 @@ Behavior:
 - Fast editing should be supported for status, next action editing, and task mode switching
 - Current task action should be available directly from the card
 
-### 4.6 Secondary Task Groups
+### 4.7 Secondary Task Groups
 
 Purpose:
 
