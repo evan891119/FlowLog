@@ -42,6 +42,7 @@ The first version includes:
 - Automatic persistence with Supabase
 - Cross-device live sync through Supabase Realtime row updates
 - Focus timer with start and stop controls
+- Manual keep-screen-awake toggle on the dashboard homepage for supported browsers
 
 The first version does not include:
 
@@ -69,6 +70,7 @@ Live sync requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY
 - [Product Spec](/Users/evan/Code/Projects/FlowLog/docs/product-spec.md)
 - [UI Spec](/Users/evan/Code/Projects/FlowLog/docs/ui-spec.md)
 - [Implementation Spec](/Users/evan/Code/Projects/FlowLog/docs/implementation-spec.md)
+- [Feature Todo](/Users/evan/Code/Projects/FlowLog/docs/feature-todo.md)
 - [Deployment Runbook](/Users/evan/Code/Projects/FlowLog/docs/deployment-runbook.md)
 
 ## Core Principle
