@@ -83,7 +83,7 @@ export function TodayTaskDetailPanel({
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1fr_170px]">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(15rem,1fr)]">
             <div className="block space-y-3">
               <div>
                 <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Task mode</span>

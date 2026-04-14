@@ -35,6 +35,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
+  const [isBlockedTasksOpen, setIsBlockedTasksOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const wakeLock = useScreenWakeLock();
   const {
@@ -252,7 +253,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
         ) : null}
 
         {selectedTab === "tasks" ? (
-          <section className="grid gap-4 xl:grid-cols-[1.45fr_0.95fr]">
+          <section className="space-y-4">
             <TaskListSection
               title="Active Tasks"
               description="Your working list, excluding blocked and completed items."
@@ -282,29 +283,53 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
               canMoveDown={canMoveDown}
             />
 
-            <TaskListSection
-              title="Blocked Tasks"
-              description="Visible, but kept out of the main working lane."
-              tasks={blockedTasks}
-              emptyMessage="Nothing is blocked right now."
-              onSetCurrent={toggleCurrentTask}
-              onStatusChange={updateTaskStatus}
-              onToggleToday={toggleToday}
-              onTitleChange={updateTaskTitle}
-              onNextActionChange={updateTaskNextAction}
-              onTaskModeChange={updateTaskMode}
-              onManualProgressChange={updateTaskManualProgress}
-              onEstimatedMinutesChange={updateTaskEstimatedMinutes}
-              onAddTodoItem={addTaskTodoItem}
-              onUpdateTodoItem={updateTaskTodoItem}
-              onToggleTodoItem={toggleTaskTodoItem}
-              onDeleteTodoItem={deleteTaskTodoItem}
-              onDelete={deleteTask}
-              onMoveUp={moveTaskUp}
-              onMoveDown={moveTaskDown}
-              canMoveUp={canMoveUp}
-              canMoveDown={canMoveDown}
-            />
+            <section className="dark-panel rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur">
+              <button
+                type="button"
+                className="flex w-full items-start justify-between gap-4 text-left"
+                onClick={() => setIsBlockedTasksOpen((open) => !open)}
+                aria-expanded={isBlockedTasksOpen}
+                aria-controls="blocked-tasks-panel"
+              >
+                <div>
+                  <h2 className="text-lg font-semibold text-ink dark:text-white">Blocked Tasks ({blockedTasks.length})</h2>
+                  <p className="mt-1 text-sm text-steel dark:text-slate-300">Visible, but kept out of the main working lane.</p>
+                </div>
+                <span className="shrink-0 pt-1 text-sm font-semibold text-steel dark:text-slate-300">
+                  {isBlockedTasksOpen ? "Hide" : "Show"}
+                </span>
+              </button>
+
+              {isBlockedTasksOpen ? (
+                <div id="blocked-tasks-panel" className="mt-4">
+                  <TaskListSection
+                    title="Blocked Tasks"
+                    description="Visible, but kept out of the main working lane."
+                    tasks={blockedTasks}
+                    emptyMessage="Nothing is blocked right now."
+                    hideHeader
+                    className="border-0 bg-transparent p-0 shadow-none backdrop-blur-0"
+                    onSetCurrent={toggleCurrentTask}
+                    onStatusChange={updateTaskStatus}
+                    onToggleToday={toggleToday}
+                    onTitleChange={updateTaskTitle}
+                    onNextActionChange={updateTaskNextAction}
+                    onTaskModeChange={updateTaskMode}
+                    onManualProgressChange={updateTaskManualProgress}
+                    onEstimatedMinutesChange={updateTaskEstimatedMinutes}
+                    onAddTodoItem={addTaskTodoItem}
+                    onUpdateTodoItem={updateTaskTodoItem}
+                    onToggleTodoItem={toggleTaskTodoItem}
+                    onDeleteTodoItem={deleteTaskTodoItem}
+                    onDelete={deleteTask}
+                    onMoveUp={moveTaskUp}
+                    onMoveDown={moveTaskDown}
+                    canMoveUp={canMoveUp}
+                    canMoveDown={canMoveDown}
+                  />
+                </div>
+              ) : null}
+            </section>
           </section>
         ) : null}
 
