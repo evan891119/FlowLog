@@ -293,7 +293,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
               >
                 <div>
                   <h2 className="text-lg font-semibold text-ink dark:text-white">Blocked Tasks ({blockedTasks.length})</h2>
-                  <p className="mt-1 text-sm text-steel dark:text-slate-300">Visible, but kept out of the main working lane.</p>
                 </div>
                 <span className="shrink-0 pt-1 text-sm font-semibold text-steel dark:text-slate-300">
                   {isBlockedTasksOpen ? "Hide" : "Show"}
@@ -304,7 +303,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                 <div id="blocked-tasks-panel" className="mt-4">
                   <TaskListSection
                     title="Blocked Tasks"
-                    description="Visible, but kept out of the main working lane."
+                    description=""
                     tasks={blockedTasks}
                     emptyMessage="Nothing is blocked right now."
                     hideHeader
