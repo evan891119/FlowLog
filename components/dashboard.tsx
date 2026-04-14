@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { AccountMenu } from "@/components/account-menu";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
-import { ScreenAwakeToggle } from "@/components/screen-awake-toggle";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
@@ -140,15 +139,17 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
           <div className="flex w-full flex-col gap-3 xl:w-auto xl:max-w-[34rem] xl:items-end">
             <div className="flex flex-wrap gap-2 xl:justify-end">
-              <ScreenAwakeToggle
-                enabled={wakeLock.isEnabled}
-                supported={wakeLock.isSupported}
-                ready={wakeLock.isReady}
-                active={wakeLock.isActive}
-                statusMessage={wakeLock.statusMessage}
-                onEnabledChange={wakeLock.setEnabled}
+              <AccountMenu
+                userEmail={userEmail}
+                screenAwake={{
+                  enabled: wakeLock.isEnabled,
+                  supported: wakeLock.isSupported,
+                  ready: wakeLock.isReady,
+                  active: wakeLock.isActive,
+                  statusMessage: wakeLock.statusMessage,
+                  onEnabledChange: wakeLock.setEnabled,
+                }}
               />
-              <AccountMenu userEmail={userEmail} />
             </div>
 
             <label className="block w-full xl:max-w-[34rem]">

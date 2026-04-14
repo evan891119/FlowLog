@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ScreenAwakeToggle } from "@/components/screen-awake-toggle";
 import { useTheme } from "@/components/theme-provider";
 import { ThemePreference } from "@/lib/theme";
 
@@ -12,9 +13,17 @@ const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
 
 type AccountMenuProps = {
   userEmail?: string | null;
+  screenAwake: {
+    enabled: boolean;
+    supported: boolean;
+    ready: boolean;
+    active: boolean;
+    statusMessage: string;
+    onEnabledChange: (enabled: boolean) => void;
+  };
 };
 
-export function AccountMenu({ userEmail }: AccountMenuProps) {
+export function AccountMenu({ userEmail, screenAwake }: AccountMenuProps) {
   const { preference, resolvedTheme, setPreference, isReady } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -67,6 +76,18 @@ export function AccountMenu({ userEmail }: AccountMenuProps) {
           </div>
 
           <div className="px-2 py-3">
+            <ScreenAwakeToggle
+              enabled={screenAwake.enabled}
+              supported={screenAwake.supported}
+              ready={screenAwake.ready}
+              active={screenAwake.active}
+              statusMessage={screenAwake.statusMessage}
+              onEnabledChange={screenAwake.onEnabledChange}
+              variant="menu"
+            />
+          </div>
+
+          <div className="border-t border-sand/70 px-2 py-3">
             <div className="mb-2 flex items-center justify-between gap-3">
               <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Theme</p>
               <span className="text-xs text-steel dark:text-slate-300">{themeSummary}</span>
