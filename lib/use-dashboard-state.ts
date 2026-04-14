@@ -263,7 +263,11 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
   };
 
   const createTask = () => {
-    applyLocalTaskMutation((current) => createTaskInState(current, { title: "New task", isToday: current.tasks.length === 0 }));
+    applyLocalTaskMutation((current) => createTaskInState(current, { title: "New task", isToday: false }));
+  };
+
+  const createTodayTask = () => {
+    applyLocalTaskMutation((current) => createTaskInState(current, { title: "New task", isToday: true }));
   };
 
   const updateTaskTitle = (taskId: string, title: string) => {
@@ -346,6 +350,7 @@ export function useDashboardState(initialState: DashboardState, userId: string) 
     state,
     isHydrated: true,
     createTask,
+    createTodayTask,
     updateTaskTitle,
     updateTaskNextAction,
     updateTaskMode,

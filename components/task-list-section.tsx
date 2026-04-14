@@ -8,6 +8,7 @@ type TaskListSectionProps = {
   description: string;
   tasks: Task[];
   emptyMessage: string;
+  hideHeader?: boolean;
   variant?: "compact" | "full";
   visibleCount?: number;
   mobileVisibleCount?: number;
@@ -38,6 +39,7 @@ export function TaskListSection({
   description,
   tasks,
   emptyMessage,
+  hideHeader = false,
   variant = "full",
   visibleCount,
   mobileVisibleCount,
@@ -68,7 +70,7 @@ export function TaskListSection({
   const hiddenCount = Math.max(0, tasks.length - desktopCount);
 
   return (
-    <Section title={title} description={description} headerAction={action} className={className}>
+    <Section title={title} description={description} headerAction={action} hideHeader={hideHeader} className={className}>
       <div className="space-y-3">
         {tasks.length ? (
           <>

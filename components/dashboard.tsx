@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { AccountMenu } from "@/components/account-menu";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
-import { ScreenAwakeToggle } from "@/components/screen-awake-toggle";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { getTaskRemainingSeconds } from "@/lib/dashboard-state";
 import { useScreenWakeLock } from "@/lib/use-screen-wake-lock";
 import { useDashboardState } from "@/lib/use-dashboard-state";
@@ -36,11 +35,13 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
+  const [isBlockedTasksOpen, setIsBlockedTasksOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const wakeLock = useScreenWakeLock();
   const {
     state,
     createTask,
+    createTodayTask,
     updateTaskTitle,
     updateTaskNextAction,
     updateTaskMode,
@@ -121,20 +122,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
     };
   }, [isTodayTaskDetailOpen]);
 
-  const selectedTodayTaskHeaderAction = useMemo(
-    () =>
-      selectedTodayTask ? (
-        <button
-          type="button"
-          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
-          onClick={() => setSelectedTab("tasks")}
-        >
-          View all tasks
-        </button>
-      ) : null,
-    [selectedTodayTask],
-  );
-
   const handleSelectTodayTask = (taskId: string) => {
     setSelectedTodayTaskId(taskId);
     setIsTodayTaskDetailOpen(true);
@@ -154,23 +141,17 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
           <div className="flex w-full flex-col gap-3 xl:w-auto xl:max-w-[34rem] xl:items-end">
             <div className="flex flex-wrap gap-2 xl:justify-end">
-              <ScreenAwakeToggle
-                enabled={wakeLock.isEnabled}
-                supported={wakeLock.isSupported}
-                ready={wakeLock.isReady}
-                active={wakeLock.isActive}
-                statusMessage={wakeLock.statusMessage}
-                onEnabledChange={wakeLock.setEnabled}
+              <AccountMenu
+                userEmail={userEmail}
+                screenAwake={{
+                  enabled: wakeLock.isEnabled,
+                  supported: wakeLock.isSupported,
+                  ready: wakeLock.isReady,
+                  active: wakeLock.isActive,
+                  statusMessage: wakeLock.statusMessage,
+                  onEnabledChange: wakeLock.setEnabled,
+                }}
               />
-              <ThemeToggle />
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="dark-control rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:text-white"
-                >
-                  Sign out
-                </button>
-              </form>
             </div>
 
             <label className="block w-full xl:max-w-[34rem]">
@@ -187,18 +168,24 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
         </header>
 
-        <nav className="mb-4 flex flex-wrap gap-2" aria-label="Dashboard sections">
+        <nav className="mb-5 flex items-center gap-5 overflow-x-auto pb-1" aria-label="Dashboard sections">
           {DASHBOARD_TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
-              } ${selectedTab === tab.id ? "dark-control-selected dark:text-white" : "dark-control dark:text-white"}`}
+              className={`relative whitespace-nowrap pb-2 text-sm font-semibold transition ${
+                selectedTab === tab.id ? "text-ink dark:text-white" : "text-steel hover:text-ink dark:text-slate-300 dark:hover:text-white"
+              }`}
               onClick={() => setSelectedTab(tab.id)}
               aria-pressed={selectedTab === tab.id}
             >
               {tab.label}
+              <span
+                className={`absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-clay transition ${
+                  selectedTab === tab.id ? "opacity-100" : "opacity-0"
+                }`}
+                aria-hidden="true"
+              />
             </button>
           ))}
         </nav>
@@ -211,16 +198,12 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                   tasks={todayTasks}
                   selectedTaskId={selectedTodayTask?.id ?? null}
                   onSelectTask={handleSelectTodayTask}
-                  now={now}
                   action={
-                    <button
-                      type="button"
-                      className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
-                      onClick={() => setSelectedTab("tasks")}
-                    >
-                      View all tasks
+                    <button type="button" className="ui-button-primary rounded-full px-4 py-2.5 text-sm font-semibold" onClick={createTodayTask}>
+                      Add task
                     </button>
                   }
+                  now={now}
                 />
               </div>
 
@@ -270,12 +253,17 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
         ) : null}
 
         {selectedTab === "tasks" ? (
-          <section className="grid gap-4 xl:grid-cols-[1.45fr_0.95fr]">
+          <section className="space-y-4">
             <TaskListSection
               title="Active Tasks"
               description="Your working list, excluding blocked and completed items."
               tasks={activeTasks}
               emptyMessage="No active tasks yet. Add one task to start the first FlowLog session."
+              action={
+                <button type="button" className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium" onClick={createTask}>
+                  Add task
+                </button>
+              }
               onSetCurrent={toggleCurrentTask}
               onStatusChange={updateTaskStatus}
               onToggleToday={toggleToday}
@@ -295,29 +283,52 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
               canMoveDown={canMoveDown}
             />
 
-            <TaskListSection
-              title="Blocked Tasks"
-              description="Visible, but kept out of the main working lane."
-              tasks={blockedTasks}
-              emptyMessage="Nothing is blocked right now."
-              onSetCurrent={toggleCurrentTask}
-              onStatusChange={updateTaskStatus}
-              onToggleToday={toggleToday}
-              onTitleChange={updateTaskTitle}
-              onNextActionChange={updateTaskNextAction}
-              onTaskModeChange={updateTaskMode}
-              onManualProgressChange={updateTaskManualProgress}
-              onEstimatedMinutesChange={updateTaskEstimatedMinutes}
-              onAddTodoItem={addTaskTodoItem}
-              onUpdateTodoItem={updateTaskTodoItem}
-              onToggleTodoItem={toggleTaskTodoItem}
-              onDeleteTodoItem={deleteTaskTodoItem}
-              onDelete={deleteTask}
-              onMoveUp={moveTaskUp}
-              onMoveDown={moveTaskDown}
-              canMoveUp={canMoveUp}
-              canMoveDown={canMoveDown}
-            />
+            <section className="dark-panel rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur">
+              <button
+                type="button"
+                className="flex w-full items-start justify-between gap-4 text-left"
+                onClick={() => setIsBlockedTasksOpen((open) => !open)}
+                aria-expanded={isBlockedTasksOpen}
+                aria-controls="blocked-tasks-panel"
+              >
+                <div>
+                  <h2 className="text-lg font-semibold text-ink dark:text-white">Blocked Tasks ({blockedTasks.length})</h2>
+                </div>
+                <span className="shrink-0 pt-1 text-sm font-semibold text-steel dark:text-slate-300">
+                  {isBlockedTasksOpen ? "Hide" : "Show"}
+                </span>
+              </button>
+
+              {isBlockedTasksOpen ? (
+                <div id="blocked-tasks-panel" className="mt-4">
+                  <TaskListSection
+                    title="Blocked Tasks"
+                    description=""
+                    tasks={blockedTasks}
+                    emptyMessage="Nothing is blocked right now."
+                    hideHeader
+                    className="border-0 bg-transparent p-0 shadow-none backdrop-blur-0"
+                    onSetCurrent={toggleCurrentTask}
+                    onStatusChange={updateTaskStatus}
+                    onToggleToday={toggleToday}
+                    onTitleChange={updateTaskTitle}
+                    onNextActionChange={updateTaskNextAction}
+                    onTaskModeChange={updateTaskMode}
+                    onManualProgressChange={updateTaskManualProgress}
+                    onEstimatedMinutesChange={updateTaskEstimatedMinutes}
+                    onAddTodoItem={addTaskTodoItem}
+                    onUpdateTodoItem={updateTaskTodoItem}
+                    onToggleTodoItem={toggleTaskTodoItem}
+                    onDeleteTodoItem={deleteTaskTodoItem}
+                    onDelete={deleteTask}
+                    onMoveUp={moveTaskUp}
+                    onMoveDown={moveTaskDown}
+                    canMoveUp={canMoveUp}
+                    canMoveDown={canMoveDown}
+                  />
+                </div>
+              ) : null}
+            </section>
           </section>
         ) : null}
 
@@ -348,17 +359,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
             />
           </section>
         ) : null}
-
-        <button
-          type="button"
-          className={`fixed right-4 z-30 flex h-16 min-w-[7.5rem] items-center justify-center rounded-full bg-clay px-5 text-sm font-semibold tracking-tight text-white shadow-panel transition hover:scale-[1.02] md:right-6 md:h-[4.5rem] md:min-w-[8.5rem] md:text-base ${
-            isTodayTaskDetailOpen ? "pointer-events-none opacity-0" : "opacity-100"
-          } bottom-[calc(env(safe-area-inset-bottom)+6.75rem)] md:bottom-[8.5rem]`}
-          onClick={createTask}
-          aria-label="Add task"
-        >
-          Add task
-        </button>
 
         <FloatingFocusTimer
           focus={state.focus}

@@ -84,7 +84,7 @@ export function TaskCard({
         </div>
       </div>
 
-      <div className={`mt-3 grid gap-3 ${isCompact ? "md:grid-cols-[1.15fr_0.85fr]" : "md:grid-cols-[1fr_150px]"}`}>
+      <div className={`mt-3 grid gap-3 ${isCompact ? "md:grid-cols-[minmax(0,3fr)_minmax(14rem,1fr)]" : "md:grid-cols-[minmax(0,3fr)_minmax(15rem,1fr)]"}`}>
         <div className="block space-y-3">
           <div>
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Task mode</span>
