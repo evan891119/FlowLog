@@ -9,16 +9,14 @@ type TodayTaskListProps = {
   tasks: Task[];
   selectedTaskId: string | null;
   onSelectTask: (taskId: string) => void;
-  action?: React.ReactNode;
   now?: number;
 };
 
-export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now = Date.now() }: TodayTaskListProps) {
+export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, now = Date.now() }: TodayTaskListProps) {
   return (
     <Section
       title="Today Tasks"
       description="Focused work for the current day. Select one to open the full task panel."
-      headerAction={action}
       className="h-full"
     >
       {tasks.length ? (

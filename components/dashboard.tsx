@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { AccountMenu } from "@/components/account-menu";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
 import { ScreenAwakeToggle } from "@/components/screen-awake-toggle";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { getTaskRemainingSeconds } from "@/lib/dashboard-state";
 import { useScreenWakeLock } from "@/lib/use-screen-wake-lock";
 import { useDashboardState } from "@/lib/use-dashboard-state";
@@ -121,20 +121,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
     };
   }, [isTodayTaskDetailOpen]);
 
-  const selectedTodayTaskHeaderAction = useMemo(
-    () =>
-      selectedTodayTask ? (
-        <button
-          type="button"
-          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
-          onClick={() => setSelectedTab("tasks")}
-        >
-          View all tasks
-        </button>
-      ) : null,
-    [selectedTodayTask],
-  );
-
   const handleSelectTodayTask = (taskId: string) => {
     setSelectedTodayTaskId(taskId);
     setIsTodayTaskDetailOpen(true);
@@ -162,15 +148,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                 statusMessage={wakeLock.statusMessage}
                 onEnabledChange={wakeLock.setEnabled}
               />
-              <ThemeToggle />
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="dark-control rounded-full border border-sand bg-white/80 px-4 py-3 text-sm font-semibold text-ink dark:text-white"
-                >
-                  Sign out
-                </button>
-              </form>
+              <AccountMenu userEmail={userEmail} />
             </div>
 
             <label className="block w-full xl:max-w-[34rem]">
@@ -187,18 +165,24 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
         </header>
 
-        <nav className="mb-4 flex flex-wrap gap-2" aria-label="Dashboard sections">
+        <nav className="mb-5 flex items-center gap-5 overflow-x-auto pb-1" aria-label="Dashboard sections">
           {DASHBOARD_TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                selectedTab === tab.id ? "bg-ink text-white" : "border border-sand bg-white/70 text-ink"
-              } ${selectedTab === tab.id ? "dark-control-selected dark:text-white" : "dark-control dark:text-white"}`}
+              className={`relative whitespace-nowrap pb-2 text-sm font-semibold transition ${
+                selectedTab === tab.id ? "text-ink dark:text-white" : "text-steel hover:text-ink dark:text-slate-300 dark:hover:text-white"
+              }`}
               onClick={() => setSelectedTab(tab.id)}
               aria-pressed={selectedTab === tab.id}
             >
               {tab.label}
+              <span
+                className={`absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-clay transition ${
+                  selectedTab === tab.id ? "opacity-100" : "opacity-0"
+                }`}
+                aria-hidden="true"
+              />
             </button>
           ))}
         </nav>
@@ -212,15 +196,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                   selectedTaskId={selectedTodayTask?.id ?? null}
                   onSelectTask={handleSelectTodayTask}
                   now={now}
-                  action={
-                    <button
-                      type="button"
-                      className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
-                      onClick={() => setSelectedTab("tasks")}
-                    >
-                      View all tasks
-                    </button>
-                  }
                 />
               </div>
 
