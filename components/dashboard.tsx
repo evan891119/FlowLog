@@ -40,6 +40,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   const {
     state,
     createTask,
+    createTodayTask,
     updateTaskTitle,
     updateTaskNextAction,
     updateTaskMode,
@@ -196,6 +197,11 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                   tasks={todayTasks}
                   selectedTaskId={selectedTodayTask?.id ?? null}
                   onSelectTask={handleSelectTodayTask}
+                  action={
+                    <button type="button" className="ui-button-primary rounded-full px-4 py-2.5 text-sm font-semibold" onClick={createTodayTask}>
+                      Add task
+                    </button>
+                  }
                   now={now}
                 />
               </div>
@@ -252,6 +258,11 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
               description="Your working list, excluding blocked and completed items."
               tasks={activeTasks}
               emptyMessage="No active tasks yet. Add one task to start the first FlowLog session."
+              action={
+                <button type="button" className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium" onClick={createTask}>
+                  Add task
+                </button>
+              }
               onSetCurrent={toggleCurrentTask}
               onStatusChange={updateTaskStatus}
               onToggleToday={toggleToday}
@@ -324,17 +335,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
             />
           </section>
         ) : null}
-
-        <button
-          type="button"
-          className={`fixed right-4 z-30 flex h-16 min-w-[7.5rem] items-center justify-center rounded-full bg-clay px-5 text-sm font-semibold tracking-tight text-white shadow-panel transition hover:scale-[1.02] md:right-6 md:h-[4.5rem] md:min-w-[8.5rem] md:text-base ${
-            isTodayTaskDetailOpen ? "pointer-events-none opacity-0" : "opacity-100"
-          } bottom-[calc(env(safe-area-inset-bottom)+6.75rem)] md:bottom-[8.5rem]`}
-          onClick={createTask}
-          aria-label="Add task"
-        >
-          Add task
-        </button>
 
         <FloatingFocusTimer
           focus={state.focus}
