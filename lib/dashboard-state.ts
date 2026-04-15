@@ -548,6 +548,18 @@ function isTask(candidate: unknown): candidate is Task {
   );
 }
 
+function getString(val: any, fallback: string): string {
+  return typeof val === "string" ? val : fallback;
+}
+
+function getNumber(val: any, fallback: number): number {
+  return typeof val === "number" ? val : fallback;
+}
+
+function getBoolean(val: any, fallback: boolean): boolean {
+  return typeof val === "boolean" ? val : fallback;
+}
+
 export function getSafeInitialState(candidate: unknown): DashboardState {
   if (!candidate || typeof candidate !== "object") return defaultState;
 
@@ -565,18 +577,18 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
             ? task.todoItems
                 .filter((item) => item && typeof item === "object")
                 .map((item) => ({
-                  id: typeof (item as Record<string, unknown>).id === "string" ? ((item as Record<string, unknown>).id as string) : createId(),
-                  text: typeof (item as Record<string, unknown>).text === "string" ? ((item as Record<string, unknown>).text as string) : "",
-                  done: Boolean((item as Record<string, unknown>).done),
+                  id: getString(item, createId()),
+                  text: getString(item, ""),
+                  done: getBoolean(item, false),
                 }))
             : [];
 
           const safeTask = {
-            id: typeof task.id === "string" ? task.id : createId(),
-            title: typeof task.title === "string" ? task.title : "",
-            status: typeof task.status === "string" ? (task.status as TaskStatus) : "not_started",
+            id: getString(task.id, createId()),
+            title: getString(task.title, ""),
+            status: VALID_STATUSES.includes(task.status as TaskStatus) ? (task.status as TaskStatus) : "not_started",
             taskMode,
-            nextAction: typeof task.nextAction === "string" ? task.nextAction : "",
+            nextAction: getString(task.nextAction, ""),
             manualProgress:
               typeof task.manualProgress === "number"
                 ? clampProgress(task.manualProgress)
@@ -602,10 +614,10 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
                   ? task.current_session_started_at
                   : null,
             todoItems,
-            isToday: Boolean(task.isToday),
-            isCurrent: Boolean(task.isCurrent),
-            createdAt: typeof task.createdAt === "string" ? task.createdAt : nowIso(),
-            updatedAt: typeof task.updatedAt === "string" ? task.updatedAt : nowIso(),
+            isToday: getBoolean(task.isToday, false),
+            isCurrent: getBoolean(task.isCurrent, false),
+            createdAt: getString(task.createdAt, nowIso()),
+            updatedAt: getString(task.updatedAt, nowIso()),
           };
 
           return isTask(safeTask) ? safeTask : null;
@@ -613,7 +625,7 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
         .filter((task): task is Task => Boolean(task))
     : [];
   return normalizeDashboardState({
-    todayGoal: typeof input.todayGoal === "string" ? input.todayGoal : "",
+    todayGoal: getString(input.todayGoal, ""),
     tasks,
     taskOrder: Array.isArray(input.taskOrder)
       ? input.taskOrder.filter((entry): entry is string => typeof entry === "string")
@@ -621,16 +633,10 @@ export function getSafeInitialState(candidate: unknown): DashboardState {
     focus:
       input.focus && typeof input.focus === "object"
         ? {
-            duration:
-              typeof (input.focus as Record<string, unknown>).duration === "number"
-                ? Number((input.focus as Record<string, unknown>).duration)
-                : 25,
-            lastSessionStartedAt:
-              typeof (input.focus as Record<string, unknown>).lastSessionStartedAt === "string"
-                ? ((input.focus as Record<string, unknown>).lastSessionStartedAt as string)
-                : null,
+            duration: getNumber(input.focus.duration, 25),
+            lastSessionStartedAt: getString(input.focus.lastSessionStartedAt, null) as string | null,
           }
         : defaultState.focus,
-    lastViewedAt: typeof input.lastViewedAt === "string" ? input.lastViewedAt : null,
+    lastViewedAt: getString(input.lastViewedAt, null) as string | null,
   });
 }

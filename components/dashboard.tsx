@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { AccountMenu } from "@/components/account-menu";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
 import { FloatingFocusTimer } from "@/components/floating-focus-timer";
@@ -63,13 +63,13 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
     stopFocusSession,
   } = useDashboardState(initialState, userId);
 
-  const orderedTasks = sortByOrder(state.tasks, state.taskOrder);
-  const currentTask = orderedTasks.find((task) => task.isCurrent) ?? null;
-  const todayTasks = orderedTasks.filter((task) => task.isToday && task.status !== "done");
-  const activeTasks = orderedTasks.filter((task) => task.status === "not_started" || task.status === "in_progress");
-  const blockedTasks = orderedTasks.filter((task) => task.status === "blocked");
-  const completedTasks = orderedTasks.filter((task) => task.status === "done");
-  const orderIndexMap = new Map(orderedTasks.map((task, index) => [task.id, index]));
+  const orderedTasks = useMemo(() => sortByOrder(state.tasks, state.taskOrder), [state.tasks, state.taskOrder]);
+  const currentTask = useMemo(() => orderedTasks.find((task) => task.isCurrent) ?? null, [orderedTasks]);
+  const todayTasks = useMemo(() => orderedTasks.filter((task) => task.isToday && task.status !== "done"), [orderedTasks]);
+  const activeTasks = useMemo(() => orderedTasks.filter((task) => task.status === "not_started" || task.status === "in_progress"), [orderedTasks]);
+  const blockedTasks = useMemo(() => orderedTasks.filter((task) => task.status === "blocked"), [orderedTasks]);
+  const completedTasks = useMemo(() => orderedTasks.filter((task) => task.status === "done"), [orderedTasks]);
+  const orderIndexMap = useMemo(() => new Map(orderedTasks.map((task, index) => [task.id, index])), [orderedTasks]);
 
   const canMoveUp = (taskId: string) => (orderIndexMap.get(taskId) ?? 0) > 0;
   const canMoveDown = (taskId: string) => (orderIndexMap.get(taskId) ?? -1) < orderedTasks.length - 1;
