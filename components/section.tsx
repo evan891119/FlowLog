@@ -14,7 +14,7 @@ export function Section({ title, description, headerAction, hideHeader = false, 
 
   return (
     <section
-      className={`dark-panel rounded-[28px] border border-white/70 bg-white/80 p-5 shadow-panel backdrop-blur ${
+      className={`dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5 ${
         isFill ? "flex h-full flex-col" : ""
       } ${
         className ?? ""
@@ -23,8 +23,8 @@ export function Section({ title, description, headerAction, hideHeader = false, 
       {hideHeader ? null : (
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-ink dark:text-white">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-steel dark:text-slate-300">{description}</p> : null}
+            <h2 className="text-lg font-semibold text-[var(--heading)]">{title}</h2>
+            {description ? <p className="mt-1 text-sm text-[var(--body)]">{description}</p> : null}
           </div>
           {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
         </div>

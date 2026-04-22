@@ -2,9 +2,9 @@ import { TaskStatus } from "@/types/dashboard";
 
 const STATUS_STYLES: Record<TaskStatus, string> = {
   not_started: "ui-tag-soft",
-  in_progress: "border border-forest/20 bg-forest/90 text-white shadow-none",
-  blocked: "border border-clay/20 bg-clay/92 text-white shadow-none",
-  done: "border border-steel/20 bg-steel/92 text-white shadow-none",
+  in_progress: "border border-[var(--panel-border)] bg-[var(--accent-soft)] text-[var(--heading)] shadow-none",
+  blocked: "border border-[var(--panel-border)] bg-[rgba(216,165,114,0.2)] text-[var(--heading)] shadow-none",
+  done: "border border-[var(--panel-border)] bg-[var(--panel-muted)] text-[var(--muted)] shadow-none",
 };
 
 type StatusBadgeProps = {
