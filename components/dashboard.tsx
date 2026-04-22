@@ -50,7 +50,7 @@ function formatFocusMinutes(totalSeconds: number) {
   return Math.ceil(totalSeconds / 60).toString();
 }
 
-type IconName = "home" | "tasks" | "archive" | "leaf" | "timer" | "edit" | "chart" | "gear";
+type IconName = "home" | "tasks" | "archive" | "leaf" | "timer" | "edit" | "chart" | "gear" | "stop";
 
 function Icon({ name, className = "h-4 w-4" }: { name: IconName; className?: string }) {
   const common = {
@@ -133,6 +133,14 @@ function Icon({ name, className = "h-4 w-4" }: { name: IconName; className?: str
       <svg {...common}>
         <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
         <path d="M19.4 15a8.2 8.2 0 0 0 .1-2l2-1.5-2-3.5-2.4 1a8.8 8.8 0 0 0-1.7-1L15 5.5h-4L10.6 8a8.8 8.8 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a8.2 8.2 0 0 0 .1 2l-2.1 1.5 2 3.5 2.5-1a8.5 8.5 0 0 0 1.6.9l.4 2.6h4l.4-2.6a8.5 8.5 0 0 0 1.6-.9l2.5 1 2-3.5L19.4 15Z" />
+      </svg>
+    );
+  }
+
+  if (name === "stop") {
+    return (
+      <svg {...common}>
+        <path d="M7 7h10v10H7z" />
       </svg>
     );
   }
@@ -247,7 +255,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   return (
     <main className="min-h-screen bg-[var(--app-bg)] text-ink dark:text-white">
       <div className="flex min-h-screen">
-        <aside className="hidden w-[17.5rem] shrink-0 border-r border-[var(--panel-border)] bg-[var(--sidebar-bg)] px-7 py-8 lg:flex lg:flex-col">
+        <aside className="sticky top-0 hidden h-screen w-[17.5rem] shrink-0 self-start border-r border-[var(--panel-border)] bg-[var(--sidebar-bg)] px-7 py-8 lg:flex lg:flex-col">
           <div className="flex items-start gap-3">
             <Icon name="leaf" className="mt-0.5 h-7 w-7 text-[var(--accent)]" />
             <div>
@@ -284,6 +292,8 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
             </div>
             <AccountMenu
               userEmail={userEmail}
+              placement="top"
+              align="left"
               screenAwake={{
                 enabled: wakeLock.isEnabled,
                 supported: wakeLock.isSupported,
@@ -536,17 +546,16 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                     <div className="-ml-5 h-14 w-8 border-l border-[var(--panel-border)]" />
                   </div>
                   <label className="min-w-0 flex-1">
-                    <input
-                      type="text"
-                      className="w-full bg-transparent font-serif text-xl text-[var(--heading)] outline-none placeholder:text-[var(--muted)]"
-                      placeholder="Finish FlowLog"
-                      value={state.todayGoal}
-                      onChange={(event) => updateTodayGoal(event.target.value)}
-                      aria-label="Today goal"
-                    />
-                    <button type="button" className="ui-button-secondary mt-5 rounded-lg px-4 py-2 text-sm font-medium">
-                      Edit goal
-                    </button>
+                    <span className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 transition hover:border-[var(--panel-border)] hover:bg-[var(--nav-hover)] focus-within:border-[var(--accent)] focus-within:bg-[var(--nav-hover)]">
+                      <input
+                        type="text"
+                        className="min-w-0 flex-1 bg-transparent font-serif text-xl text-[var(--heading)] outline-none placeholder:text-[var(--muted)]"
+                        placeholder="Finish FlowLog"
+                        value={state.todayGoal}
+                        onChange={(event) => updateTodayGoal(event.target.value)}
+                        aria-label="Today goal"
+                      />
+                    </span>
                   </label>
                 </div>
               </section>
@@ -572,9 +581,9 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                 <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-4">
                   <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--heading)]">Quick Actions</h2>
                   <div className="mt-5 space-y-3">
-                    <button type="button" className="ui-button-secondary flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium" onClick={createTask}>
+                    <button type="button" className="ui-button-secondary flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium" onClick={createTodayTask}>
                       <Icon name="edit" className="h-4 w-4" />
-                      Capture Thought
+                      New Today Task
                     </button>
                     <button
                       type="button"
@@ -671,14 +680,16 @@ function FocusTimerCard({
           aria-label="Change focus duration"
         >
           <span className="absolute inset-[7px] rounded-full border border-[var(--timer-inner-border)] bg-[var(--timer-inner)]" />
-          <span className="relative flex items-baseline gap-1 text-[var(--heading)]">
-            <span className="font-serif text-5xl leading-none">{formatFocusMinutes(remainingSeconds)}</span>
-            <span className="text-base">m</span>
+          <span className="relative flex flex-col items-center justify-center text-[var(--heading)]">
+            <span className="flex items-baseline gap-1">
+              <span className="text-4xl font-semibold leading-none">{formatFocusMinutes(remainingSeconds)}</span>
+              <span className="text-sm font-medium">m</span>
+            </span>
+            <span className="mt-1 text-[10px] font-semibold uppercase leading-none tracking-[0.16em] text-[var(--muted)]">Focus Time</span>
           </span>
-          <span className="absolute bottom-8 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">Focus Time</span>
         </button>
 
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-3">
+        <div className="flex min-w-0 flex-1 flex-col items-stretch gap-3">
           <button
             type="button"
             className="ui-button-primary rounded-lg px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
@@ -689,12 +700,13 @@ function FocusTimerCard({
           </button>
           <button
             type="button"
-            className="rounded-lg p-3 text-[var(--muted)] transition hover:bg-[var(--nav-hover)] hover:text-[var(--heading)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="ui-button-secondary flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
             onClick={onStop}
             disabled={startedAt === null}
             aria-label="Stop focus"
           >
-            <Icon name="gear" className="h-5 w-5" />
+            <Icon name="stop" className="h-4 w-4" />
+            Stop
           </button>
         </div>
       </div>

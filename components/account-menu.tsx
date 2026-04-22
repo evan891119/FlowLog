@@ -13,6 +13,8 @@ const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
 
 type AccountMenuProps = {
   userEmail?: string | null;
+  placement?: "top" | "bottom";
+  align?: "left" | "right";
   screenAwake: {
     enabled: boolean;
     supported: boolean;
@@ -23,7 +25,7 @@ type AccountMenuProps = {
   };
 };
 
-export function AccountMenu({ userEmail, screenAwake }: AccountMenuProps) {
+export function AccountMenu({ userEmail, placement = "bottom", align = "right", screenAwake }: AccountMenuProps) {
   const { preference, resolvedTheme, setPreference, isReady } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -69,7 +71,11 @@ export function AccountMenu({ userEmail, screenAwake }: AccountMenuProps) {
       </button>
 
       {isOpen ? (
-        <div className="dark-panel absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[min(20rem,calc(100vw-2rem))] rounded-[28px] border border-white/70 bg-white/95 p-3 shadow-panel backdrop-blur">
+        <div
+          className={`dark-panel absolute z-30 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-3 ${
+            placement === "top" ? "bottom-[calc(100%+0.5rem)]" : "top-[calc(100%+0.5rem)]"
+          } ${align === "left" ? "left-0" : "right-0"}`}
+        >
           <div className="border-b border-sand/70 px-2 pb-3">
             <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Account</p>
             <p className="mt-1 truncate text-sm font-semibold text-ink dark:text-white">{userEmail ?? "Signed in"}</p>
