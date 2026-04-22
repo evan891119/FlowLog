@@ -40,14 +40,14 @@ export function CurrentTaskPanel({ task, variant = "default", now }: CurrentTask
             </div>
             <StatusBadge status={task.status} />
           </div>
-          <div className={`relative border-t border-[var(--panel-border)] ${isSummary ? "mt-6 min-h-0 flex-1 py-5" : "mt-6 py-5"}`}>
+          <div className={`relative border-t border-[var(--panel-border)] ${isSummary ? "mt-6 max-h-[min(42vh,24rem)] overflow-y-auto py-5 pr-2" : "mt-6 py-5"}`}>
             <p className="dark-current-kicker text-sm font-semibold uppercase tracking-[0.18em]">
               {task.taskMode === "todo_list" ? "Todo list" : "Next action"}
             </p>
             {task.taskMode === "todo_list" ? (
               <div className={`mt-3 space-y-2 ${isSummary ? "overflow-hidden" : ""}`}>
                 {task.todoItems.length ? (
-                  task.todoItems.slice(0, 3).map((item) => (
+                  task.todoItems.map((item) => (
                     <div key={item.id} className="flex items-start gap-2 text-sm text-[var(--body)]">
                       <span className={`mt-0.5 h-2.5 w-2.5 rounded-full ${item.done ? "bg-[var(--accent)]" : "bg-[var(--accent-strong)]"}`} aria-hidden="true" />
                       <span className={item.done ? "line-through opacity-70" : ""}>{item.text || "Untitled checklist item"}</span>
@@ -58,9 +58,6 @@ export function CurrentTaskPanel({ task, variant = "default", now }: CurrentTask
                     Add checklist items to break this task into resumable steps.
                   </p>
                 )}
-                {task.todoItems.length > 3 ? (
-                  <p className="text-sm text-[var(--muted)]">{task.todoItems.length - 3} more items</p>
-                ) : null}
               </div>
             ) : (
               <p className={`mt-2 text-base text-[var(--body)] ${isSummary ? "overflow-hidden leading-6" : "leading-7"}`}>

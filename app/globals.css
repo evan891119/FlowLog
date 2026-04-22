@@ -116,6 +116,14 @@ html.dark body {
       0 18px 38px rgba(53, 89, 74, 0.28);
   }
 
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   .dark-current-panel {
     border-color: var(--panel-border);
     box-shadow: none;

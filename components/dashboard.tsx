@@ -234,6 +234,22 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
       return;
     }
 
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousDocumentOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, [isTodayTaskDetailOpen]);
+
+  useEffect(() => {
+    if (!isTodayTaskDetailOpen) {
+      return;
+    }
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setIsTodayTaskDetailOpen(false);
@@ -391,7 +407,7 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
               {isTodayTaskDetailOpen ? (
                 <>
                   <div
-                    className="dark-overlay fixed inset-0 z-[60] flex items-center justify-center bg-ink/28 p-4 backdrop-blur-[2px] md:p-6"
+                    className="fixed inset-0 z-[60] flex items-center justify-center bg-[#020711]/76 p-4 backdrop-blur-[5px] md:p-6"
                     onClick={() => setIsTodayTaskDetailOpen(false)}
                   >
                     <div className="w-full max-w-4xl" onClick={(event) => event.stopPropagation()}>
@@ -412,14 +428,13 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                         headerAction={
                           <button
                             type="button"
-                            className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
+                            className="text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)]"
                             onClick={() => setIsTodayTaskDetailOpen(false)}
                           >
                             Close
                           </button>
                         }
-                        className="w-full rounded-[32px] border border-[var(--panel-border)] !bg-[#f6f3ee] p-5 shadow-[0_30px_80px_rgba(8,14,22,0.38)] dark:!bg-[#141b27]"
-                        bodyClassName="max-h-[min(70vh,42rem)] overflow-y-auto pr-1"
+                        className="w-full rounded-[24px] border border-[var(--panel-border)] bg-[#f7f4ee] px-5 py-4 text-[var(--heading)] shadow-[0_24px_70px_rgba(50,44,38,0.18)] [--accent:#7c8b70] [--accent-strong:#77896e] [--accent-soft:rgba(124,139,112,0.14)] [--body:#4f5257] [--heading:#191817] [--muted:#777a80] [--nav-active:rgba(232,226,216,0.96)] [--panel-border:rgba(50,44,38,0.14)] [--panel-muted:rgba(240,236,228,0.78)] dark:bg-[#121923] dark:shadow-[0_24px_70px_rgba(0,0,0,0.5)] dark:[--accent:#a895ff] dark:[--accent-strong:#8b73ff] dark:[--accent-soft:rgba(168,149,255,0.16)] dark:[--body:#a8b0bf] dark:[--heading:#f4f1eb] dark:[--muted:#697589] dark:[--nav-active:#322d5f] dark:[--panel-border:#2a3442] dark:[--panel-muted:#151e2a]"
                       />
                     </div>
                   </div>
@@ -686,7 +701,7 @@ function FocusTimerCard({
         <div className="flex min-w-0 flex-1 flex-col items-stretch gap-3">
           <button
             type="button"
-            className="bg-[var(--nav-active)] px-5 py-3 text-sm font-semibold text-[var(--heading)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-[var(--nav-active)] px-5 py-3 text-sm font-semibold text-[var(--heading)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onStart}
             disabled={isRunning}
           >
@@ -694,7 +709,7 @@ function FocusTimerCard({
           </button>
           <button
             type="button"
-            className="flex items-center justify-center gap-2 border border-[var(--panel-border)] px-4 py-3 text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)] disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex items-center justify-center gap-2 rounded-lg border border-[var(--panel-border)] px-4 py-3 text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)] disabled:cursor-not-allowed disabled:opacity-45"
             onClick={onStop}
             disabled={startedAt === null}
             aria-label="Stop focus"

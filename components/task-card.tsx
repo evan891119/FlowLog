@@ -106,7 +106,7 @@ export function TaskCard({
             <label className="block">
               <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
               <textarea
-                className={`w-full border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] ${
+                className={`w-full rounded-lg border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] ${
                   isCompact ? "min-h-14" : "min-h-24"
                 }`}
                 value={task.nextAction}
@@ -122,7 +122,7 @@ export function TaskCard({
           <label className="block">
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</span>
             <select
-              className="w-full border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none focus:border-[var(--accent)]"
+              className="w-full rounded-lg border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none focus:border-[var(--accent)]"
               value={task.status}
               onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
               aria-label="Task status"
@@ -139,8 +139,8 @@ export function TaskCard({
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Progress</span>
             {task.taskMode === "todo_list" ? (
               <>
-                <div className="dark-progress-track overflow-hidden rounded-full bg-white">
-                  <div className="h-3 rounded-full bg-forest transition-all" style={{ width: `${progress}%` }} />
+                <div className="overflow-hidden rounded-full bg-[var(--panel-muted)]">
+                  <div className="h-2 rounded-full bg-[var(--accent-strong)] transition-all" style={{ width: `${progress}%` }} />
                 </div>
                 <p className="mt-1 text-sm text-steel dark:text-slate-300">{progress}% from completed checklist items</p>
               </>
@@ -159,7 +159,7 @@ export function TaskCard({
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
-          className="ui-button-current rounded-full px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:bg-steel disabled:shadow-none"
+          className="rounded-lg bg-[var(--accent-strong)] px-4 py-2 text-sm font-semibold text-white transition hover:brightness-105 disabled:cursor-not-allowed disabled:bg-steel disabled:shadow-none"
           onClick={() => onSetCurrent(task.id)}
           disabled={task.status === "blocked" || task.status === "done"}
         >
@@ -167,7 +167,7 @@ export function TaskCard({
         </button>
         <button
           type="button"
-          className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium"
+          className="rounded-lg border border-[var(--panel-border)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--heading)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)]"
           onClick={() => onToggleToday(task.id)}
         >
           {task.isToday ? "Remove from today" : "Add to today"}
@@ -176,7 +176,7 @@ export function TaskCard({
           <>
             <button
               type="button"
-              className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:text-steel disabled:shadow-none dark:disabled:text-slate-400"
+              className="rounded-lg border border-[var(--panel-border)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--heading)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:cursor-not-allowed disabled:text-steel disabled:hover:border-[var(--panel-border)] disabled:hover:bg-transparent dark:disabled:text-slate-400"
               onClick={() => onMoveUp(task.id)}
               disabled={!canMoveUp}
             >
@@ -184,7 +184,7 @@ export function TaskCard({
             </button>
             <button
               type="button"
-              className="ui-button-secondary rounded-full px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:text-steel disabled:shadow-none dark:disabled:text-slate-400"
+              className="rounded-lg border border-[var(--panel-border)] bg-transparent px-4 py-2 text-sm font-medium text-[var(--heading)] transition hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] disabled:cursor-not-allowed disabled:text-steel disabled:hover:border-[var(--panel-border)] disabled:hover:bg-transparent dark:disabled:text-slate-400"
               onClick={() => onMoveDown(task.id)}
               disabled={!canMoveDown}
             >
@@ -192,7 +192,7 @@ export function TaskCard({
             </button>
             <button
               type="button"
-              className="rounded-full border border-clay/40 bg-clay/10 px-3 py-2 text-sm font-medium text-clay dark:border-clay/30 dark:bg-clay/15 dark:text-[#f29d84]"
+              className="rounded-lg border border-clay/35 bg-transparent px-4 py-2 text-sm font-medium text-clay transition hover:border-clay/60 hover:bg-clay/10 dark:border-clay/30 dark:text-[#f29d84] dark:hover:bg-clay/15"
               onClick={() => onDelete(task.id)}
             >
               Delete
