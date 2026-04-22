@@ -22,7 +22,7 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now
       className="h-full"
     >
       {tasks.length ? (
-        <div className="relative space-y-2 before:absolute before:bottom-3 before:left-[-0.9rem] before:top-3 before:w-px before:bg-[var(--panel-border)]">
+        <div className="relative before:absolute before:bottom-0 before:left-[-0.95rem] before:top-0 before:w-px before:bg-[var(--panel-border)]">
           {tasks.map((task) => {
             const isSelected = task.id === selectedTaskId;
             const remainingRatio = getTaskRemainingRatio(task, now);
@@ -32,10 +32,10 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now
               <button
                 key={task.id}
                 type="button"
-                className={`relative flex w-full items-center justify-between gap-3 rounded-lg border px-4 py-3 text-left transition ${
+                className={`relative flex w-full items-center justify-between gap-3 border-b border-[var(--panel-border)] px-4 py-4 text-left transition ${
                   isSelected
-                    ? "border-[var(--panel-border)] bg-[var(--accent-soft)] text-[var(--heading)] dark-control-selected"
-                    : "border-[var(--panel-border)] bg-transparent text-[var(--heading)] hover:bg-[var(--nav-hover)] dark-control"
+                    ? "bg-[linear-gradient(90deg,var(--accent-soft),transparent_58%)] text-[var(--heading)]"
+                    : "bg-transparent text-[var(--heading)] hover:bg-[var(--nav-hover)]"
                 }`}
                 onClick={() => onSelectTask(task.id)}
                 aria-pressed={isSelected}
@@ -46,13 +46,6 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now
                   }`}
                   aria-hidden="true"
                 />
-                {remainingRatio !== null ? (
-                  <span
-                    className="pointer-events-none absolute inset-y-0 right-0 rounded-[inherit] bg-[var(--accent-soft)]"
-                    style={{ width: `${remainingRatio * 100}%` }}
-                    aria-hidden="true"
-                  />
-                ) : null}
                 <div className="min-w-0 flex-1">
                   <p className="relative truncate text-sm font-semibold text-[var(--heading)]">
                     {task.title || "Untitled task"}
@@ -62,8 +55,16 @@ export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now
                       isSelected ? "text-[var(--heading)]" : "text-[var(--muted)]"
                     }`}
                   >
-                    {task.isCurrent ? `Current task · ${timeLabel}` : timeLabel}
+                    {task.isCurrent ? timeLabel : timeLabel}
                   </p>
+                  {remainingRatio !== null ? (
+                    <div className="relative mt-3 h-px w-32 overflow-hidden bg-[var(--panel-border)]" aria-hidden="true">
+                      <span
+                        className="absolute inset-y-0 left-0 bg-[var(--accent-strong)]"
+                        style={{ width: `${(1 - remainingRatio) * 100}%` }}
+                      />
+                    </div>
+                  ) : null}
                 </div>
                 <div className="relative shrink-0">
                   <StatusBadge status={task.status} />

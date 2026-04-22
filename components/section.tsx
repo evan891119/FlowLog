@@ -14,17 +14,17 @@ export function Section({ title, description, headerAction, hideHeader = false, 
 
   return (
     <section
-      className={`dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5 ${
+      className={`border-t border-[var(--panel-border)] bg-transparent pt-6 ${
         isFill ? "flex h-full flex-col" : ""
       } ${
         className ?? ""
       }`}
     >
       {hideHeader ? null : (
-        <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="mb-5 flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-semibold text-[var(--heading)]">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-[var(--body)]">{description}</p> : null}
+            <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">{title}</h2>
+            {description ? <p className="mt-2 text-sm text-[var(--body)]">{description}</p> : null}
           </div>
           {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
         </div>

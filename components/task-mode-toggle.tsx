@@ -12,7 +12,7 @@ const TASK_MODE_OPTIONS: { value: TaskMode; label: string }[] = [
 
 export function TaskModeToggle({ value, onChange }: TaskModeToggleProps) {
   return (
-    <div className="dark-control-soft inline-flex rounded-full border border-sand/80 bg-white/80 p-1">
+    <div className="inline-flex border-b border-[var(--panel-border)]">
       {TASK_MODE_OPTIONS.map((option) => {
         const isActive = option.value === value;
 
@@ -20,13 +20,17 @@ export function TaskModeToggle({ value, onChange }: TaskModeToggleProps) {
           <button
             key={option.value}
             type="button"
-            className={`rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] transition ${
-              isActive ? "bg-ink text-white shadow-sm dark-control-selected" : "text-steel dark:text-slate-300"
+            className={`relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition ${
+              isActive ? "text-[var(--heading)]" : "text-[var(--body)]"
             }`}
             onClick={() => onChange(option.value)}
             aria-pressed={isActive}
           >
+            <span className="text-[var(--accent)]" aria-hidden="true">
+              {option.value === "next_action" ? "↯" : "☷"}
+            </span>
             {option.label}
+            {isActive ? <span className="absolute inset-x-0 bottom-[-1px] h-0.5 bg-[var(--accent)]" aria-hidden="true" /> : null}
           </button>
         );
       })}
