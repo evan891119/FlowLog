@@ -418,7 +418,7 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                             Close
                           </button>
                         }
-                        className="w-full rounded-[32px] !bg-[#f6f3ee] shadow-[0_30px_80px_rgba(8,14,22,0.38)] dark:!bg-[#141b27]"
+                        className="w-full rounded-[32px] border border-[var(--panel-border)] !bg-[#f6f3ee] p-5 shadow-[0_30px_80px_rgba(8,14,22,0.38)] dark:!bg-[#141b27]"
                         bodyClassName="max-h-[min(70vh,42rem)] overflow-y-auto pr-1"
                       />
                     </div>
@@ -456,7 +456,7 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                     canMoveDown={canMoveDown}
                   />
 
-                  <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5">
+                  <section className="border-t border-[var(--panel-border)] pt-5">
                     <button
                       type="button"
                       className="flex w-full items-start justify-between gap-4 text-left"
@@ -534,9 +534,9 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
               ) : null}
             </div>
 
-            <aside className="space-y-4 xl:sticky xl:top-6 xl:self-start">
-              <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5">
-                <div className="mb-4 flex items-center gap-2 border-b border-[var(--panel-border)] pb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--heading)]">
+            <aside className="space-y-8 xl:sticky xl:top-6 xl:self-start">
+              <section className="border-t border-[var(--panel-border)] pt-5">
+                <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
                   <Icon name="leaf" className="h-4 w-4 text-[var(--accent)]" />
                   Today Goal
                 </div>
@@ -546,7 +546,7 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                     <div className="-ml-5 h-14 w-8 border-l border-[var(--panel-border)]" />
                   </div>
                   <label className="min-w-0 flex-1">
-                    <span className="group flex items-center gap-3 rounded-lg border border-transparent px-3 py-2 transition hover:border-[var(--panel-border)] hover:bg-[var(--nav-hover)] focus-within:border-[var(--accent)] focus-within:bg-[var(--nav-hover)]">
+                    <span className="group flex items-center gap-3 border-b border-transparent px-0 py-2 transition hover:border-[var(--panel-border)] focus-within:border-[var(--accent)]">
                       <input
                         type="text"
                         className="min-w-0 flex-1 bg-transparent font-serif text-xl text-[var(--heading)] outline-none placeholder:text-[var(--muted)]"
@@ -569,9 +569,9 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                 onStop={stopFocusSession}
               />
 
-              <div className="grid grid-cols-2 gap-4">
-                <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-4">
-                  <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--heading)]">At a Glance</h2>
+              <div className="grid grid-cols-2 gap-6 border-t border-[var(--panel-border)] pt-5">
+                <section>
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">At a Glance</h2>
                   <div className="mt-5 space-y-4 text-sm">
                     <StatRow color="bg-[var(--accent)]" label="Active task" value={currentTask ? 1 : 0} />
                     <StatRow color="bg-[var(--warning)]" label="In progress" value={inProgressCount} />
@@ -579,16 +579,16 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                   </div>
                 </section>
 
-                <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-4">
-                  <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--heading)]">Quick Actions</h2>
+                <section className="border-l border-[var(--panel-border)] pl-6">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">Quick Actions</h2>
                   <div className="mt-5 space-y-3">
-                    <button type="button" className="ui-button-secondary flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium" onClick={createTodayTask}>
+                    <button type="button" className="flex w-full items-center gap-3 py-1.5 text-left text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)]" onClick={createTodayTask}>
                       <Icon name="edit" className="h-4 w-4" />
                       New Today Task
                     </button>
                     <button
                       type="button"
-                      className="ui-button-secondary flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium"
+                      className="flex w-full items-center gap-3 py-1.5 text-left text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)]"
                       onClick={() => {
                         if (selectedTodayTask) {
                           setIsTodayTaskDetailOpen(true);
@@ -659,8 +659,8 @@ function FocusTimerCard({
   }, [startedAt, remainingSeconds]);
 
   return (
-    <section className="dark-panel rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5">
-      <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--heading)]">
+    <section className="border-t border-[var(--panel-border)] pt-5">
+      <div className="mb-5 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--accent)]">
         <Icon name="timer" className="h-4 w-4 text-[var(--accent)]" />
         Focus Timer
       </div>
@@ -686,7 +686,7 @@ function FocusTimerCard({
         <div className="flex min-w-0 flex-1 flex-col items-stretch gap-3">
           <button
             type="button"
-            className="ui-button-primary rounded-lg px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+            className="bg-[var(--nav-active)] px-5 py-3 text-sm font-semibold text-[var(--heading)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={onStart}
             disabled={isRunning}
           >
@@ -694,7 +694,7 @@ function FocusTimerCard({
           </button>
           <button
             type="button"
-            className="ui-button-secondary flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex items-center justify-center gap-2 border border-[var(--panel-border)] px-4 py-3 text-sm font-medium text-[var(--body)] transition hover:text-[var(--heading)] disabled:cursor-not-allowed disabled:opacity-45"
             onClick={onStop}
             disabled={startedAt === null}
             aria-label="Stop focus"

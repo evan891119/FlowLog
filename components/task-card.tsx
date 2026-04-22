@@ -62,14 +62,14 @@ export function TaskCard({
   const timeLabel = formatTaskTimeLabel(task);
 
   return (
-    <article className={`dark-surface-muted rounded-3xl border border-sand/80 bg-mist/60 dark:text-white ${isCompact ? "p-3.5" : "p-4"}`}>
+    <article className={`border-b border-[color-mix(in_srgb,var(--panel-border)_72%,var(--heading)_28%)] text-[var(--heading)] ${isCompact ? "py-4" : "py-5"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <input
-            className={`w-full rounded-xl bg-white text-base font-semibold text-ink outline-none ring-0 placeholder:text-steel/70 ${
+            className={`w-full border-b border-transparent bg-transparent text-base font-semibold text-[var(--heading)] outline-none ring-0 placeholder:text-[var(--muted)] transition focus:border-[var(--accent)] ${
               isCompact
-                ? "dark-surface px-3 py-2 dark:border dark:text-white dark:placeholder:text-slate-500"
-                : "dark-surface px-3 py-2 dark:border dark:text-white dark:placeholder:text-slate-500"
+                ? "px-0 py-2"
+                : "px-0 py-2"
             }`}
             value={task.title}
             onChange={(event) => onTitleChange(task.id, event.target.value)}
@@ -84,7 +84,7 @@ export function TaskCard({
         </div>
       </div>
 
-      <div className={`mt-3 grid gap-3 ${isCompact ? "md:grid-cols-[minmax(0,3fr)_minmax(14rem,1fr)]" : "md:grid-cols-[minmax(0,3fr)_minmax(15rem,1fr)]"}`}>
+      <div className={`mt-4 grid gap-4 border-t border-[var(--panel-border)] pt-4 ${isCompact ? "md:grid-cols-[minmax(0,3fr)_minmax(14rem,1fr)]" : "md:grid-cols-[minmax(0,3fr)_minmax(15rem,1fr)]"}`}>
         <div className="block space-y-3">
           <div>
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Task mode</span>
@@ -106,7 +106,7 @@ export function TaskCard({
             <label className="block">
               <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Next action</span>
               <textarea
-                className={`dark-surface w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none placeholder:text-steel/70 dark:border dark:text-white dark:placeholder:text-slate-500 ${
+                className={`w-full border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--accent)] ${
                   isCompact ? "min-h-14" : "min-h-24"
                 }`}
                 value={task.nextAction}
@@ -122,7 +122,7 @@ export function TaskCard({
           <label className="block">
             <span className="mb-1 block text-xs font-medium uppercase tracking-[0.18em] text-steel dark:text-slate-300">Status</span>
             <select
-              className="dark-surface w-full rounded-2xl bg-white px-3 py-2 text-sm text-ink outline-none dark:border dark:text-white"
+              className="w-full border border-[var(--panel-border)] bg-transparent px-3 py-2 text-sm text-[var(--heading)] outline-none focus:border-[var(--accent)]"
               value={task.status}
               onChange={(event) => onStatusChange(task.id, event.target.value as TaskStatus)}
               aria-label="Task status"
