@@ -8,10 +8,10 @@ import { Task } from "@/types/dashboard";
 type CurrentTaskPanelProps = {
   task: Task | null;
   variant?: "default" | "summary";
-  now?: number;
+  now: number;
 };
 
-export function CurrentTaskPanel({ task, variant = "default", now = Date.now() }: CurrentTaskPanelProps) {
+export function CurrentTaskPanel({ task, variant = "default", now }: CurrentTaskPanelProps) {
   const isSummary = variant === "summary";
   const progress = task ? getTaskProgress(task) : 0;
   const remainingRatio = task ? getTaskRemainingRatio(task, now) : null;

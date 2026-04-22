@@ -10,10 +10,10 @@ type TodayTaskListProps = {
   selectedTaskId: string | null;
   onSelectTask: (taskId: string) => void;
   action?: React.ReactNode;
-  now?: number;
+  now: number;
 };
 
-export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now = Date.now() }: TodayTaskListProps) {
+export function TodayTaskList({ tasks, selectedTaskId, onSelectTask, action, now }: TodayTaskListProps) {
   return (
     <Section
       title="Today Tasks"

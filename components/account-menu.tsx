@@ -72,7 +72,7 @@ export function AccountMenu({ userEmail, placement = "bottom", align = "right", 
 
       {isOpen ? (
         <div
-          className={`dark-panel absolute z-30 w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-[var(--panel-border)] bg-[var(--panel-bg)] p-3 ${
+          className={`absolute z-[999] isolate w-[min(20rem,calc(100vw-2rem))] rounded-lg border border-[var(--panel-border)] bg-[#f6f3ee] p-3 shadow-[0_18px_48px_rgba(0,0,0,0.22)] dark:bg-[#141b27] ${
             placement === "top" ? "bottom-[calc(100%+0.5rem)]" : "top-[calc(100%+0.5rem)]"
           } ${align === "left" ? "left-0" : "right-0"}`}
         >

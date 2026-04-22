@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { AccountMenu } from "@/components/account-menu";
 import { CurrentTaskPanel } from "@/components/current-task-panel";
-import { FloatingFocusTimer } from "@/components/floating-focus-timer";
 import { TaskListSection } from "@/components/task-list-section";
 import { TodayTaskDetailPanel } from "@/components/today-task-detail-panel";
 import { TodayTaskList } from "@/components/today-task-list";
@@ -15,6 +14,7 @@ import { DashboardState, Task } from "@/types/dashboard";
 type DashboardTab = "today" | "tasks" | "archive";
 type DashboardProps = {
   initialState: DashboardState;
+  initialNow: number;
   userId: string;
   userEmail?: string | null;
 };
@@ -153,12 +153,12 @@ function Icon({ name, className = "h-4 w-4" }: { name: IconName; className?: str
   );
 }
 
-export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
+export function Dashboard({ initialState, initialNow, userId, userEmail }: DashboardProps) {
   const [selectedTab, setSelectedTab] = useState<DashboardTab>("today");
   const [selectedTodayTaskId, setSelectedTodayTaskId] = useState<string | null>(null);
   const [isTodayTaskDetailOpen, setIsTodayTaskDetailOpen] = useState(false);
   const [isBlockedTasksOpen, setIsBlockedTasksOpen] = useState(false);
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(initialNow);
   const wakeLock = useScreenWakeLock();
   const {
     state,
@@ -255,7 +255,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
   return (
     <main className="min-h-screen bg-[var(--app-bg)] text-ink dark:text-white">
       <div className="flex min-h-screen">
-        <aside className="sticky top-0 hidden h-screen w-[17.5rem] shrink-0 self-start border-r border-[var(--panel-border)] bg-[var(--sidebar-bg)] px-7 py-8 lg:flex lg:flex-col">
+        <aside className="sticky top-0 z-50 hidden h-screen w-[17.5rem] shrink-0 self-start border-r border-[var(--panel-border)] bg-[var(--sidebar-bg)] px-7 py-8 lg:flex lg:flex-col">
           <div className="flex items-start gap-3">
             <Icon name="leaf" className="mt-0.5 h-7 w-7 text-[var(--accent)]" />
             <div>
@@ -366,7 +366,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
 
               {selectedTab === "today" ? (
                 <>
-                  <section className="grid gap-5 2xl:grid-cols-[0.94fr_1.06fr] 2xl:items-stretch">
+                  <section className="grid gap-5 2xl:grid-cols-[0.94fr_1.06fr] 2xl:items-start">
                     <div>
                       <TodayTaskList
                         tasks={todayTasks}
@@ -381,7 +381,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
                       />
                     </div>
 
-                    <div className="min-h-[24rem]">
+                    <div className="h-[26rem] 2xl:sticky 2xl:top-6 2xl:h-[calc(100vh-3rem)] 2xl:max-h-[42rem] 2xl:min-h-[30rem]">
                       <CurrentTaskPanel task={currentTask} variant="summary" now={now} />
                     </div>
                   </section>
@@ -563,6 +563,7 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
               <FocusTimerCard
                 duration={state.focus.duration}
                 startedAt={state.focus.lastSessionStartedAt}
+                initialNow={initialNow}
                 onDurationChange={setFocusDuration}
                 onStart={startFocusSession}
                 onStop={stopFocusSession}
@@ -604,15 +605,6 @@ export function Dashboard({ initialState, userId, userEmail }: DashboardProps) {
           </div>
         </div>
       </div>
-
-      <div className="xl:hidden">
-        <FloatingFocusTimer
-          focus={state.focus}
-          onDurationChange={setFocusDuration}
-          onStart={startFocusSession}
-          onStop={stopFocusSession}
-        />
-      </div>
     </main>
   );
 }
@@ -632,17 +624,19 @@ function StatRow({ color, label, value }: { color: string; label: string; value:
 function FocusTimerCard({
   duration,
   startedAt,
+  initialNow,
   onDurationChange,
   onStart,
   onStop,
 }: {
   duration: number;
   startedAt: string | null;
+  initialNow: number;
   onDurationChange: (duration: number) => void;
   onStart: () => void;
   onStop: () => void;
 }) {
-  const [now, setNow] = useState(() => Date.now());
+  const [now, setNow] = useState(initialNow);
   const remainingSeconds = getFocusRemainingSeconds(duration, startedAt, now);
   const isRunning = startedAt !== null && remainingSeconds > 0;
   const progressRatio = startedAt ? Math.min(1, Math.max(0, 1 - remainingSeconds / Math.max(1, duration * 60))) : 0;
