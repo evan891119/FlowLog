@@ -418,7 +418,7 @@ export function Dashboard({ initialState, initialNow, userId, userEmail }: Dashb
                             Close
                           </button>
                         }
-                        className="w-full rounded-[32px] shadow-[0_30px_80px_rgba(8,14,22,0.38)]"
+                        className="w-full rounded-[32px] !bg-[#f6f3ee] shadow-[0_30px_80px_rgba(8,14,22,0.38)] dark:!bg-[#141b27]"
                         bodyClassName="max-h-[min(70vh,42rem)] overflow-y-auto pr-1"
                       />
                     </div>
