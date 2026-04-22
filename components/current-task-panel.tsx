@@ -31,7 +31,6 @@ export function CurrentTaskPanel({ task, variant = "default", now }: CurrentTask
             isSummary ? "flex h-full min-h-0 flex-col px-0 py-0" : "px-0 py-0"
           }`}
         >
-          <div className="dark-current-accent absolute inset-x-0 top-0 h-0.5" aria-hidden="true" />
           <div className="relative flex items-start justify-between gap-3">
             <div className={isSummary ? "min-w-0 space-y-1.5" : "space-y-2"}>
               <p className="dark-current-kicker text-xs font-semibold uppercase tracking-[0.24em]">In focus now</p>
